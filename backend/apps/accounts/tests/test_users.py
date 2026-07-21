@@ -1,10 +1,14 @@
 """Tenant-aware user management contract tests."""
 
+from datetime import date
+
 from django.test import override_settings
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from core.constants import UserRole
+
+from apps.companies.models import Company, Store
 
 from ..models import User
 
@@ -27,14 +31,38 @@ class UserManagementAPITests(APITestCase):
         )
 
     def setUp(self):
+        self.company = Company.objects.create(
+            name='Company A',
+            contact_person='Admin A',
+            contact_phone='13900000001',
+            contract_start=date(2026, 1, 1),
+            contract_end=date(2026, 12, 31),
+        )
+        self.other_tenant = Company.objects.create(
+            name='Company B',
+            contact_person='Admin B',
+            contact_phone='13900000002',
+            contract_start=date(2026, 1, 1),
+            contract_end=date(2026, 12, 31),
+        )
+        self.store = Store.objects.create(
+            company=self.company,
+            name='Main Store',
+            address='Test Address',
+            phone='13800000000',
+            business_hours='07:00-22:00',
+        )
         self.company_admin = self.make_user(
-            '13900000001', UserRole.COMPANY_ADMIN, company_id=1, name='甲公司管理员'
+            '13900000001', UserRole.COMPANY_ADMIN,
+            company_id=self.company.id, name='甲公司管理员'
         )
         self.same_company = self.make_user(
-            '13900000002', UserRole.TRAINER, company_id=1, name='甲公司教练'
+            '13900000002', UserRole.TRAINER,
+            company_id=self.company.id, name='甲公司教练'
         )
         self.other_company = self.make_user(
-            '13900000003', UserRole.TRAINER, company_id=2, name='乙公司教练'
+            '13900000003', UserRole.TRAINER,
+            company_id=self.other_tenant.id, name='乙公司教练'
         )
 
     def test_company_admin_list_is_tenant_filtered_and_paginated(self):
@@ -51,8 +79,8 @@ class UserManagementAPITests(APITestCase):
             [UserRole.STORE_MANAGER, UserRole.TRAINER, UserRole.STUDENT], start=4
         ):
             user = self.make_user(
-                f'1390000000{index}', role, company_id=1,
-                store_id=1 if role == UserRole.STORE_MANAGER else None,
+                f'1390000000{index}', role, company_id=self.company.id,
+                store_id=self.store.id if role == UserRole.STORE_MANAGER else None,
             )
             self.authenticate(user)
             response = self.client.get('/api/users/')
@@ -119,7 +147,7 @@ class UserManagementAPITests(APITestCase):
             {
                 'phone': '13800000003', 'name': '公司管理员',
                 'password': 'ChangeMe123!', 'role': UserRole.COMPANY_ADMIN,
-                'store_id': 1,
+                'store_id': self.store.id,
             },
             format='json',
         )
@@ -133,7 +161,8 @@ class UserManagementAPITests(APITestCase):
 
     def test_role_change_clears_store_in_one_update(self):
         manager = self.make_user(
-            '13800000004', UserRole.STORE_MANAGER, company_id=1, store_id=10
+            '13800000004', UserRole.STORE_MANAGER,
+            company_id=self.company.id, store_id=self.store.id
         )
         self.authenticate(self.company_admin)
         response = self.client.patch(
@@ -151,3 +180,24 @@ class UserManagementAPITests(APITestCase):
         response = self.client.get('/api/users/?ordering=-id')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['data']['total'], User.objects.count())
+
+    def test_company_admin_can_reset_managed_users_password(self):
+        self.authenticate(self.company_admin)
+        response = self.client.post(
+            f'/api/users/{self.same_company.id}/reset-password/',
+            {'new_password': 'ResetPass456!'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.same_company.refresh_from_db()
+        self.assertTrue(self.same_company.check_password('ResetPass456!'))
+
+    def test_reset_password_hides_cross_tenant_user(self):
+        self.authenticate(self.company_admin)
+        response = self.client.post(
+            f'/api/users/{self.other_company.id}/reset-password/',
+            {'new_password': 'ResetPass456!'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.data['code'], 'USER_NOT_FOUND')

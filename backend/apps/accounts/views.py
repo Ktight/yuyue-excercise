@@ -18,8 +18,10 @@ from .models import User
 from .serializers import (
     ContractTokenRefreshSerializer,
     LoginSerializer,
+    LogoutSerializer,
     PasswordChangeSerializer,
-    UserCreateSerializer,
+    ResetPasswordSerializer,
+    UserListSerializer,
     UserProfileSerializer,
     UserSerializer,
     UserUpdateSerializer,
@@ -55,6 +57,17 @@ class RefreshView(APIView):
         serializer = ContractTokenRefreshSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return success_response(data=serializer.validated_data)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        serializer = LogoutSerializer(
+            data=request.data,
+            context={'request': request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return success_response(data=None, message='退出登录成功')
 
 
 class CurrentUserView(APIView):
@@ -132,18 +145,10 @@ class UserListCreateView(TenantUserQuerysetMixin, ListCreateAPIView):
     permission_classes = [IsCompanyAdmin]
 
     def get_serializer_class(self):
-        return UserCreateSerializer if self.request.method == 'POST' else UserSerializer
+        return UserListSerializer if self.request.method == 'POST' else UserSerializer
 
     def perform_create(self, serializer):
-        company_id = self.request.user.company_id
-        role = serializer.validated_data['role']
-        if self.request.user.role == UserRole.SUPER_ADMIN and role == UserRole.SUPER_ADMIN:
-            company_id = None
-        elif company_id is None:
-            raise ValidationError(
-                {'company_id': ['当前操作者没有可用于创建该角色的公司。']}
-            )
-        self.created_user = serializer.save(company_id=company_id)
+        self.created_user = serializer.save()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -184,3 +189,25 @@ class UserDetailView(TenantUserQuerysetMixin, RetrieveUpdateAPIView):
         with transaction.atomic():
             serializer.save()
         return success_response(data=UserSerializer(user).data)
+
+
+class UserResetPasswordView(UserDetailView):
+    http_method_names = ['post', 'options']
+
+    def post(self, request, *args, **kwargs):
+        user = self.get_object()
+        if (
+            request.user.role == UserRole.COMPANY_ADMIN
+            and user.role not in {UserRole.STORE_MANAGER, UserRole.TRAINER}
+        ):
+            raise ValidationError(
+                {'role': ['公司管理员只能重置门店经理或教练的密码。']}
+            )
+        serializer = ResetPasswordSerializer(
+            data=request.data,
+            context={'target_user': user},
+        )
+        serializer.is_valid(raise_exception=True)
+        user.set_password(serializer.validated_data['new_password'])
+        user.save(update_fields=['password'])
+        return success_response(data=None, message='密码重置成功')

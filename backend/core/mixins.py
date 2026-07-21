@@ -2,6 +2,8 @@
 
 from django.db import models
 
+from apps.companies.models import Company
+
 
 class TenantManager(models.Manager):
     """Base manager for tenant-aware querysets."""
@@ -15,7 +17,7 @@ class TenantManager(models.Manager):
 class TenantModelMixin(models.Model):
     """Shared fields for models that belong to a company tenant."""
 
-    company = models.ForeignKey('companies.Company', on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

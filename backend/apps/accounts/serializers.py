@@ -85,6 +85,26 @@ class ContractTokenRefreshSerializer(serializers.Serializer):
         }
 
 
+class LogoutSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField(write_only=True)
+
+    def validate_refresh_token(self, value):
+        try:
+            token = RefreshToken(value)
+        except TokenError:
+            raise RefreshTokenInvalid() from None
+        if str(token.get('user_id')) != str(self.context['request'].user.id):
+            raise RefreshTokenInvalid()
+        self.token = token
+        return value
+
+    def save(self, **kwargs):
+        try:
+            self.token.blacklist()
+        except TokenError:
+            raise RefreshTokenInvalid() from None
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -112,6 +132,18 @@ class PasswordChangeSerializer(serializers.Serializer):
             raise OldPasswordIncorrect()
         password_validation.validate_password(attrs['new_password'], user=user)
         return attrs
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False,
+        min_length=8,
+    )
+
+    def validate_new_password(self, value):
+        password_validation.validate_password(value, user=self.context['target_user'])
+        return value
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -158,8 +190,24 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        request_user = self.context['request'].user
+        company_id = request_user.company_id
+        if (
+            request_user.role == UserRole.SUPER_ADMIN
+            and validated_data['role'] == UserRole.SUPER_ADMIN
+        ):
+            company_id = None
+        elif company_id is None:
+            raise serializers.ValidationError(
+                {'company_id': ['当前操作者没有可用于创建该角色的公司。']}
+            )
+
         password = validated_data.pop('password')
-        return User.objects.create_user(password=password, **validated_data)
+        return User.objects.create_user(
+            password=password,
+            company_id=company_id,
+            **validated_data,
+        )
 
     def to_representation(self, instance):
         return UserSerializer(instance).data
@@ -201,8 +249,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return UserSerializer(instance).data
 
 
-class UserListSerializer(UserSerializer):
-    """Backward-compatible name for the canonical user representation."""
+class UserListSerializer(UserCreateSerializer):
+    """Create users from the tenant-aware user list endpoint."""
 
 
 def _validate_role_store(role, store_id):

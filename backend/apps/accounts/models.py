@@ -42,8 +42,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=100)
     avatar = models.URLField(null=True, blank=True)
     role = models.CharField(max_length=20, choices=UserRole.CHOICES)
-    company_id = models.IntegerField(null=True, blank=True)
-    store_id = models.IntegerField(null=True, blank=True)
+    company = models.ForeignKey(
+        'companies.Company',
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='users',
+    )
+    store = models.ForeignKey(
+        'companies.Store',
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
