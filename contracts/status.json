@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0.0-draft",
+  "modules": {
+    "system": {"contract": "CONTRACT_READY", "api": "NOT_STARTED"},
+    "auth": {"contract": "DRAFT", "api": "IN_PROGRESS"},
+    "users": {"contract": "DRAFT", "api": "IN_PROGRESS"},
+    "companies": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "stores": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "rooms": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "course_templates": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "students": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "body_assessments": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "schedules": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "bookings": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "attendance": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "class_records": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "class_media": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "class_templates": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "training_plans": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "feedback": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "reports": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "dashboards": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "reminders": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "student_self_service": {"contract": "DRAFT", "api": "NOT_STARTED"}
+  }
+}

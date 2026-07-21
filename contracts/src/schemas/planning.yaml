@@ -1,0 +1,28 @@
+TrainingPlan:
+  type: object
+  additionalProperties: false
+  required: [id, company_id, student_id, trainer_id, name, starts_on, ends_on, status, stages]
+  properties:
+    id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    student_id: {type: integer, format: int64, minimum: 1}
+    trainer_id: {type: integer, format: int64, minimum: 1}
+    name: {type: string}
+    starts_on: {type: string, format: date}
+    ends_on: {type: string, format: date}
+    status: {type: string, enum: [draft, active, completed, cancelled]}
+    stages: {type: array, items: {type: object}}
+Feedback:
+  type: object
+  additionalProperties: false
+  required: [id, company_id, class_record_id, student_id, feeling, rating, comment, media, created_at]
+  properties:
+    id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    class_record_id: {type: integer, format: int64, minimum: 1}
+    student_id: {type: integer, format: int64, minimum: 1}
+    feeling: {type: string, enum: [great, good, normal, tired, uncomfortable]}
+    rating: {type: integer, minimum: 1, maximum: 5}
+    comment: {type: string, nullable: true}
+    media: {type: array, items: {$ref: './common.yaml#/MediaResource'}}
+    created_at: {type: string, format: date-time, readOnly: true}

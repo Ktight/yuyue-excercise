@@ -1,0 +1,263 @@
+/api/students/:
+  get:
+    operationId: getStudents
+    tags:
+    - students
+    x-status: DRAFT
+    x-roles:
+    - super_admin
+    - company_admin
+    - store_manager
+    - trainer
+    x-tenant-scope: company
+    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    responses:
+      '200':
+        description: 成功
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
+      '400':
+        $ref: ../schemas/common.yaml#/BadRequest
+      '401':
+        $ref: ../schemas/common.yaml#/Unauthorized
+      '403':
+        $ref: ../schemas/common.yaml#/Forbidden
+      '404':
+        $ref: ../schemas/common.yaml#/NotFound
+      '409':
+        $ref: ../schemas/common.yaml#/Conflict
+      '500':
+        $ref: ../schemas/common.yaml#/ServerError
+  post:
+    operationId: postStudents
+    tags:
+    - students
+    x-status: DRAFT
+    x-roles:
+    - super_admin
+    - company_admin
+    - store_manager
+    - trainer
+    x-tenant-scope: company
+    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/common.yaml#/DraftWriteRequest
+    responses:
+      '400':
+        $ref: ../schemas/common.yaml#/BadRequest
+      '401':
+        $ref: ../schemas/common.yaml#/Unauthorized
+      '403':
+        $ref: ../schemas/common.yaml#/Forbidden
+      '404':
+        $ref: ../schemas/common.yaml#/NotFound
+      '409':
+        $ref: ../schemas/common.yaml#/Conflict
+      '500':
+        $ref: ../schemas/common.yaml#/ServerError
+      '201':
+        description: 成功
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+/api/students/{student_id}/:
+  parameters:
+  - name: student_id
+    in: path
+    required: true
+    schema:
+      type: integer
+      format: int64
+      minimum: 1
+  get:
+    operationId: getStudentsStudentId
+    tags:
+    - students
+    x-status: DRAFT
+    x-roles:
+    - super_admin
+    - company_admin
+    - store_manager
+    - trainer
+    x-tenant-scope: company
+    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    responses:
+      '200':
+        description: 成功
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '400':
+        $ref: ../schemas/common.yaml#/BadRequest
+      '401':
+        $ref: ../schemas/common.yaml#/Unauthorized
+      '403':
+        $ref: ../schemas/common.yaml#/Forbidden
+      '404':
+        $ref: ../schemas/common.yaml#/NotFound
+      '409':
+        $ref: ../schemas/common.yaml#/Conflict
+      '500':
+        $ref: ../schemas/common.yaml#/ServerError
+  patch:
+    operationId: patchStudentsStudentId
+    tags:
+    - students
+    x-status: DRAFT
+    x-roles:
+    - super_admin
+    - company_admin
+    - store_manager
+    - trainer
+    x-tenant-scope: company
+    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/common.yaml#/DraftWriteRequest
+    responses:
+      '200':
+        description: 成功
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '400':
+        $ref: ../schemas/common.yaml#/BadRequest
+      '401':
+        $ref: ../schemas/common.yaml#/Unauthorized
+      '403':
+        $ref: ../schemas/common.yaml#/Forbidden
+      '404':
+        $ref: ../schemas/common.yaml#/NotFound
+      '409':
+        $ref: ../schemas/common.yaml#/Conflict
+      '500':
+        $ref: ../schemas/common.yaml#/ServerError
+/api/students/{student_id}/membership/:
+  parameters:
+  - name: student_id
+    in: path
+    required: true
+    schema:
+      type: integer
+      format: int64
+      minimum: 1
+  get:
+    operationId: getStudentsStudentIdMembership
+    tags:
+    - students
+    x-status: DRAFT
+    x-roles:
+    - super_admin
+    - company_admin
+    - store_manager
+    - trainer
+    x-tenant-scope: company
+    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    responses:
+      '200':
+        description: 成功
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '400':
+        $ref: ../schemas/common.yaml#/BadRequest
+      '401':
+        $ref: ../schemas/common.yaml#/Unauthorized
+      '403':
+        $ref: ../schemas/common.yaml#/Forbidden
+      '404':
+        $ref: ../schemas/common.yaml#/NotFound
+      '409':
+        $ref: ../schemas/common.yaml#/Conflict
+      '500':
+        $ref: ../schemas/common.yaml#/ServerError
+  patch:
+    operationId: patchStudentsStudentIdMembership
+    tags:
+    - students
+    x-status: DRAFT
+    x-roles:
+    - super_admin
+    - company_admin
+    - store_manager
+    - trainer
+    x-tenant-scope: company
+    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/common.yaml#/DraftWriteRequest
+    responses:
+      '200':
+        description: 成功
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '400':
+        $ref: ../schemas/common.yaml#/BadRequest
+      '401':
+        $ref: ../schemas/common.yaml#/Unauthorized
+      '403':
+        $ref: ../schemas/common.yaml#/Forbidden
+      '404':
+        $ref: ../schemas/common.yaml#/NotFound
+      '409':
+        $ref: ../schemas/common.yaml#/Conflict
+      '500':
+        $ref: ../schemas/common.yaml#/ServerError
+/api/students/{student_id}/eligibility/:
+  parameters:
+  - name: student_id
+    in: path
+    required: true
+    schema:
+      type: integer
+      format: int64
+      minimum: 1
+  get:
+    operationId: getStudentsStudentIdEligibility
+    tags:
+    - students
+    x-status: DRAFT
+    x-roles:
+    - super_admin
+    - company_admin
+    - store_manager
+    - trainer
+    x-tenant-scope: company
+    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    responses:
+      '200':
+        description: 成功
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '400':
+        $ref: ../schemas/common.yaml#/BadRequest
+      '401':
+        $ref: ../schemas/common.yaml#/Unauthorized
+      '403':
+        $ref: ../schemas/common.yaml#/Forbidden
+      '404':
+        $ref: ../schemas/common.yaml#/NotFound
+      '409':
+        $ref: ../schemas/common.yaml#/Conflict
+      '500':
+        $ref: ../schemas/common.yaml#/ServerError

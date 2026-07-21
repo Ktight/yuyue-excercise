@@ -1,0 +1,10 @@
+{
+  "code": "VALIDATION_ERROR",
+  "message": "请求参数校验失败",
+  "errors": {
+    "phone": [
+      "手机号格式不正确"
+    ]
+  },
+  "request_id": "req_example"
+}

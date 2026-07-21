@@ -1,0 +1,45 @@
+Attendance:
+  type: object
+  additionalProperties: false
+  required: [id, company_id, schedule_id, student_id, status, recorded_at]
+  properties:
+    id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    schedule_id: {type: integer, format: int64, minimum: 1}
+    student_id: {type: integer, format: int64, minimum: 1}
+    status: {type: string, enum: [present, late, absent, leave]}
+    recorded_at: {type: string, format: date-time}
+ClassRecord:
+  type: object
+  additionalProperties: false
+  required: [id, company_id, schedule_id, student_id, trainer_id, content, goals, completion, trainer_notes, student_performance, status, media]
+  properties:
+    id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    schedule_id: {type: integer, format: int64, minimum: 1}
+    student_id: {type: integer, format: int64, minimum: 1}
+    trainer_id: {type: integer, format: int64, minimum: 1}
+    content: {type: string}
+    goals: {type: string}
+    completion: {type: string}
+    trainer_notes: {type: string, nullable: true}
+    student_performance: {type: string, nullable: true}
+    status: {type: string, enum: [draft, completed]}
+    media: {type: array, items: {$ref: './common.yaml#/MediaResource'}}
+BulkOperationResult:
+  type: object
+  additionalProperties: false
+  required: [succeeded, failed, items]
+  properties:
+    succeeded: {type: integer, minimum: 0}
+    failed: {type: integer, minimum: 0}
+    items: {type: array, items: {type: object}}
+Upload:
+  type: object
+  additionalProperties: false
+  required: [upload_id, upload_url, expires_at, status]
+  properties:
+    upload_id: {type: string}
+    upload_url: {type: string, format: uri}
+    expires_at: {type: string, format: date-time}
+    status: {type: string, enum: [pending, uploaded, failed, deleted]}

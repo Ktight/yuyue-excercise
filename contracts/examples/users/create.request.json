@@ -1,0 +1,8 @@
+{
+  "phone": "13800000000",
+  "name": "示例教练",
+  "password": "ChangeMe123!",
+  "role": "trainer",
+  "store_id": 10,
+  "is_active": true
+}

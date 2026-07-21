@@ -1,0 +1,76 @@
+/api/auth/login/:
+  post:
+    operationId: authLogin
+    tags: [Authentication]
+    security: []
+    x-status: API_READY
+    x-roles: [public]
+    x-tenant-scope: none
+    requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/LoginRequest'}}}}
+    responses:
+      '200': {description: 登录成功, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/LoginSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+/api/auth/refresh/:
+  post:
+    operationId: authRefresh
+    tags: [Authentication]
+    security: []
+    x-status: API_READY
+    x-roles: [public]
+    x-tenant-scope: none
+    requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/TokenRefreshRequest'}}}}
+    responses:
+      '200': {description: 轮换成功，旧 Refresh Token 立即失效, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/TokenRefreshSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+/api/auth/logout/:
+  post:
+    operationId: authLogout
+    tags: [Authentication]
+    x-status: DRAFT
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
+    x-tenant-scope: self
+    requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/LogoutRequest'}}}}
+    responses:
+      '200': {description: Refresh Token 已撤销, content: {application/json: {schema: {$ref: '../schemas/common.yaml#/EmptySuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+/api/auth/me/:
+  get:
+    operationId: authGetMe
+    tags: [Authentication]
+    x-status: API_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
+    x-tenant-scope: self
+    responses:
+      '200': {description: 当前用户, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/UserSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+  patch:
+    operationId: authUpdateMe
+    tags: [Authentication]
+    x-status: API_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
+    x-tenant-scope: self
+    requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/MeUpdateRequest'}}}}
+    responses:
+      '200': {description: 更新后的当前用户, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/UserSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+/api/auth/change-password/:
+  post:
+    operationId: authChangePassword
+    tags: [Authentication]
+    x-status: API_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
+    x-tenant-scope: self
+    requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/PasswordChangeRequest'}}}}
+    responses:
+      '200': {description: 密码修改成功, content: {application/json: {schema: {$ref: '../schemas/common.yaml#/EmptySuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}

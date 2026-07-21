@@ -1,0 +1,6 @@
+{
+  "code": "STORE_NOT_FOUND",
+  "message": "门店不存在",
+  "errors": {},
+  "request_id": "req_example"
+}

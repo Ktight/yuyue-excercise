@@ -1,0 +1,187 @@
+ErrorResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, errors, request_id]
+  properties:
+    code: {$ref: '#/ErrorCode'}
+    message: {type: string}
+    errors:
+      type: object
+      additionalProperties:
+        type: array
+        items: {type: string}
+    request_id: {type: string, pattern: '^req_[A-Za-z0-9_-]+$'}
+ErrorCode:
+  type: string
+  enum:
+    - VALIDATION_ERROR
+    - UNAUTHORIZED
+    - FORBIDDEN
+    - NOT_FOUND
+    - CONFLICT
+    - RATE_LIMITED
+    - INTERNAL_ERROR
+    - INVALID_CREDENTIALS
+    - ACCOUNT_DISABLED
+    - REFRESH_TOKEN_INVALID
+    - OLD_PASSWORD_INCORRECT
+    - PHONE_ALREADY_EXISTS
+    - USER_NOT_FOUND
+    - STORE_NOT_FOUND
+    - STORE_REQUIRED_FOR_ROLE
+    - STORE_NOT_ALLOWED_FOR_ROLE
+    - CROSS_TENANT_ACCESS_DENIED
+    - SCHEDULE_TIME_CONFLICT
+    - ROOM_TIME_CONFLICT
+    - TRAINER_TIME_CONFLICT
+    - SCHEDULE_NOT_BOOKABLE
+    - BOOKING_CAPACITY_FULL
+    - BOOKING_ALREADY_EXISTS
+    - MEMBERSHIP_EXPIRED
+    - MEMBERSHIP_BALANCE_INSUFFICIENT
+    - BOOKING_CANCELLATION_DEADLINE_PASSED
+    - ATTENDANCE_ALREADY_RECORDED
+    - ATTENDANCE_TOO_EARLY
+    - CLASS_RECORD_ALREADY_COMPLETED
+    - CLASS_RECORD_EDIT_FORBIDDEN
+    - BULK_OPERATION_FAILED
+    - FILE_TYPE_NOT_ALLOWED
+    - FILE_TOO_LARGE
+    - UPLOAD_NOT_COMPLETED
+    - REPORT_NOT_READY
+    - EXPORT_IN_PROGRESS
+    - SHARE_LINK_EXPIRED
+    - SHARE_LINK_REVOKED
+EmptySuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {nullable: true}
+DraftResource:
+  type: object
+  description: DRAFT 模块的资源结构由对应领域 Schema 细化；冻结前禁止真实联调。
+  additionalProperties: true
+DraftWriteRequest:
+  type: object
+  description: DRAFT 请求骨架；冻结时必须替换为模块专用 Create/Update Request。
+  additionalProperties: false
+DraftSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/DraftResource'}
+DraftListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/DraftResource'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+DraftListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/DraftListData'}
+PaginationMeta:
+  type: object
+  additionalProperties: false
+  required: [page, page_size, total]
+  properties:
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+Id:
+  type: integer
+  format: int64
+  minimum: 1
+Money:
+  type: string
+  pattern: '^[0-9]+(\.[0-9]{1,2})?$'
+ResourceStatus:
+  type: string
+  enum: [active, inactive]
+UserRole:
+  type: string
+  enum: [super_admin, company_admin, store_manager, trainer, student]
+Gender:
+  type: string
+  enum: [male, female]
+UserSummary:
+  type: object
+  additionalProperties: false
+  required: [id, name]
+  properties:
+    id: {$ref: '#/Id'}
+    name: {type: string}
+CompanySummary:
+  type: object
+  additionalProperties: false
+  required: [id, name]
+  properties: {id: {$ref: '#/Id'}, name: {type: string}}
+StoreSummary:
+  type: object
+  additionalProperties: false
+  required: [id, name]
+  properties: {id: {$ref: '#/Id'}, name: {type: string}}
+RoomSummary:
+  type: object
+  additionalProperties: false
+  required: [id, name]
+  properties: {id: {$ref: '#/Id'}, name: {type: string}}
+TrainerSummary:
+  allOf: [{$ref: '#/UserSummary'}]
+StudentSummary:
+  type: object
+  additionalProperties: false
+  required: [id, name]
+  properties: {id: {$ref: '#/Id'}, name: {type: string}}
+CourseTemplateSummary:
+  type: object
+  additionalProperties: false
+  required: [id, name]
+  properties: {id: {$ref: '#/Id'}, name: {type: string}}
+ScheduleSummary:
+  type: object
+  additionalProperties: false
+  required: [id, starts_at, ends_at]
+  properties:
+    id: {$ref: '#/Id'}
+    starts_at: {type: string, format: date-time}
+    ends_at: {type: string, format: date-time}
+MediaResource:
+  type: object
+  additionalProperties: false
+  required: [id, media_type, url]
+  properties:
+    id: {$ref: '#/Id'}
+    media_type: {type: string, enum: [image, video]}
+    url: {type: string, format: uri}
+BadRequest: &errorResponse
+  description: 请求参数或业务校验失败
+  content: {application/json: {schema: {$ref: '#/ErrorResponse'}}}
+Unauthorized:
+  <<: *errorResponse
+  description: 未认证或令牌无效
+Forbidden:
+  <<: *errorResponse
+  description: 权限不足
+NotFound:
+  <<: *errorResponse
+  description: 资源不存在或为避免跨租户枚举而隐藏
+Conflict:
+  <<: *errorResponse
+  description: 唯一性或资源状态冲突
+ServerError:
+  <<: *errorResponse
+  description: 内部错误，不泄露 traceback 或配置

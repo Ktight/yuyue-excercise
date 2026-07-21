@@ -1,0 +1,6 @@
+{
+  "code": "USER_NOT_FOUND",
+  "message": "用户不存在",
+  "errors": {},
+  "request_id": "req_example"
+}

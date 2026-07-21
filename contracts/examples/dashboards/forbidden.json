@@ -1,0 +1,6 @@
+{
+  "code": "FORBIDDEN",
+  "message": "没有执行该操作的权限",
+  "errors": {},
+  "request_id": "req_example"
+}

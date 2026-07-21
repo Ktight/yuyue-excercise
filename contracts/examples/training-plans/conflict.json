@@ -1,0 +1,6 @@
+{
+  "code": "CONFLICT",
+  "message": "资源状态冲突",
+  "errors": {},
+  "request_id": "req_example"
+}

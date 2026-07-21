@@ -1,0 +1,11 @@
+{
+  "code": "OK",
+  "message": "",
+  "data": {
+    "access_token": "<new-jwt-access-token>",
+    "refresh_token": "<new-jwt-refresh-token>",
+    "token_type": "Bearer",
+    "expires_in": 1800,
+    "refresh_expires_in": 604800
+  }
+}

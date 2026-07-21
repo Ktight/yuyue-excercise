@@ -1,0 +1,10 @@
+{
+  "code": "PHONE_ALREADY_EXISTS",
+  "message": "手机号已存在",
+  "errors": {
+    "phone": [
+      "该手机号已被使用。"
+    ]
+  },
+  "request_id": "req_example"
+}

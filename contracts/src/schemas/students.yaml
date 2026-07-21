@@ -1,0 +1,41 @@
+Membership:
+  type: object
+  additionalProperties: false
+  required: [card_type, status, expires_on, remaining_count, balance]
+  properties:
+    card_type: {type: string, enum: [count, month, quarter, year, stored]}
+    status: {type: string, enum: [active, expired, suspended, exhausted]}
+    expires_on: {type: string, format: date, nullable: true}
+    remaining_count: {type: integer, minimum: 0, nullable: true}
+    balance: {$ref: './common.yaml#/Money'}
+Student:
+  type: object
+  additionalProperties: false
+  required: [id, user_id, company_id, store_id, trainer_id, name, phone, gender, birthday, goals, health_notes, membership, status]
+  properties:
+    id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    user_id: {type: integer, format: int64, minimum: 1}
+    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    store_id: {type: integer, format: int64, minimum: 1, nullable: true}
+    trainer_id: {type: integer, format: int64, minimum: 1, nullable: true}
+    name: {type: string, minLength: 1}
+    phone: {type: string, pattern: '^1[3-9][0-9]{9}$'}
+    gender: {type: string, enum: [male, female]}
+    birthday: {type: string, format: date, nullable: true}
+    goals: {type: string, nullable: true}
+    health_notes: {type: string, nullable: true, description: 敏感字段，仅授权角色可见}
+    membership: {$ref: '#/Membership'}
+    status: {$ref: './common.yaml#/ResourceStatus'}
+BodyAssessment:
+  type: object
+  additionalProperties: false
+  required: [id, company_id, student_id, assessed_at, height_cm, weight_kg, measurements_cm, scores]
+  properties:
+    id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    student_id: {type: integer, format: int64, minimum: 1}
+    assessed_at: {type: string, format: date-time}
+    height_cm: {type: string, pattern: '^[0-9]+(\.[0-9]{1,2})?$'}
+    weight_kg: {type: string, pattern: '^[0-9]+(\.[0-9]{1,2})?$'}
+    measurements_cm: {type: object, additionalProperties: {type: string}}
+    scores: {type: object, additionalProperties: {type: number, minimum: 0, maximum: 100}}

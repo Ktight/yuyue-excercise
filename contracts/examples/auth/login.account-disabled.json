@@ -1,0 +1,6 @@
+{
+  "code": "ACCOUNT_DISABLED",
+  "message": "账号已停用",
+  "errors": {},
+  "request_id": "req_example"
+}

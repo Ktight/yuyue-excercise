@@ -1,0 +1,14 @@
+{
+  "code": "OK",
+  "message": "",
+  "data": {
+    "id": 1,
+    "phone": "13900000000",
+    "name": "示例管理员",
+    "role": "super_admin",
+    "avatar": null,
+    "company_id": null,
+    "store_id": null,
+    "is_active": true
+  }
+}

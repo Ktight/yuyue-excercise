@@ -1,0 +1,14 @@
+{
+  "code": "OK",
+  "message": "",
+  "data": {
+    "id": 2,
+    "phone": "13800000000",
+    "name": "示例教练",
+    "role": "trainer",
+    "avatar": null,
+    "company_id": 1,
+    "store_id": 10,
+    "is_active": true
+  }
+}

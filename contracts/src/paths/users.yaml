@@ -1,0 +1,83 @@
+/api/users/:
+  get:
+    operationId: usersList
+    tags: [Users]
+    x-status: DRAFT
+    x-roles: [super_admin, company_admin]
+    x-tenant-scope: company
+    parameters:
+      - {$ref: '../root.yaml#/components/parameters/PageParameter'}
+      - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
+      - {$ref: '../root.yaml#/components/parameters/SearchParameter'}
+      - {name: role, in: query, schema: {$ref: '../schemas/common.yaml#/UserRole'}}
+      - {name: is_active, in: query, schema: {type: boolean}}
+      - {name: store_id, in: query, schema: {type: integer, format: int64, minimum: 1}}
+      - {name: ordering, in: query, schema: {type: string, enum: [name, -name, id, -id], default: id}}
+    responses:
+      '200': {description: 分页用户, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/UserListSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+  post:
+    operationId: usersCreate
+    tags: [Users]
+    x-status: DRAFT
+    x-roles: [super_admin, company_admin]
+    x-tenant-scope: company
+    description: company_id 由服务端权限范围确定；store_manager 必须有 store_id，trainer 可选，其余角色禁止非空 store_id。
+    requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/UserCreateRequest'}}}}
+    responses:
+      '201': {description: 用户创建成功, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/UserSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+/api/users/{user_id}/:
+  parameters:
+    - {name: user_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+  get:
+    operationId: usersRetrieve
+    tags: [Users]
+    x-status: DRAFT
+    x-roles: [super_admin, company_admin]
+    x-tenant-scope: company
+    responses:
+      '200': {description: 用户详情, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/UserSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+  patch:
+    operationId: usersUpdate
+    tags: [Users]
+    x-status: DRAFT
+    x-roles: [super_admin, company_admin]
+    x-tenant-scope: company
+    requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/UserUpdateRequest'}}}}
+    responses:
+      '200': {description: 更新后的用户, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/UserSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
+/api/users/{user_id}/reset-password/:
+  parameters:
+    - {name: user_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+  post:
+    operationId: usersResetPassword
+    tags: [Users]
+    x-status: DRAFT
+    x-roles: [super_admin, company_admin]
+    x-tenant-scope: company
+    requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/ResetPasswordRequest'}}}}
+    responses:
+      '200': {description: 密码已重置, content: {application/json: {schema: {$ref: '../schemas/common.yaml#/EmptySuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '500': {$ref: '../schemas/common.yaml#/ServerError'}
