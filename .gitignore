@@ -22,3 +22,33 @@ staticfiles/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Frontend dependencies and build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.vite/
+frontend/.cache/
+
+# Frontend test and browser reports
+frontend/playwright-report/
+frontend/test-results/
+frontend/.nyc_output/
+
+# Frontend local environment files
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Frontend logs and package-manager caches
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/.npm/
+frontend/.pnpm-store/
+
+# TypeScript incremental build information
+frontend/*.tsbuildinfo
+frontend/**/.tsbuildinfo
