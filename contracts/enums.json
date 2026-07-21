@@ -1,0 +1,31 @@
+{
+  "UserRole": {
+    "SUPER_ADMIN": "super_admin",
+    "COMPANY_ADMIN": "company_admin",
+    "STORE_MANAGER": "store_manager",
+    "TRAINER": "trainer",
+    "STUDENT": "student"
+  },
+  "MemberCardType": {
+    "COUNT": "count",
+    "MONTH": "month",
+    "QUARTER": "quarter",
+    "YEAR": "year",
+    "STORED": "stored"
+  },
+  "CourseCategory": {
+    "PRIVATE": "private",
+    "SMALL_GROUP": "small_group",
+    "GROUP": "group"
+  },
+  "AttendanceStatus": {
+    "PRESENT": "present",
+    "LATE": "late",
+    "ABSENT": "absent",
+    "LEAVE": "leave"
+  },
+  "ClassRecordStatus": {
+    "DRAFT": "draft",
+    "COMPLETED": "completed"
+  }
+}
