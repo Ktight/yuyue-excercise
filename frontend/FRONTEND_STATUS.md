@@ -8,9 +8,10 @@
 - 本地目录：`C:\Users\82759\Desktop\reporteveryday\projects\yuyue-excercise-work`
 - 当前分支：`frontend/phase-2-auth-integration`
 - 推送目标：仅推送当前前端分支，不修改或合并 `main`
-- 当前前端文件及根 `.gitignore` 已暂存。
-- 尚未生成提交：Git 缺少本仓库的提交者姓名和邮箱。
-- 最近一次 `git push` 没有上传新内容，因为提交创建失败。
+- 前端代码及根 `.gitignore` 已提交并推送。
+- 最新提交：`4df538f feat(frontend): add phase 1-2 app and backend adapter layer`。
+- 已上传基线提交为 `4df538f`；当前又有 Phase 0～2 完善代码和两份协作文档尚未提交，因此本地工作区不再与远程完全一致。
+- `main` 未被修改或合并。
 
 ## 前后端责任边界
 
@@ -65,14 +66,36 @@ npm.cmd run check:all
 - ESLint：通过
 - Prettier：通过
 - 模块边界检查：通过，共检查 178 个源文件
-- 单元测试：通过，18 个测试文件、86 项测试
-- 生产构建：通过，Vite 成功转换 480 个模块
+- 单元测试：通过，20 个测试文件、91 项测试
+- 生产构建：通过，Vite 成功转换 492 个模块
+- 模块边界检查：通过，共检查 186 个源文件
+
+## 真实后端联调（2026-07-21）
+
+已实际验证：
+
+- 后端 accounts 自带测试：14 项全部通过。
+- `POST /api/auth/login/`：真实请求通过。
+- `GET /api/auth/me/`：真实请求通过。
+- `POST /api/auth/refresh/`：真实请求通过，新 Refresh Token 与旧值不同。
+- 旧 Refresh Token 再次使用返回 401，轮换行为符合前端设计。
+- `GET /api/users/`：真实请求通过，分页包裹可被前端适配器解析。
+- 浏览器以真实 API 模式登录成功，并跳转 `/admin`。
+- 浏览器打开 `/admin/users` 后显示真实用户和分页。
+- 已登录状态下可打开 `/change-password` 页面；未提交真实密码修改，避免改变测试账号。
+
+环境限制：后端当前 CORS 允许 `http://localhost:5173`，不允许 `http://127.0.0.1:5173`。本地联调必须使用 `localhost`。
+
+仍未验证：
+
+- 浏览器实际提交修改密码。
+- 浏览器实际创建用户。
+- Logout 和管理员重置密码（当前后端路由未找到，契约为 DRAFT）。
+- Users 与真实 Companies/Stores 的关系约束。
 
 ## 下一步
 
-1. 提供 Git 提交者姓名和邮箱。
-2. 仅为当前仓库配置 `user.name` 与 `user.email`，不修改全局配置。
-3. 将本记录文件加入暂存区。
-4. 创建前端提交。
-5. 推送到 `origin/frontend/phase-2-auth-integration`。
-6. 推送完成后记录提交哈希和远程状态。
+1. 审阅并提交两份新增协作文档。
+2. 请后端确认 Phase 1/2 对齐清单中的待确认事项。
+3. 在后端接口和运行环境可用后执行真实联调；在此之前不得标记 VERIFIED。
+4. 确认 Phase 3 边界后，再选择一个独立前端步骤实施。

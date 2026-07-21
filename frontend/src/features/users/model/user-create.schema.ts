@@ -30,8 +30,8 @@ export function validateUserCreateForm(data: UserCreateFormData): FieldError[] {
 
   if (!data.password) {
     errors.push({ field: 'password', message: '请输入密码' });
-  } else if (data.password.length < 6) {
-    errors.push({ field: 'password', message: '密码至少 6 位' });
+  } else if (data.password.length < 8) {
+    errors.push({ field: 'password', message: '密码至少 8 位' });
   }
 
   return errors;

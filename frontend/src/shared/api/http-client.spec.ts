@@ -1,11 +1,13 @@
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { server } from '@/shared/mocks/server';
 import { httpClient } from './http-client';
 import { ApiError } from './api-error';
 import { tokenManager } from './token-manager';
+import { configureSessionRecovery } from './session-recovery';
 
 describe('http-client', () => {
+  afterEach(() => configureSessionRecovery(null));
   it('sends GET request and receives response data', async () => {
     server.use(
       http.get('/api/test-get', () => {
@@ -61,6 +63,36 @@ describe('http-client', () => {
     expect(receivedAuth).toBe('');
 
     tokenManager.clear();
+  });
+});
+
+describe('session recovery', () => {
+  afterEach(() => {
+    configureSessionRecovery(null);
+    tokenManager.clear();
+  });
+
+  it('shares one recovery attempt across concurrent 401 responses', async () => {
+    let recoveryCount = 0;
+    configureSessionRecovery(async () => {
+      recoveryCount += 1;
+      await Promise.resolve();
+      tokenManager.set('renewed-token');
+    });
+    server.use(
+      http.get('/api/recoverable', ({ request }) => {
+        return request.headers.get('Authorization') === 'Bearer renewed-token'
+          ? HttpResponse.json({ code: 'OK', message: '', data: true })
+          : HttpResponse.json({ code: 'AUTH_UNAUTHORIZED', message: 'expired' }, { status: 401 });
+      }),
+    );
+
+    const responses = await Promise.all([
+      httpClient.get('/recoverable'),
+      httpClient.get('/recoverable'),
+    ]);
+    expect(recoveryCount).toBe(1);
+    expect(responses.every((response) => response.data.data === true)).toBe(true);
   });
 });
 

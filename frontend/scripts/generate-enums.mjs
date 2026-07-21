@@ -1,21 +1,23 @@
 /** 从 contracts/enums.json 生成值常量、联合类型和显示标签。 */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { format, resolveConfig } from 'prettier';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const INPUT = resolve(ROOT, '..', 'contracts', 'enums.json');
 const OUTPUT_DIR = resolve(ROOT, 'src', 'generated');
 const OUTPUT = resolve(OUTPUT_DIR, 'enums.ts');
 const HEADER = `// AUTO-GENERATED — DO NOT EDIT\n// Source: contracts/enums.json\n`;
+const PRETTIER_OPTIONS = { ...(await resolveConfig(OUTPUT)), parser: 'typescript' };
 
 mkdirSync(OUTPUT_DIR, { recursive: true });
 
 if (!existsSync(INPUT)) {
-  writeFileSync(
-    OUTPUT,
+  const placeholder = await format(
     `${HEADER}\n/** CONTRACT_MISSING: contracts/enums.json 尚未提供。 */\nexport {};\n`,
-    'utf8',
+    PRETTIER_OPTIONS,
   );
+  writeFileSync(OUTPUT, placeholder, 'utf8');
   console.warn('⚠ contracts/enums.json 不存在；已生成 CONTRACT_MISSING 占位。');
   process.exit(0);
 }
@@ -62,7 +64,8 @@ try {
     lines.push('};', '');
   }
 
-  writeFileSync(OUTPUT, lines.join('\n'), 'utf8');
+  const output = await format(lines.join('\n'), PRETTIER_OPTIONS);
+  writeFileSync(OUTPUT, output, 'utf8');
   console.log(`✓ 枚举已生成：${OUTPUT}`);
 } catch (error) {
   console.error('✗ 枚举生成失败。', error);

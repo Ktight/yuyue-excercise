@@ -19,7 +19,7 @@
     "generate:enums": "node scripts/generate-enums.mjs",
     "generate": "npm run generate:api-types && npm run generate:enums",
     "check:boundaries": "node scripts/check-boundaries.mjs",
-    "check:all": "npm run typecheck && npm run lint && prettier --check \"src/**/*.{vue,ts,tsx,css}\" && npm run check:boundaries && npm run test && npm run build"
+    "check:all": "npm run generate && npm run typecheck && npm run lint && prettier --check \"src/**/*.{vue,ts,tsx,css}\" && npm run check:boundaries && npm run test && npm run build"
   },
   "dependencies": {
     "axios": "^1.18.1",

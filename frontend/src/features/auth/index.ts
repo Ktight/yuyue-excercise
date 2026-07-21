@@ -5,7 +5,7 @@
  */
 export { login, refreshToken, getProfile, changePassword } from './api';
 export { useAuthStore, tokenStorage } from './model';
-export { LoginForm } from './components';
+export { LoginForm, ChangePasswordForm } from './components';
 export { authRoutes } from './routes';
 export type {
   UserRole,

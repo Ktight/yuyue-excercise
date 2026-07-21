@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { getProfile, login as loginApi, refreshToken } from '@/features/auth/api';
 import { tokenStorage } from './token-storage';
+import { configureSessionRecovery } from '@/shared/api';
 import type { UserProfile, UserRole } from './auth.types';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -63,6 +64,15 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null;
     tokenStorage.remove();
   }
+
+  configureSessionRecovery(async () => {
+    try {
+      await refresh();
+    } catch (error) {
+      clearSession();
+      throw error;
+    }
+  });
 
   return {
     token,

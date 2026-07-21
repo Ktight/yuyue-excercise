@@ -51,7 +51,9 @@ async function handleSubmit() {
       // 字段级错误
       if (error.fieldErrors) {
         for (const [field, msgs] of Object.entries(error.fieldErrors)) {
-          if (field in fieldErrors) fieldErrors[field] = msgs[0] || '';
+          if (['name', 'phone', 'password', 'role', 'store_id'].includes(field)) {
+            fieldErrors[field] = msgs[0] || '';
+          }
         }
       }
     } else {
@@ -103,7 +105,7 @@ async function handleSubmit() {
         :class="{ 'has-error': fieldErrors.password }"
         type="password"
         :disabled="submitting"
-        placeholder="至少 6 位"
+        placeholder="至少 8 位"
       />
       <span v-if="fieldErrors.password" class="user-create-form__error">
         {{ fieldErrors.password }}

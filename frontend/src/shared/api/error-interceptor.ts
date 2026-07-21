@@ -15,10 +15,11 @@ interface ErrorResponseData {
   request_id?: string;
 }
 
-export function errorInterceptor(error: AxiosError<ErrorResponseData>): Promise<never> {
+export function errorInterceptor(error: AxiosError<unknown>): Promise<never> {
   // 请求已发送但服务端返回错误状态码
   if (error.response) {
-    const { status, data } = error.response;
+    const { status } = error.response;
+    const data = error.response.data as ErrorResponseData | undefined;
 
     const code = data?.code ?? httpStatusToCode(status);
     const message = data?.message ?? httpStatusToMessage(status);

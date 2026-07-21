@@ -18,7 +18,12 @@ export const usersHandlers = [
     return HttpResponse.json({
       code: 'OK',
       message: '查询成功',
-      data: { items: filtered, page, page_size: pageSize, total: filtered.length },
+      data: {
+        items: filtered.slice((page - 1) * pageSize, page * pageSize),
+        page,
+        page_size: pageSize,
+        total: filtered.length,
+      },
     });
   }),
 
@@ -27,10 +32,10 @@ export const usersHandlers = [
     if (body.phone === '13800000001') {
       return HttpResponse.json(
         {
-          code: 'USER_PHONE_EXISTS',
+          code: 'PHONE_ALREADY_EXISTS',
           message: '该手机号已被注册',
           errors: { phone: ['手机号已存在'] },
-          request_id: 'mock-request-id',
+          request_id: 'req_mock',
         },
         { status: 409 },
       );

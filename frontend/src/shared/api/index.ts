@@ -8,3 +8,4 @@ export { httpClient } from './http-client';
 export { ApiError, NetworkError } from './api-error';
 export { tokenManager } from './token-manager';
 export type { TokenPair } from './token-manager';
+export { configureSessionRecovery } from './session-recovery';
