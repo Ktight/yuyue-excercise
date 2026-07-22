@@ -1,138 +1,85 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { ApiError } from '@/shared/api';
+import type { Company, CompanyWriteInput } from '../model';
 import { validateCompany } from '../model';
-
 const props = defineProps<{
-  initial?: { name?: string; address?: string; contactName?: string; contactPhone?: string };
-  onSubmit: (data: {
-    name: string;
-    address: string;
-    contactName: string;
-    contactPhone: string;
-  }) => Promise<void>;
+  initial?: Company;
+  onSubmit: (data: CompanyWriteInput) => Promise<void>;
 }>();
-
 const emit = defineEmits<{ success: [] }>();
-
-const form = reactive({
-  name: props.initial?.name || '',
-  address: props.initial?.address || '',
-  contactName: props.initial?.contactName || '',
-  contactPhone: props.initial?.contactPhone || '',
+const form = reactive<CompanyWriteInput>({
+  name: props.initial?.name ?? '',
+  contactPerson: props.initial?.contactPerson ?? '',
+  contactPhone: props.initial?.contactPhone ?? '',
+  contractStart: props.initial?.contractStart ?? '',
+  contractEnd: props.initial?.contractEnd ?? '',
+  status: props.initial?.status ?? 'active',
 });
-const serverError = ref('');
+const error = ref('');
 const submitting = ref(false);
-
-async function handleSubmit() {
-  const validation = validateCompany(form);
-  if (validation.length) {
-    serverError.value = validation[0]?.message ?? '请检查输入';
+async function submit() {
+  const errors = validateCompany(form);
+  if (errors[0]) {
+    error.value = errors[0].message;
     return;
   }
-  serverError.value = '';
+  error.value = '';
   submitting.value = true;
   try {
-    await props.onSubmit({ ...form, name: form.name.trim() });
+    await props.onSubmit({
+      ...form,
+      name: form.name.trim(),
+      contactPerson: form.contactPerson.trim(),
+      contactPhone: form.contactPhone.trim(),
+    });
     emit('success');
-  } catch (e) {
-    serverError.value = e instanceof ApiError ? e.message : '保存失败';
+  } catch (cause) {
+    error.value = cause instanceof ApiError ? cause.message : '保存失败';
   } finally {
     submitting.value = false;
   }
 }
 </script>
-
 <template>
-  <form class="company-form" novalidate @submit.prevent="handleSubmit">
-    <div v-if="serverError" class="company-form__error" role="alert">{{ serverError }}</div>
-    <label
-      ><span>公司名称 *</span
-      ><input
-        v-model="form.name"
-        class="company-form__input"
-        :disabled="submitting"
-        placeholder="请输入公司名称"
-    /></label>
-    <label
-      ><span>地址</span
-      ><input
-        v-model="form.address"
-        class="company-form__input"
-        :disabled="submitting"
-        placeholder="请输入地址"
-    /></label>
-    <label
-      ><span>联系人</span
-      ><input
-        v-model="form.contactName"
-        class="company-form__input"
-        :disabled="submitting"
-        placeholder="请输入联系人"
-    /></label>
-    <label
-      ><span>联系电话</span
-      ><input
-        v-model="form.contactPhone"
-        class="company-form__input"
-        :disabled="submitting"
-        placeholder="请输入电话"
-    /></label>
-    <button class="company-form__submit" type="submit" :disabled="submitting">
-      {{ submitting ? '保存中...' : '保存' }}
-    </button>
+  <form class="form-card" novalidate @submit.prevent="submit">
+    <p v-if="error" role="alert">{{ error }}</p>
+    <label>公司名称 *<input v-model="form.name" :disabled="submitting" /></label
+    ><label>联系人 *<input v-model="form.contactPerson" :disabled="submitting" /></label
+    ><label>联系电话 *<input v-model="form.contactPhone" :disabled="submitting" /></label
+    ><label
+      >合同开始日期 *<input
+        v-model="form.contractStart"
+        type="date"
+        :disabled="submitting" /></label
+    ><label
+      >合同结束日期 *<input v-model="form.contractEnd" type="date" :disabled="submitting" /></label
+    ><button :disabled="submitting">{{ submitting ? '保存中…' : '保存' }}</button>
   </form>
 </template>
-
 <style scoped>
-.company-form {
+.form-card {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  width: 100%;
   max-width: 480px;
   padding: var(--space-5);
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
 }
-.company-form__error {
-  padding: var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--color-error-600);
-  background: var(--color-error-50);
-  border-radius: var(--radius-md);
-}
-.company-form label {
+label {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  font-size: var(--text-sm);
 }
-.company-form__input {
+input,
+button {
   padding: var(--space-2) var(--space-3);
-  font-size: var(--text-base);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
-  outline: none;
 }
-.company-form__input:focus {
-  border-color: var(--color-border-focus);
-}
-.company-form__submit {
-  margin-top: var(--space-2);
-  padding: var(--space-3);
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-inverse);
-  background: var(--color-brand);
-  border: none;
-  border-radius: var(--radius-button);
-  cursor: pointer;
-}
-.company-form__submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+[role='alert'] {
+  color: var(--color-error);
 }
 </style>

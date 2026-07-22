@@ -1,61 +1,80 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/features/auth';
 import {
   fetchCourseTemplate,
+  setCourseTemplateActive,
   updateCourseTemplate,
-  toggleCourseTemplateStatus,
 } from '@/features/course-templates/api';
-import type { CourseTemplateDto } from '@/features/course-templates/model';
+import type { CourseTemplate } from '@/features/course-templates/model';
 import { STATUS_LABELS } from '@/features/course-templates/model';
 import { CourseTemplateForm } from '@/features/course-templates/components';
 import { AppPage, AppLoading, AppError } from '@/app/components';
 
 const route = useRoute();
-const router = useRouter();
-const template = ref<CourseTemplateDto | null>(null);
-const loading = ref(true);
+const auth = useAuthStore();
+const template = ref<CourseTemplate | null>(null);
+const loading = ref(false);
 const error = ref('');
+const templateId = computed(() => Number(route.params.id));
+const canManage = computed(() => ['super_admin', 'company_admin'].includes(auth.userRole ?? ''));
 
-onMounted(async () => {
+async function loadTemplate() {
+  if (!Number.isInteger(templateId.value) || templateId.value < 1) {
+    error.value = '课程模板编号无效';
+    return;
+  }
+  loading.value = true;
+  error.value = '';
   try {
-    template.value = (await fetchCourseTemplate(route.params.id as string)).data;
+    template.value = await fetchCourseTemplate(templateId.value);
   } catch {
-    error.value = '模板不存在';
+    error.value = '课程模板不存在或暂时无法加载';
   } finally {
     loading.value = false;
   }
-});
+}
 
 async function handleUpdate(data: Parameters<typeof updateCourseTemplate>[1]) {
-  await updateCourseTemplate(route.params.id as string, data);
-  router.back();
+  template.value = await updateCourseTemplate(templateId.value, data);
 }
 
 async function handleToggle() {
-  if (!template.value) return;
-  const newStatus = template.value.status === 'active' ? 'inactive' : 'active';
-  const r = await toggleCourseTemplateStatus(route.params.id as string, newStatus);
-  template.value = r.data as CourseTemplateDto;
+  if (!template.value || !canManage.value) return;
+  template.value = await setCourseTemplateActive(
+    templateId.value,
+    template.value.status !== 'active',
+  );
 }
+
+onMounted(loadTemplate);
 </script>
 
 <template>
   <AppPage :title="template?.name || '课程模板详情'">
-    <AppLoading v-if="loading" /><AppError v-else-if="error" :message="error" />
+    <AppLoading v-if="loading" />
+    <AppError v-else-if="error" :message="error" show-retry @retry="loadTemplate" />
     <template v-else-if="template">
       <div class="ct-detail">
         <div class="ct-detail__bar">
           <span
             class="ct-detail__status"
             :class="{ 'is-inactive': template.status === 'inactive' }"
-            >{{ STATUS_LABELS[template.status] }}</span
           >
-          <button class="btn-toggle" @click="handleToggle">
+            {{ STATUS_LABELS[template.status] }}
+          </span>
+          <button v-if="canManage" class="btn-toggle" @click="handleToggle">
             {{ template.status === 'active' ? '停用' : '启用' }}
           </button>
+          <span v-else class="readonly-note">当前角色仅可查看</span>
         </div>
-        <CourseTemplateForm :initial="template" :on-submit="handleUpdate" />
+        <CourseTemplateForm
+          :key="template.updatedAt"
+          :initial="template"
+          :readonly="!canManage"
+          :on-submit="handleUpdate"
+        />
       </div>
     </template>
   </AppPage>
@@ -91,5 +110,9 @@ async function handleToggle() {
   border-radius: var(--radius-button);
   background: var(--color-surface);
   cursor: pointer;
+}
+.readonly-note {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
 }
 </style>

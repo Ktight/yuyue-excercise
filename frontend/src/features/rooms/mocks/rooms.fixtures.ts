@@ -2,20 +2,11 @@ import type { components } from '@/generated/api-types';
 export const MOCK_ROOMS: components['schemas']['Room'][] = [
   {
     id: 1,
-    company_id: 1,
-    store_id: 1,
-    name: '大教室A',
+    store: 1,
+    name: '大教室',
     capacity: 30,
-    description: null,
+    facilities: ['瑜伽垫', '音响'],
     status: 'active',
   },
-  {
-    id: 2,
-    company_id: 1,
-    store_id: 1,
-    name: '私教室1',
-    capacity: 5,
-    description: null,
-    status: 'active',
-  },
+  { id: 2, store: 1, name: '私教室', capacity: 5, facilities: ['镜面墙'], status: 'active' },
 ];

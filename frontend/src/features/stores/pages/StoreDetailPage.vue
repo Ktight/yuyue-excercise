@@ -13,6 +13,7 @@ import {
 } from '@/features/rooms';
 import { AppPage, AppError, AppLoading, AppEmpty } from '@/app/components';
 import { useAuthStore } from '@/features/auth';
+import type { StoreWriteInput } from '@/features/stores/model';
 const route = useRoute();
 const id = Number(route.params.id);
 const store = ref<Store | null>(null);
@@ -27,7 +28,7 @@ async function submitRoom(value: Parameters<typeof createRoom>[0]) {
   else await createRoom(value);
   editingRoom.value = null;
 }
-async function submitStore(value: { name: string; address: string }) {
+async function submitStore(value: StoreWriteInput) {
   if (store.value) store.value = await updateStore(store.value.id, value);
 }
 async function toggleStore() {

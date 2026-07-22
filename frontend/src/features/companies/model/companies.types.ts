@@ -1,30 +1,28 @@
 export type ResourceStatus = 'active' | 'inactive';
-
 export interface Company {
   id: number;
   name: string;
-  address: string;
-  contactName: string;
+  contactPerson: string;
   contactPhone: string;
+  contractStart: string;
+  contractEnd: string;
   status: ResourceStatus;
   createdAt: string;
-  updatedAt: string;
 }
-
 export interface CompanyWriteInput {
   name: string;
-  address: string;
-  contactName: string;
+  contactPerson: string;
   contactPhone: string;
+  contractStart: string;
+  contractEnd: string;
+  status?: ResourceStatus;
 }
-
 export interface CompanyListQuery {
   page?: number;
-  page_size?: number;
+  pageSize?: number;
   search?: string;
   status?: ResourceStatus;
 }
-
 export interface CompanyListResult {
   items: Company[];
   page: number;

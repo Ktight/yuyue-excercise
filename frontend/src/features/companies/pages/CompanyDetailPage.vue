@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchCompany, updateCompany, setCompanyActive } from '@/features/companies/api';
-import type { Company } from '@/features/companies/model';
+import type { Company, CompanyWriteInput } from '@/features/companies/model';
 import { CompanyForm } from '@/features/companies/components';
 import { AppPage, AppLoading, AppError } from '@/app/components';
 import { fetchStores, StoreList, type Store } from '@/features/stores';
@@ -30,12 +30,7 @@ onMounted(async () => {
   }
 });
 
-async function handleUpdate(data: {
-  name: string;
-  address: string;
-  contactName: string;
-  contactPhone: string;
-}) {
+async function handleUpdate(data: CompanyWriteInput) {
   await updateCompany(Number(route.params.id), data);
   router.back();
 }
@@ -57,9 +52,9 @@ async function toggleStatus() {
       ><CompanyForm v-if="canManage" :initial="company" :on-submit="handleUpdate" />
       <dl v-else>
         <dt>地址</dt>
-        <dd>{{ company.address || '—' }}</dd>
+        <dd>{{ company.contractStart }} 至 {{ company.contractEnd }}</dd>
         <dt>联系人</dt>
-        <dd>{{ company.contactName || '—' }} {{ company.contactPhone }}</dd>
+        <dd>{{ company.contactPerson }} {{ company.contactPhone }}</dd>
       </dl>
       <button v-if="canManage" type="button" @click="toggleStatus">
         {{ company.status === 'active' ? '停用公司' : '启用公司' }}

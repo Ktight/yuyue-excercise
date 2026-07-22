@@ -160,11 +160,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getBodyAssessments'];
+    get: operations['listBodyAssessments'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postBodyAssessments'];
+    /** @description Trainers may create only for assigned students; managers for their store; admins for their company. Photos are read-only and uploads are deferred. */
+    post: operations['createBodyAssessment'];
     delete?: never;
     options?: never;
     head?: never;
@@ -180,16 +179,14 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getBodyAssessmentsAssessmentId'];
+    get: operations['retrieveBodyAssessment'];
     put?: never;
     post?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    delete: operations['deleteBodyAssessmentsAssessmentId'];
+    /** @description Physical delete is restricted to administrators. Phase 5 has no audit-log model; clients must confirm explicitly and no sensitive content may enter logs. Audit retention is required before broadening this operation. */
+    delete: operations['deleteBodyAssessment'];
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchBodyAssessmentsAssessmentId'];
+    patch: operations['updateBodyAssessment'];
     trace?: never;
   };
   '/api/students/{student_id}/body-assessment-trend/': {
@@ -201,8 +198,7 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStudentsStudentIdBodyAssessmentTrend'];
+    get: operations['retrieveBodyAssessmentTrend'];
     put?: never;
     post?: never;
     delete?: never;
@@ -461,11 +457,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getCompanies'];
+    get: operations['listCompanies'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postCompanies'];
+    post: operations['createCompany'];
     delete?: never;
     options?: never;
     head?: never;
@@ -481,53 +475,13 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getCompaniesCompanyId'];
+    get: operations['retrieveCompany'];
     put?: never;
     post?: never;
-    delete?: never;
+    delete: operations['deleteCompany'];
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchCompaniesCompanyId'];
-    trace?: never;
-  };
-  '/api/companies/{company_id}/activate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        company_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postCompaniesCompanyIdActivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/companies/{company_id}/deactivate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        company_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postCompaniesCompanyIdDeactivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
+    patch: operations['updateCompany'];
     trace?: never;
   };
   '/api/course-templates/': {
@@ -537,11 +491,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getCourseTemplates'];
+    /** @description Company-scoped templates only. Default ordering is category,name. Only active templates are eligible for new scheduling. */
+    get: operations['listCourseTemplates'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postCourseTemplates'];
+    /** @description Company is derived from the authenticated user. Private templates require max_capacity=1 and names are unique per company. */
+    post: operations['createCourseTemplate'];
     delete?: never;
     options?: never;
     head?: never;
@@ -557,53 +511,15 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getCourseTemplatesTemplateId'];
+    get: operations['retrieveCourseTemplate'];
     put?: never;
     post?: never;
-    delete?: never;
+    /** @description Physical deletion is currently allowed because scheduling references are not implemented. Prefer PATCH status=inactive; future references will return 409. */
+    delete: operations['deleteCourseTemplate'];
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchCourseTemplatesTemplateId'];
-    trace?: never;
-  };
-  '/api/course-templates/{template_id}/activate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postCourseTemplatesTemplateIdActivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/course-templates/{template_id}/deactivate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postCourseTemplatesTemplateIdDeactivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
+    /** @description PATCH status is idempotent. Inactive templates remain visible in history but cannot be selected for new schedules. */
+    patch: operations['updateCourseTemplate'];
     trace?: never;
   };
   '/api/dashboards/admin/': {
@@ -870,11 +786,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getRooms'];
+    get: operations['listRooms'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postRooms'];
+    post: operations['createRoom'];
     delete?: never;
     options?: never;
     head?: never;
@@ -890,53 +804,13 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getRoomsRoomId'];
+    get: operations['retrieveRoom'];
     put?: never;
     post?: never;
-    delete?: never;
+    delete: operations['deleteRoom'];
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchRoomsRoomId'];
-    trace?: never;
-  };
-  '/api/rooms/{room_id}/activate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        room_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postRoomsRoomIdActivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/rooms/{room_id}/deactivate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        room_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postRoomsRoomIdDeactivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
+    patch: operations['updateRoom'];
     trace?: never;
   };
   '/api/schedules/': {
@@ -1039,11 +913,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStores'];
+    get: operations['listStores'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postStores'];
+    post: operations['createStore'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1059,53 +931,13 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStoresStoreId'];
+    get: operations['retrieveStore'];
     put?: never;
     post?: never;
-    delete?: never;
+    delete: operations['deleteStore'];
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchStoresStoreId'];
-    trace?: never;
-  };
-  '/api/stores/{store_id}/activate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        store_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postStoresStoreIdActivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/stores/{store_id}/deactivate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        store_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postStoresStoreIdDeactivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
+    patch: operations['updateStore'];
     trace?: never;
   };
   '/api/student/home/': {
@@ -1288,11 +1120,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStudents'];
+    /** @description Super admins see all tenants; company admins see their company; store managers see their store; trainers see only students assigned as primary_trainer. Historical attendance expansion is deferred. */
+    get: operations['listStudents'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postStudents'];
+    /** @description Atomically creates a role=student User and StudentProfile. Company is derived from the token. Phone is globally unique. Trainers are automatically assigned when primary_trainer is omitted. */
+    post: operations['createStudent'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1308,15 +1140,15 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStudentsStudentId'];
+    /** @description Cross-tenant or out-of-role-scope access is hidden as 404. Sensitive fields are available only on this staff-only endpoint and must never be logged in error payloads. */
+    get: operations['retrieveStudent'];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchStudentsStudentId'];
+    /** @description Health/profile fields may be updated by visible staff. Only super/company admins may transfer stores or reassign trainers. Membership fields use the membership endpoint. */
+    patch: operations['updateStudent'];
     trace?: never;
   };
   '/api/students/{student_id}/membership/': {
@@ -1328,15 +1160,14 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStudentsStudentIdMembership'];
+    get: operations['retrieveStudentMembership'];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchStudentsStudentIdMembership'];
+    /** @description Status is computed, not submitted. Count cards use remaining_count; stored cards use balance_minor. Renewal, payment and consumption ledgers are outside Phase 5. */
+    patch: operations['updateStudentMembership'];
     trace?: never;
   };
   '/api/students/{student_id}/eligibility/': {
@@ -1348,8 +1179,8 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStudentsStudentIdEligibility'];
+    /** @description Current general membership eligibility only; no schedule/store parameters are evaluated in Phase 5. */
+    get: operations['retrieveStudentEligibility'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1365,7 +1196,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
+    /** @description Public liveness check. It does not expose database or infrastructure details. */
     get: operations['getHealth'];
     put?: never;
     post?: never;
@@ -1666,6 +1497,7 @@ export interface components {
       | 'CONFLICT'
       | 'RATE_LIMITED'
       | 'INTERNAL_ERROR'
+      | 'API_ERROR'
       | 'INVALID_CREDENTIALS'
       | 'ACCOUNT_DISABLED'
       | 'REFRESH_TOKEN_INVALID'
@@ -1676,6 +1508,15 @@ export interface components {
       | 'STORE_REQUIRED_FOR_ROLE'
       | 'STORE_NOT_ALLOWED_FOR_ROLE'
       | 'CROSS_TENANT_ACCESS_DENIED'
+      | 'COURSE_TEMPLATE_NAME_CONFLICT'
+      | 'PRIVATE_CAPACITY_INVALID'
+      | 'STUDENT_PHONE_ALREADY_EXISTS'
+      | 'STUDENT_STORE_INVALID'
+      | 'STUDENT_TRAINER_INVALID'
+      | 'MEMBERSHIP_COMBINATION_INVALID'
+      | 'ASSESSMENT_VALUE_INVALID'
+      | 'ASSESSMENT_DATE_IN_FUTURE'
+      | 'MEDIA_UPLOAD_DEFERRED'
       | 'SCHEDULE_TIME_CONFLICT'
       | 'ROOM_TIME_CONFLICT'
       | 'TRAINER_TIME_CONFLICT'
@@ -1702,6 +1543,16 @@ export interface components {
       code: 'OK';
       message: string;
       data: unknown;
+    };
+    Health: {
+      /** @enum {string} */
+      status: 'healthy';
+    };
+    HealthSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Health'];
     };
     /** @description DRAFT 模块的资源结构由对应领域 Schema 细化；冻结前禁止真实联调。 */
     DraftResource: {
@@ -1784,17 +1635,72 @@ export interface components {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      readonly company_id: number;
+      readonly company: number;
       name: string;
       /** @enum {string} */
       category: 'private' | 'small_group' | 'group';
-      /** @enum {string} */
-      difficulty: 'beginner' | 'intermediate' | 'advanced' | 'all_levels';
+      /** @default 60 */
       duration_minutes: number;
-      capacity: number;
-      description: string | null;
-      cover: components['schemas']['MediaResource'];
+      /** @default 1 */
+      max_capacity: number;
+      /** @enum {string} */
+      difficulty: 'beginner' | 'intermediate' | 'advanced';
+      /** @default  */
+      description: string;
+      /**
+       * Format: uri
+       * @description Upload is deferred; clients must not submit a server URL.
+       * @default
+       */
+      readonly cover_image: string;
       status: components['schemas']['ResourceStatus'];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseTemplateCreateRequest: {
+      name: string;
+      /** @enum {string} */
+      category: 'private' | 'small_group' | 'group';
+      /** @default 60 */
+      duration_minutes: number;
+      /** @default 1 */
+      max_capacity: number;
+      /** @enum {string} */
+      difficulty: 'beginner' | 'intermediate' | 'advanced';
+      /** @default  */
+      description: string;
+      status?: components['schemas']['ResourceStatus'];
+    };
+    CourseTemplateUpdateRequest: {
+      name?: string;
+      /** @enum {string} */
+      category?: 'private' | 'small_group' | 'group';
+      duration_minutes?: number;
+      max_capacity?: number;
+      /** @enum {string} */
+      difficulty?: 'beginner' | 'intermediate' | 'advanced';
+      description?: string;
+      status?: components['schemas']['ResourceStatus'];
+    };
+    CourseTemplateSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['CourseTemplate'];
+    };
+    CourseTemplateListData: {
+      items: components['schemas']['CourseTemplate'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    CourseTemplateListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['CourseTemplateListData'];
     };
     ClassTemplate: {
       /** Format: int64 */
@@ -1812,39 +1718,146 @@ export interface components {
       /** Format: int64 */
       readonly id: number;
       name: string;
-      address: string;
-      contact_name: string;
+      contact_person: string;
       contact_phone: string;
+      /** Format: date */
+      contract_start: string;
+      /** Format: date */
+      contract_end: string;
       status: components['schemas']['ResourceStatus'];
       /** Format: date-time */
       readonly created_at: string;
-      /** Format: date-time */
-      readonly updated_at: string;
     };
-    Store: {
-      /** Format: int64 */
-      readonly id: number;
-      /** Format: int64 */
-      company_id: number;
+    CompanyCreateRequest: {
       name: string;
-      address: string;
-      status: components['schemas']['ResourceStatus'];
-      /** Format: date-time */
-      readonly created_at: string;
-      /** Format: date-time */
-      readonly updated_at: string;
+      contact_person: string;
+      contact_phone: string;
+      /** Format: date */
+      contract_start: string;
+      /** Format: date */
+      contract_end: string;
+      status?: components['schemas']['ResourceStatus'];
+    };
+    CompanyUpdateRequest: {
+      name?: string;
+      contact_person?: string;
+      contact_phone?: string;
+      /** Format: date */
+      contract_start?: string;
+      /** Format: date */
+      contract_end?: string;
+      status?: components['schemas']['ResourceStatus'];
+    };
+    CompanySuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Company'];
+    };
+    CompanyListData: {
+      items: components['schemas']['Company'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    CompanyListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['CompanyListData'];
     };
     Room: {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      readonly company_id: number;
-      /** Format: int64 */
-      store_id: number;
+      store: number;
       name: string;
+      /** @default 10 */
       capacity: number;
-      description: string | null;
+      facilities: string[] | null;
       status: components['schemas']['ResourceStatus'];
+    };
+    RoomCreateRequest: {
+      /** Format: int64 */
+      store: number;
+      name: string;
+      /** @default 10 */
+      capacity: number;
+      facilities?: string[] | null;
+      status?: components['schemas']['ResourceStatus'];
+    };
+    RoomUpdateRequest: {
+      /** Format: int64 */
+      store?: number;
+      name?: string;
+      capacity?: number;
+      facilities?: string[] | null;
+      status?: components['schemas']['ResourceStatus'];
+    };
+    RoomSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Room'];
+    };
+    RoomListData: {
+      items: components['schemas']['Room'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    RoomListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['RoomListData'];
+    };
+    Store: {
+      /** Format: int64 */
+      readonly id: number;
+      /** Format: int64 */
+      readonly company: number;
+      name: string;
+      address: string;
+      phone: string;
+      /** @example 07:00-22:00 */
+      business_hours: string;
+      status: components['schemas']['ResourceStatus'];
+      /** Format: date-time */
+      readonly created_at: string;
+      readonly rooms: components['schemas']['Room'][];
+    };
+    StoreCreateRequest: {
+      name: string;
+      address: string;
+      phone: string;
+      business_hours: string;
+      status?: components['schemas']['ResourceStatus'];
+    };
+    StoreUpdateRequest: {
+      name?: string;
+      address?: string;
+      phone?: string;
+      business_hours?: string;
+      status?: components['schemas']['ResourceStatus'];
+    };
+    StoreSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Store'];
+    };
+    StoreListData: {
+      items: components['schemas']['Store'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    StoreListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['StoreListData'];
     };
     TrainingPlan: {
       /** Format: int64 */
@@ -2018,56 +2031,266 @@ export interface components {
       /** @description RFC 5545 风格重复规则；DRAFT 待冻结 */
       recurrence: Record<string, never>;
     };
+    StudentUser: {
+      id: components['schemas']['Id'];
+      name: string;
+      phone: string;
+      readonly avatar: string | null;
+      is_active: boolean;
+    };
+    StudentAccountCreateRequest: {
+      name: string;
+      phone: string;
+      /** Format: password */
+      password?: string;
+    };
+    MembershipStatusDetail: {
+      /** @enum {string} */
+      status: 'active' | 'expired' | 'suspended' | 'exhausted';
+      is_valid: boolean;
+      reason: string;
+    };
     Membership: {
       /** @enum {string} */
       card_type: 'count' | 'month' | 'quarter' | 'year' | 'stored';
       /** @enum {string} */
-      status: 'active' | 'expired' | 'suspended' | 'exhausted';
+      readonly status: 'active' | 'expired' | 'suspended' | 'exhausted';
       /** Format: date */
-      expires_on: string | null;
+      starts_on: string;
+      /** Format: date */
+      expires_on: string;
+      /** @description Non-null only for count cards. */
       remaining_count: number | null;
-      balance: components['schemas']['Money'];
+      /** @description Non-null only for stored cards; integer minor currency units. */
+      balance_minor: number | null;
+      active: boolean;
+    };
+    MembershipUpdateRequest: {
+      /** @enum {string} */
+      card_type?: 'count' | 'month' | 'quarter' | 'year' | 'stored';
+      /** Format: date */
+      starts_on?: string;
+      /** Format: date */
+      expires_on?: string;
+      remaining_count?: number;
+      balance_minor?: number;
+      active?: boolean;
+    };
+    MembershipSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Membership'];
     };
     Student: {
+      id: components['schemas']['Id'];
+      user: components['schemas']['StudentUser'];
+      company: components['schemas']['Id'];
+      home_store: components['schemas']['Id'];
       /** Format: int64 */
-      readonly id: number;
-      /** Format: int64 */
-      user_id: number;
-      /** Format: int64 */
-      readonly company_id: number;
-      /** Format: int64 */
-      store_id: number | null;
-      /** Format: int64 */
-      trainer_id: number | null;
-      name: string;
-      phone: string;
+      primary_trainer: number | null;
       /** @enum {string} */
       gender: 'male' | 'female';
       /** Format: date */
-      birthday: string | null;
-      goals: string | null;
-      /** @description 敏感字段，仅授权角色可见 */
-      health_notes: string | null;
-      membership: components['schemas']['Membership'];
+      birth_date: string | null;
+      emergency_contact: string;
+      /** @enum {string} */
+      member_card_type: 'count' | 'month' | 'quarter' | 'year' | 'stored';
+      /** Format: date */
+      member_card_start: string;
+      /** Format: date */
+      member_card_expire: string;
+      member_card_balance: number;
+      member_card_active: boolean;
+      member_card_status: components['schemas']['MembershipStatusDetail'];
+      /** @description Sensitive; returned only because this endpoint is restricted to authorized staff. */
+      health_notes: string;
+      /** @description Sensitive health data. */
+      injury_history: string;
+      /** @description Sensitive health data. */
+      contraindications: string;
+      training_goal: string;
+      preferred_style: string;
+      recent_assessment: components['schemas']['BodyAssessment'] | null;
       status: components['schemas']['ResourceStatus'];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    StudentCreateRequest: {
+      user: components['schemas']['StudentAccountCreateRequest'];
+      home_store: components['schemas']['Id'];
+      /** Format: int64 */
+      primary_trainer?: number | null;
+      /** @enum {string} */
+      gender: 'male' | 'female';
+      /** Format: date */
+      birth_date?: string | null;
+      emergency_contact: string;
+      /** @enum {string} */
+      member_card_type: 'count' | 'month' | 'quarter' | 'year' | 'stored';
+      /** Format: date */
+      member_card_start: string;
+      /** Format: date */
+      member_card_expire: string;
+      /** @default 0 */
+      member_card_balance: number;
+      /** @default true */
+      member_card_active: boolean;
+      health_notes: string;
+      injury_history: string;
+      contraindications: string;
+      training_goal: string;
+      preferred_style: string;
+    };
+    StudentUpdateRequest: {
+      home_store?: components['schemas']['Id'];
+      /** Format: int64 */
+      primary_trainer?: number | null;
+      /** @enum {string} */
+      gender?: 'male' | 'female';
+      /** Format: date */
+      birth_date?: string | null;
+      emergency_contact?: string;
+      health_notes?: string;
+      injury_history?: string;
+      contraindications?: string;
+      training_goal?: string;
+      preferred_style?: string;
+    };
+    StudentSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Student'];
+    };
+    StudentListData: {
+      items: components['schemas']['Student'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    StudentListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['StudentListData'];
+    };
+    StudentEligibility: {
+      is_eligible: boolean;
+      can_book: boolean;
+      can_check_in: boolean;
+      can_consume: boolean;
+      /** @enum {string} */
+      reason_code:
+        'ELIGIBLE' | 'MEMBERSHIP_EXPIRED' | 'MEMBERSHIP_SUSPENDED' | 'MEMBERSHIP_EXHAUSTED';
+      reason: string;
+    };
+    StudentEligibilitySuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['StudentEligibility'];
     };
     BodyAssessment: {
-      /** Format: int64 */
-      readonly id: number;
-      /** Format: int64 */
-      readonly company_id: number;
-      /** Format: int64 */
-      student_id: number;
+      id: components['schemas']['Id'];
+      student: components['schemas']['Id'];
+      /**
+       * Format: date
+       * @description Asia/Shanghai local calendar date; future dates are rejected.
+       */
+      assess_date: string;
+      /**
+       * Format: float
+       * @description Centimetres.
+       */
+      height: number | null;
+      /**
+       * Format: float
+       * @description Kilograms.
+       */
+      weight: number | null;
+      posture_spine: string;
+      posture_pelvis: string;
+      posture_shoulder: string;
+      flexibility_score: number | null;
+      core_strength_score: number | null;
+      /** @description Always an empty/read-only URL array in Phase 5; upload is deferred until the media contract is frozen. */
+      readonly photos: string[];
+      notes: string;
       /** Format: date-time */
-      assessed_at: string;
-      height_cm: string;
-      weight_kg: string;
-      measurements_cm: {
-        [key: string]: string;
-      };
-      scores: {
-        [key: string]: number;
-      };
+      readonly created_at: string;
+    };
+    BodyAssessmentCreateRequest: {
+      student: components['schemas']['Id'];
+      /** Format: date */
+      assess_date: string;
+      /** Format: float */
+      height?: number | null;
+      /** Format: float */
+      weight?: number | null;
+      posture_spine?: string;
+      posture_pelvis?: string;
+      posture_shoulder?: string;
+      flexibility_score?: number | null;
+      core_strength_score?: number | null;
+      notes?: string;
+    };
+    BodyAssessmentUpdateRequest: {
+      /** Format: date */
+      assess_date?: string;
+      /** Format: float */
+      height?: number | null;
+      /** Format: float */
+      weight?: number | null;
+      posture_spine?: string;
+      posture_pelvis?: string;
+      posture_shoulder?: string;
+      flexibility_score?: number | null;
+      core_strength_score?: number | null;
+      notes?: string;
+    };
+    BodyAssessmentSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['BodyAssessment'];
+    };
+    BodyAssessmentListData: {
+      items: components['schemas']['BodyAssessment'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    BodyAssessmentListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['BodyAssessmentListData'];
+    };
+    BodyAssessmentTrendPoint: {
+      assessment_id: components['schemas']['Id'];
+      /** Format: date */
+      assess_date: string;
+      value: number;
+    };
+    BodyAssessmentTrend: {
+      student_id: components['schemas']['Id'];
+      /** @enum {string} */
+      metric: 'height' | 'weight' | 'flexibility_score' | 'core_strength_score';
+      /** @enum {string} */
+      unit: 'cm' | 'kg' | 'score_1_10';
+      /** @description False when fewer than two non-null points exist. */
+      has_trend: boolean;
+      /** @description Ascending by assess_date then id; missing values are omitted and never replaced by zero. */
+      points: components['schemas']['BodyAssessmentTrendPoint'][];
+    };
+    BodyAssessmentTrendSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['BodyAssessmentTrend'];
     };
   };
   responses: {
@@ -2089,24 +2312,6 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 权限不足 */
-    Forbidden: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
-    /** @description 未认证或令牌无效 */
-    Unauthorized: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
     /** @description 资源不存在或为避免跨租户枚举而隐藏 */
     NotFound: {
       headers: {
@@ -2118,6 +2323,24 @@ export interface components {
     };
     /** @description 唯一性或资源状态冲突 */
     Conflict: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 权限不足 */
+    Forbidden: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 未认证或令牌无效 */
+    Unauthorized: {
       headers: {
         [name: string]: unknown;
       };
@@ -2438,33 +2661,35 @@ export interface operations {
       500: components['responses']['ServerError'];
     };
   };
-  getBodyAssessments: {
+  listBodyAssessments: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        student_id?: number;
+        ordering?: 'assess_date' | '-assess_date';
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Assessment list */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['BodyAssessmentListSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postBodyAssessments: {
+  createBodyAssessment: {
     parameters: {
       query?: never;
       header?: never;
@@ -2473,28 +2698,26 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['BodyAssessmentCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Created */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BodyAssessmentSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getBodyAssessmentsAssessmentId: {
+  retrieveBodyAssessment: {
     parameters: {
       query?: never;
       header?: never;
@@ -2505,24 +2728,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Detail */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BodyAssessmentSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  deleteBodyAssessmentsAssessmentId: {
+  deleteBodyAssessment: {
     parameters: {
       query?: never;
       header?: never;
@@ -2533,7 +2753,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Deleted */
       200: {
         headers: {
           [name: string]: unknown;
@@ -2542,15 +2762,12 @@ export interface operations {
           'application/json': components['schemas']['EmptySuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchBodyAssessmentsAssessmentId: {
+  updateBodyAssessment: {
     parameters: {
       query?: never;
       header?: never;
@@ -2561,30 +2778,32 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['BodyAssessmentUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Updated */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BodyAssessmentSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getStudentsStudentIdBodyAssessmentTrend: {
+  retrieveBodyAssessmentTrend: {
     parameters: {
-      query?: never;
+      query?: {
+        metric?: 'height' | 'weight' | 'flexibility_score' | 'core_strength_score';
+        date_from?: string;
+        date_to?: string;
+      };
       header?: never;
       path: {
         student_id: number;
@@ -2593,21 +2812,19 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Trend */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BodyAssessmentTrendSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   getBookings: {
@@ -3170,33 +3387,32 @@ export interface operations {
       500: components['responses']['ServerError'];
     };
   };
-  getCompanies: {
+  listCompanies: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description 公司列表 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['CompanyListSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postCompanies: {
+  createCompany: {
     parameters: {
       query?: never;
       header?: never;
@@ -3205,28 +3421,25 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['CompanyCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description 公司已创建 */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['CompanySuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getCompaniesCompanyId: {
+  retrieveCompany: {
     parameters: {
       query?: never;
       header?: never;
@@ -3237,24 +3450,44 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description 公司详情 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['CompanySuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchCompaniesCompanyId: {
+  deleteCompany: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        company_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 公司已删除 */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  updateCompany: {
     parameters: {
       query?: never;
       header?: never;
@@ -3265,118 +3498,59 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['CompanyUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description 公司已更新 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['CompanySuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postCompaniesCompanyIdActivate: {
+  listCourseTemplates: {
     parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        company_id: number;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        search?: components['parameters']['SearchParameter'];
+        ordering?: components['parameters']['OrderingParameter'];
+        category?: 'private' | 'small_group' | 'group';
+        difficulty?: 'beginner' | 'intermediate' | 'advanced';
+        status?: components['schemas']['ResourceStatus'];
+        /** @description Super admin only; other roles receive 403 when requesting another tenant. */
+        company_id?: number;
       };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postCompaniesCompanyIdDeactivate: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        company_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getCourseTemplates: {
-    parameters: {
-      query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Course template list */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['CourseTemplateListSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postCourseTemplates: {
+  createCourseTemplate: {
     parameters: {
       query?: never;
       header?: never;
@@ -3385,28 +3559,26 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['CourseTemplateCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Created */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['CourseTemplateSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getCourseTemplatesTemplateId: {
+  retrieveCourseTemplate: {
     parameters: {
       query?: never;
       header?: never;
@@ -3417,24 +3589,47 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Detail */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['CourseTemplateSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  deleteCourseTemplate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        template_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EmptySuccessResponse'];
+        };
+      };
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchCourseTemplatesTemplateId: {
+  updateCourseTemplate: {
     parameters: {
       query?: never;
       header?: never;
@@ -3445,17 +3640,17 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['CourseTemplateUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Updated */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['CourseTemplateSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -3463,71 +3658,6 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postCourseTemplatesTemplateIdActivate: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postCourseTemplatesTemplateIdDeactivate: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   getDashboardsAdmin: {
@@ -4084,33 +4214,32 @@ export interface operations {
       500: components['responses']['ServerError'];
     };
   };
-  getRooms: {
+  listRooms: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description 场地列表 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['RoomListSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postRooms: {
+  createRoom: {
     parameters: {
       query?: never;
       header?: never;
@@ -4119,28 +4248,25 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['RoomCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description 场地已创建 */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['RoomSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getRoomsRoomId: {
+  retrieveRoom: {
     parameters: {
       query?: never;
       header?: never;
@@ -4151,24 +4277,44 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description 场地详情 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['RoomSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchRoomsRoomId: {
+  deleteRoom: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        room_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 场地已删除 */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  updateRoom: {
     parameters: {
       query?: never;
       header?: never;
@@ -4179,89 +4325,23 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['RoomUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description 场地已更新 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['RoomSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postRoomsRoomIdActivate: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        room_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postRoomsRoomIdDeactivate: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        room_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   getSchedules: {
@@ -4474,33 +4554,32 @@ export interface operations {
       500: components['responses']['ServerError'];
     };
   };
-  getStores: {
+  listStores: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description 门店列表 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['StoreListSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postStores: {
+  createStore: {
     parameters: {
       query?: never;
       header?: never;
@@ -4509,28 +4588,26 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['StoreCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description 门店已创建 */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['StoreSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getStoresStoreId: {
+  retrieveStore: {
     parameters: {
       query?: never;
       header?: never;
@@ -4541,24 +4618,44 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description 门店详情 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['StoreSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchStoresStoreId: {
+  deleteStore: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        store_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 门店已删除 */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  updateStore: {
     parameters: {
       query?: never;
       header?: never;
@@ -4569,89 +4666,23 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['StoreUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description 门店已更新 */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['StoreSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postStoresStoreIdActivate: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        store_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postStoresStoreIdDeactivate: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        store_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   getStudentHome: {
@@ -4954,33 +4985,40 @@ export interface operations {
       500: components['responses']['ServerError'];
     };
   };
-  getStudents: {
+  listStudents: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        search?: components['parameters']['SearchParameter'];
+        ordering?: components['parameters']['OrderingParameter'];
+        status?: components['schemas']['ResourceStatus'];
+        membership_status?: 'valid' | 'expired' | 'insufficient';
+        store_id?: number;
+        trainer_id?: number;
+        expiring_days?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Student list */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['StudentListSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postStudents: {
+  createStudent: {
     parameters: {
       query?: never;
       header?: never;
@@ -4989,28 +5027,26 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['StudentCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Created */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['StudentSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getStudentsStudentId: {
+  retrieveStudent: {
     parameters: {
       query?: never;
       header?: never;
@@ -5021,24 +5057,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Detail */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['StudentSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchStudentsStudentId: {
+  updateStudent: {
     parameters: {
       query?: never;
       header?: never;
@@ -5049,17 +5082,17 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['StudentUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Updated */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['StudentSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -5067,10 +5100,9 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getStudentsStudentIdMembership: {
+  retrieveStudentMembership: {
     parameters: {
       query?: never;
       header?: never;
@@ -5081,24 +5113,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Membership */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['MembershipSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchStudentsStudentIdMembership: {
+  updateStudentMembership: {
     parameters: {
       query?: never;
       header?: never;
@@ -5109,28 +5138,26 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['MembershipUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Updated */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['MembershipSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getStudentsStudentIdEligibility: {
+  retrieveStudentEligibility: {
     parameters: {
       query?: never;
       header?: never;
@@ -5141,21 +5168,18 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Eligibility */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['StudentEligibilitySuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   getHealth: {
@@ -5173,7 +5197,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['HealthSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];

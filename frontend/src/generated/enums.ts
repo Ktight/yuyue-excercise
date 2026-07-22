@@ -65,6 +65,32 @@ export const COURSE_CATEGORY_LABELS: Readonly<Record<CourseCategory, string>> = 
   group: '团体课',
 };
 
+export const COURSE_DIFFICULTY = {
+  BEGINNER: 'beginner',
+  INTERMEDIATE: 'intermediate',
+  ADVANCED: 'advanced',
+} as const;
+export type CourseDifficulty = (typeof COURSE_DIFFICULTY)[keyof typeof COURSE_DIFFICULTY];
+export const COURSE_DIFFICULTY_LABELS: Readonly<Record<CourseDifficulty, string>> = {
+  beginner: '初级',
+  intermediate: '中级',
+  advanced: '高级',
+};
+
+export const MEMBERSHIP_STATUS = {
+  ACTIVE: 'active',
+  EXPIRED: 'expired',
+  SUSPENDED: 'suspended',
+  EXHAUSTED: 'exhausted',
+} as const;
+export type MembershipStatus = (typeof MEMBERSHIP_STATUS)[keyof typeof MEMBERSHIP_STATUS];
+export const MEMBERSHIP_STATUS_LABELS: Readonly<Record<MembershipStatus, string>> = {
+  active: '有效',
+  expired: '已过期',
+  suspended: '已暂停',
+  exhausted: '已耗尽',
+};
+
 export const ATTENDANCE_STATUS = {
   PRESENT: 'present',
   LATE: 'late',

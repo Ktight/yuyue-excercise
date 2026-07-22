@@ -6,72 +6,71 @@ import type {
   CompanyListResult,
   CompanyWriteInput,
 } from '@/features/companies/model';
-import type { ApiEnvelope, ApiPage } from './organization.types';
 
-type WireCompany = components['schemas']['Company'];
+type Wire = components['schemas']['Company'];
+type WireCreate = components['schemas']['CompanyCreateRequest'];
+type WireUpdate = components['schemas']['CompanyUpdateRequest'];
+type Success = components['schemas']['CompanySuccessResponse'];
+type ListSuccess = components['schemas']['CompanyListSuccessResponse'];
 
-function mapCompany(value: WireCompany): Company {
-  return {
-    id: value.id,
-    name: value.name,
-    address: value.address,
-    contactName: value.contact_name,
-    contactPhone: value.contact_phone,
-    status: value.status,
-    createdAt: value.created_at,
-    updatedAt: value.updated_at,
-  };
-}
-
-function toWire(value: CompanyWriteInput) {
-  return {
-    name: value.name,
-    address: value.address,
-    contact_name: value.contactName,
-    contact_phone: value.contactPhone,
-  };
-}
+const map = (value: Wire): Company => ({
+  id: value.id,
+  name: value.name,
+  contactPerson: value.contact_person,
+  contactPhone: value.contact_phone,
+  contractStart: value.contract_start,
+  contractEnd: value.contract_end,
+  status: value.status,
+  createdAt: value.created_at,
+});
+const toWire = (value: CompanyWriteInput): WireCreate => ({
+  name: value.name,
+  contact_person: value.contactPerson,
+  contact_phone: value.contactPhone,
+  contract_start: value.contractStart,
+  contract_end: value.contractEnd,
+  status: value.status,
+});
 
 export async function fetchCompanies(query: CompanyListQuery = {}): Promise<CompanyListResult> {
-  const { data } = await httpClient.get<ApiEnvelope<ApiPage<WireCompany>>>('/companies/', {
-    params: query,
+  const { data } = await httpClient.get<ListSuccess>('/companies/', {
+    params: {
+      page: query.page,
+      page_size: query.pageSize,
+      search: query.search,
+      status: query.status,
+    },
   });
   return {
-    items: data.data.items.map(mapCompany),
+    items: data.data.items.map(map),
     page: data.data.page,
     pageSize: data.data.page_size,
     total: data.data.total,
   };
 }
-
 export async function fetchCompany(id: number): Promise<Company> {
-  const { data } = await httpClient.get<ApiEnvelope<WireCompany>>(`/companies/${id}/`);
-  return mapCompany(data.data);
+  const { data } = await httpClient.get<Success>(`/companies/${id}/`);
+  return map(data.data);
 }
-
 export async function createCompany(value: CompanyWriteInput): Promise<Company> {
-  const { data } = await httpClient.post<ApiEnvelope<WireCompany>>('/companies/', toWire(value));
-  return mapCompany(data.data);
+  const { data } = await httpClient.post<Success>('/companies/', toWire(value));
+  return map(data.data);
 }
-
 export async function updateCompany(
   id: number,
   value: Partial<CompanyWriteInput>,
 ): Promise<Company> {
-  const body = {
+  const body: WireUpdate = {
     name: value.name,
-    address: value.address,
-    contact_name: value.contactName,
+    contact_person: value.contactPerson,
     contact_phone: value.contactPhone,
+    contract_start: value.contractStart,
+    contract_end: value.contractEnd,
+    status: value.status,
   };
-  const { data } = await httpClient.patch<ApiEnvelope<WireCompany>>(`/companies/${id}/`, body);
-  return mapCompany(data.data);
+  const { data } = await httpClient.patch<Success>(`/companies/${id}/`, body);
+  return map(data.data);
 }
-export async function setCompanyActive(id: number, active: boolean): Promise<Company> {
-  const action = active ? 'activate' : 'deactivate';
-  const { data } = await httpClient.post<ApiEnvelope<WireCompany>>(
-    `/companies/${id}/${action}/`,
-    {},
-  );
-  return mapCompany(data.data);
+export function setCompanyActive(id: number, active: boolean): Promise<Company> {
+  return updateCompany(id, { status: active ? 'active' : 'inactive' });
 }

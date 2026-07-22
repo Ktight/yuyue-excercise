@@ -9,7 +9,7 @@ export const courseTemplatesRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/course-templates/new',
     component: () => import('@/features/course-templates/pages/CourseTemplateCreatePage.vue'),
-    meta: { roles: ['super_admin', 'company_admin', 'store_manager'] },
+    meta: { roles: ['super_admin', 'company_admin'] },
   },
   {
     path: '/admin/course-templates/:id',

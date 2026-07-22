@@ -12,7 +12,7 @@ defineEmits<{ select: [company: Company] }>();
     <div v-for="c in companies" :key="c.id" class="company-list__item" @click="$emit('select', c)">
       <div>
         <div class="company-list__name">{{ c.name }}</div>
-        <div class="company-list__addr">{{ c.address || '暂无地址' }}</div>
+        <div class="company-list__addr">{{ c.contactPerson }} · {{ c.contactPhone }}</div>
       </div>
       <span class="company-list__status" :class="{ 'is-inactive': c.status === 'inactive' }">{{
         c.status === 'active' ? '运营中' : '已停用'

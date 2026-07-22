@@ -1,18 +1,18 @@
 export type ResourceStatus = 'active' | 'inactive';
 export interface Room {
   id: number;
-  companyId: number;
   storeId: number;
   name: string;
   capacity: number;
-  description: string | null;
+  facilities: string[];
   status: ResourceStatus;
 }
 export interface RoomWriteInput {
   storeId: number;
   name: string;
   capacity: number;
-  description: string | null;
+  facilities: string[];
+  status?: ResourceStatus;
 }
 export interface RoomListQuery {
   page?: number;

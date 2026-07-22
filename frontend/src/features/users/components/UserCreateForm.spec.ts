@@ -7,9 +7,10 @@ const stores = [
     companyId: 1,
     name: '一店',
     address: '',
+    phone: '',
+    businessHours: '07:00-22:00',
     status: 'active' as const,
     createdAt: '',
-    updatedAt: '',
   },
 ];
 describe('UserCreateForm store relation', () => {

@@ -12,20 +12,23 @@ const emit = defineEmits<{ success: [] }>();
 const form = reactive({
   name: props.initial?.name ?? '',
   capacity: props.initial?.capacity ?? 1,
-  description: props.initial?.description ?? '',
+  facilitiesText: props.initial?.facilities.join('、') ?? '',
 });
 const error = ref('');
 const submitting = ref(false);
 async function submit() {
-  const value = {
+  const value: RoomWriteInput = {
     storeId: props.storeId,
     name: form.name.trim(),
     capacity: form.capacity,
-    description: form.description.trim() || null,
+    facilities: form.facilitiesText
+      .split(/[、,，]/)
+      .map((v) => v.trim())
+      .filter(Boolean),
   };
-  const validation = validateRoom(value);
-  if (validation.length) {
-    error.value = validation[0] ?? '请检查输入';
+  const errors = validateRoom(value);
+  if (errors[0]) {
+    error.value = errors[0];
     return;
   }
   submitting.value = true;
@@ -33,8 +36,8 @@ async function submit() {
   try {
     await props.onSubmit(value);
     emit('success');
-  } catch (e) {
-    error.value = e instanceof ApiError ? e.message : '保存失败';
+  } catch (cause) {
+    error.value = cause instanceof ApiError ? cause.message : '保存失败';
   } finally {
     submitting.value = false;
   }
@@ -50,7 +53,11 @@ async function submit() {
         type="number"
         min="1"
         :disabled="submitting" /></label
-    ><label>说明<textarea v-model="form.description" :disabled="submitting" /></label
+    ><label
+      >设施（使用顿号或逗号分隔）<textarea
+        v-model="form.facilitiesText"
+        :disabled="submitting"
+      /></label
     ><button :disabled="submitting">
       {{ submitting ? '保存中…' : initial ? '保存场地' : '新增场地' }}
     </button>

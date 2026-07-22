@@ -2,29 +2,20 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import StoreSelect from './StoreSelect.vue';
 describe('StoreSelect', () => {
-  it('emits a numeric id and disables inactive stores', async () => {
+  it('emits numeric id and disables inactive stores', async () => {
+    const base = {
+      companyId: 1,
+      address: '',
+      phone: '',
+      businessHours: '07:00-22:00',
+      createdAt: '',
+    };
     const wrapper = mount(StoreSelect, {
       props: {
         modelValue: null,
         stores: [
-          {
-            id: 2,
-            companyId: 1,
-            name: '门店',
-            address: '',
-            status: 'active',
-            createdAt: '',
-            updatedAt: '',
-          },
-          {
-            id: 3,
-            companyId: 1,
-            name: '停用门店',
-            address: '',
-            status: 'inactive',
-            createdAt: '',
-            updatedAt: '',
-          },
+          { ...base, id: 2, name: '门店', status: 'active' },
+          { ...base, id: 3, name: '停用门店', status: 'inactive' },
         ],
       },
     });

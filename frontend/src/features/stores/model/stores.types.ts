@@ -4,14 +4,17 @@ export interface Store {
   companyId: number;
   name: string;
   address: string;
+  phone: string;
+  businessHours: string;
   status: ResourceStatus;
   createdAt: string;
-  updatedAt: string;
 }
 export interface StoreWriteInput {
-  companyId: number;
   name: string;
   address: string;
+  phone: string;
+  businessHours: string;
+  status?: ResourceStatus;
 }
 export interface StoreListQuery {
   page?: number;

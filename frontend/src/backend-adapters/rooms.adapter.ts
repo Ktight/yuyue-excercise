@@ -1,20 +1,29 @@
 import type { components } from '@/generated/api-types';
 import { httpClient } from '@/shared/api';
 import type { Room, RoomListQuery, RoomListResult, RoomWriteInput } from '@/features/rooms/model';
-import type { ApiEnvelope, ApiPage } from './organization.types';
 type Wire = components['schemas']['Room'];
-const map = (v: Wire): Room => ({
-  id: v.id,
-  companyId: v.company_id,
-  storeId: v.store_id,
-  name: v.name,
-  capacity: v.capacity,
-  description: v.description,
-  status: v.status,
+type WireCreate = components['schemas']['RoomCreateRequest'];
+type WireUpdate = components['schemas']['RoomUpdateRequest'];
+type Success = components['schemas']['RoomSuccessResponse'];
+type ListSuccess = components['schemas']['RoomListSuccessResponse'];
+const map = (value: Wire): Room => ({
+  id: value.id,
+  storeId: value.store,
+  name: value.name,
+  capacity: value.capacity,
+  facilities: value.facilities ?? [],
+  status: value.status,
 });
-export async function fetchRooms(q: RoomListQuery = {}): Promise<RoomListResult> {
-  const { data } = await httpClient.get<ApiEnvelope<ApiPage<Wire>>>('/rooms/', {
-    params: { page: q.page, page_size: q.pageSize, store_id: q.storeId },
+const toWire = (value: RoomWriteInput): WireCreate => ({
+  store: value.storeId,
+  name: value.name,
+  capacity: value.capacity,
+  facilities: value.facilities,
+  status: value.status,
+});
+export async function fetchRooms(query: RoomListQuery = {}): Promise<RoomListResult> {
+  const { data } = await httpClient.get<ListSuccess>('/rooms/', {
+    params: { page: query.page, page_size: query.pageSize, store_id: query.storeId },
   });
   return {
     items: data.data.items.map(map),
@@ -24,27 +33,24 @@ export async function fetchRooms(q: RoomListQuery = {}): Promise<RoomListResult>
   };
 }
 export async function fetchRoom(id: number): Promise<Room> {
-  const { data } = await httpClient.get<ApiEnvelope<Wire>>(`/rooms/${id}/`);
+  const { data } = await httpClient.get<Success>(`/rooms/${id}/`);
   return map(data.data);
 }
-export async function createRoom(v: RoomWriteInput): Promise<Room> {
-  const { data } = await httpClient.post<ApiEnvelope<Wire>>('/rooms/', {
-    store_id: v.storeId,
-    name: v.name,
-    capacity: v.capacity,
-    description: v.description,
-  });
+export async function createRoom(value: RoomWriteInput): Promise<Room> {
+  const { data } = await httpClient.post<Success>('/rooms/', toWire(value));
   return map(data.data);
 }
-export async function updateRoom(
-  id: number,
-  v: Partial<Omit<RoomWriteInput, 'storeId'>>,
-): Promise<Room> {
-  const { data } = await httpClient.patch<ApiEnvelope<Wire>>(`/rooms/${id}/`, v);
+export async function updateRoom(id: number, value: Partial<RoomWriteInput>): Promise<Room> {
+  const body: WireUpdate = {
+    store: value.storeId,
+    name: value.name,
+    capacity: value.capacity,
+    facilities: value.facilities,
+    status: value.status,
+  };
+  const { data } = await httpClient.patch<Success>(`/rooms/${id}/`, body);
   return map(data.data);
 }
-export async function setRoomActive(id: number, active: boolean): Promise<Room> {
-  const action = active ? 'activate' : 'deactivate';
-  const { data } = await httpClient.post<ApiEnvelope<Wire>>(`/rooms/${id}/${action}/`, {});
-  return map(data.data);
+export function setRoomActive(id: number, active: boolean): Promise<Room> {
+  return updateRoom(id, { status: active ? 'active' : 'inactive' });
 }

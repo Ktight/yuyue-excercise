@@ -3,5 +3,6 @@ export {
   fetchCourseTemplate,
   createCourseTemplate,
   updateCourseTemplate,
-  toggleCourseTemplateStatus,
+  setCourseTemplateActive,
+  deleteCourseTemplate,
 } from './course-templates.api';
