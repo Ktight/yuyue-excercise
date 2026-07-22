@@ -1,1 +1,1 @@
-export type { BodyAssessmentDto, BodyAssessmentCreateRequestDto } from './body-assessments.types';
+export * from './body-assessments.types';

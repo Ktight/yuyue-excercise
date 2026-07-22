@@ -4,3 +4,5 @@ export * as companiesAdapter from './companies.adapter';
 export * as storesAdapter from './stores.adapter';
 export * as roomsAdapter from './rooms.adapter';
 export * as courseTemplatesAdapter from './course-templates.adapter';
+export * as studentsAdapter from './students.adapter';
+export * as bodyAssessmentsAdapter from './body-assessments.adapter';

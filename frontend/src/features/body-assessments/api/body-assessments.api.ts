@@ -1,26 +1,8 @@
-import { httpClient } from '@/shared/api';
-import type {
-  BodyAssessmentDto,
-  BodyAssessmentCreateRequestDto,
-} from '@/features/body-assessments/model';
-interface PaginatedData<T> {
-  items: T[];
-  page: number;
-  page_size: number;
-  total: number;
-}
+import { bodyAssessmentsAdapter } from '@/backend-adapters';
 
-export async function fetchAssessments(params: { student_id: string }) {
-  const r = await httpClient.get<{ code: string; data: PaginatedData<BodyAssessmentDto> }>(
-    '/body-assessments',
-    { params },
-  );
-  return r.data;
-}
-export async function createAssessment(dto: BodyAssessmentCreateRequestDto) {
-  const r = await httpClient.post<{ code: string; data: BodyAssessmentDto }>(
-    '/body-assessments',
-    dto,
-  );
-  return r.data;
-}
+export const fetchAssessments = bodyAssessmentsAdapter.fetchAssessments;
+export const fetchAssessment = bodyAssessmentsAdapter.fetchAssessment;
+export const createAssessment = bodyAssessmentsAdapter.createAssessment;
+export const updateAssessment = bodyAssessmentsAdapter.updateAssessment;
+export const deleteAssessment = bodyAssessmentsAdapter.deleteAssessment;
+export const fetchAssessmentTrend = bodyAssessmentsAdapter.fetchAssessmentTrend;

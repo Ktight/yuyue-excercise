@@ -1,218 +1,174 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { MembershipType, Student } from '@/features/students/model';
-import { MEMBERSHIP_LABELS } from '@/features/students/model';
-import { ApiError } from '@/shared/api';
-
-const props = defineProps<{
-  initial?: Partial<Student>;
-  onSubmit: (data: {
-    name: string;
-    phone: string;
-    gender?: 'male' | 'female';
-    birthday?: string;
-    membership_type: MembershipType;
-    membership_expire_date?: string;
-    training_goal?: string;
-    notes?: string;
-  }) => Promise<void>;
-}>();
-const emit = defineEmits<{ success: [] }>();
-
-const name = ref(props.initial?.name || '');
-const phone = ref(props.initial?.phone || '');
-const gender = ref(props.initial?.gender || '');
-const birthday = ref(props.initial?.birthday || '');
-const membershipType = ref<MembershipType>(props.initial?.membershipType || 'none');
-const expireDate = ref(props.initial?.membershipExpireDate || '');
-const trainingGoal = ref(props.initial?.trainingGoal || '');
-const notes = ref(props.initial?.notes || '');
-const serverError = ref('');
-const submitting = ref(false);
-
-async function handleSubmit() {
-  if (!name.value.trim()) {
-    serverError.value = '请输入姓名';
-    return;
-  }
-  if (!phone.value.trim()) {
-    serverError.value = '请输入手机号';
-    return;
-  }
-  serverError.value = '';
-  submitting.value = true;
+import { reactive, ref } from 'vue';
+import type { Student, StudentCreateInput, StudentUpdateInput } from '@/features/students/model';
+const props = withDefaults(
+  defineProps<{
+    initial?: Student;
+    allowAssignment?: boolean;
+    onSubmit: (value: StudentCreateInput | StudentUpdateInput) => Promise<void>;
+  }>(),
+  { initial: undefined, allowAssignment: true },
+);
+const saving = ref(false);
+const error = ref('');
+const today = new Date().toISOString().slice(0, 10);
+const form = reactive({
+  name: props.initial?.user.name ?? '',
+  phone: props.initial?.user.phone ?? '',
+  password: '',
+  homeStoreId: props.initial?.homeStoreId ?? 1,
+  primaryTrainerId: props.initial?.primaryTrainerId?.toString() ?? '',
+  gender: props.initial?.gender ?? 'female',
+  birthDate: props.initial?.birthDate ?? '',
+  emergencyContact: props.initial?.emergencyContact ?? '',
+  membershipType: props.initial?.membershipType ?? 'count',
+  membershipStartsOn: props.initial?.membershipStartsOn ?? today,
+  membershipExpiresOn: props.initial?.membershipExpiresOn ?? today,
+  membershipBalance: props.initial?.membershipBalance ?? 0,
+  membershipActive: props.initial?.membershipActive ?? true,
+  healthNotes: props.initial?.healthNotes ?? '',
+  injuryHistory: props.initial?.injuryHistory ?? '',
+  contraindications: props.initial?.contraindications ?? '',
+  trainingGoal: props.initial?.trainingGoal ?? '',
+  preferredStyle: props.initial?.preferredStyle ?? '',
+});
+async function submit() {
+  saving.value = true;
+  error.value = '';
   try {
-    await props.onSubmit({
-      name: name.value.trim(),
-      phone: phone.value.trim(),
-      gender: (gender.value || undefined) as 'male' | 'female' | undefined,
-      birthday: birthday.value || undefined,
-      membership_type: membershipType.value,
-      membership_expire_date: expireDate.value || undefined,
-      training_goal: trainingGoal.value.trim() || undefined,
-      notes: notes.value.trim() || undefined,
-    });
-    emit('success');
-  } catch (e) {
-    serverError.value = e instanceof ApiError ? e.message : '保存失败';
+    const profile: StudentUpdateInput = {
+      homeStoreId: Number(form.homeStoreId),
+      primaryTrainerId: form.primaryTrainerId ? Number(form.primaryTrainerId) : null,
+      gender: form.gender,
+      birthDate: form.birthDate || null,
+      emergencyContact: form.emergencyContact,
+      healthNotes: form.healthNotes,
+      injuryHistory: form.injuryHistory,
+      contraindications: form.contraindications,
+      trainingGoal: form.trainingGoal,
+      preferredStyle: form.preferredStyle,
+    };
+    await props.onSubmit(
+      props.initial
+        ? profile
+        : ({
+            ...profile,
+            name: form.name,
+            phone: form.phone,
+            password: form.password || undefined,
+            membershipType: form.membershipType,
+            membershipStartsOn: form.membershipStartsOn,
+            membershipExpiresOn: form.membershipExpiresOn,
+            membershipBalance: Number(form.membershipBalance),
+            membershipActive: form.membershipActive,
+          } as StudentCreateInput),
+    );
+  } catch {
+    error.value = '保存失败，请检查表单或稍后重试';
   } finally {
-    submitting.value = false;
+    saving.value = false;
   }
 }
-
-const memberships = Object.entries(MEMBERSHIP_LABELS) as [MembershipType, string][];
 </script>
-
 <template>
-  <form class="sf" novalidate @submit.prevent="handleSubmit">
-    <div v-if="serverError" class="sf__error" role="alert">{{ serverError }}</div>
-    <!-- 基本信息 -->
-    <fieldset class="sf__section">
-      <legend>基本信息</legend>
-      <div class="sf__row">
-        <label
-          ><span>姓名 *</span
-          ><input v-model="name" class="sf__input" :disabled="submitting" placeholder="请输入姓名"
-        /></label>
-        <label
-          ><span>手机号 *</span
-          ><input
-            v-model="phone"
-            class="sf__input"
-            :disabled="submitting"
-            placeholder="请输入手机号"
-        /></label>
-      </div>
-      <div class="sf__row">
-        <label
-          ><span>性别</span
-          ><select v-model="gender" class="sf__input" :disabled="submitting">
-            <option value="">请选择</option>
-            <option value="male">男</option>
-            <option value="female">女</option>
-          </select></label
-        >
-        <label
-          ><span>生日</span
-          ><input v-model="birthday" type="date" class="sf__input" :disabled="submitting"
-        /></label>
-      </div>
-    </fieldset>
-    <!-- 会员卡 -->
-    <fieldset class="sf__section">
-      <legend>会员卡</legend>
-      <div class="sf__row">
-        <label
-          ><span>类型</span
-          ><select v-model="membershipType" class="sf__input" :disabled="submitting">
-            <option v-for="[v, l] in memberships" :key="v" :value="v">{{ l }}</option>
-          </select></label
-        >
-        <label
-          ><span>到期日期</span
-          ><input v-model="expireDate" type="date" class="sf__input" :disabled="submitting"
-        /></label>
-      </div>
-    </fieldset>
-    <!-- 训练目标 -->
-    <fieldset class="sf__section">
-      <legend>训练目标</legend>
+  <form class="form" @submit.prevent="submit">
+    <h3>账号与归属</h3>
+    <label>姓名<input v-model.trim="form.name" :disabled="!!initial" required /></label
+    ><label
+      >手机号<input
+        v-model.trim="form.phone"
+        :disabled="!!initial"
+        required
+        pattern="1[3-9][0-9]{9}" /></label
+    ><label v-if="!initial"
+      >初始密码<input
+        v-model="form.password"
+        type="password"
+        minlength="8"
+        placeholder="留空由后端采用默认策略" /></label
+    ><label
+      >所属门店 ID<input
+        v-model.number="form.homeStoreId"
+        type="number"
+        min="1"
+        required
+        :disabled="!!initial && !allowAssignment" /></label
+    ><label
+      >主教练 ID<input
+        v-model="form.primaryTrainerId"
+        type="number"
+        min="1"
+        :disabled="!!initial && !allowAssignment" /></label
+    ><label
+      >性别<select v-model="form.gender">
+        <option value="female">女</option>
+        <option value="male">男</option>
+      </select></label
+    ><label>出生日期<input v-model="form.birthDate" type="date" /></label
+    ><label>紧急联系人<input v-model.trim="form.emergencyContact" required /></label
+    ><template v-if="!initial"
+      ><h3>初始会员卡</h3>
       <label
-        ><span>目标描述</span
-        ><input
-          v-model="trainingGoal"
-          class="sf__input"
-          :disabled="submitting"
-          placeholder="如：提升柔韧性、减重塑形..."
-      /></label>
-      <label class="sf__mt"
-        ><span>备注</span
-        ><textarea
-          v-model="notes"
-          class="sf__input sf__textarea"
-          :disabled="submitting"
-          rows="2"
-          placeholder="备注信息..."
-        />
-      </label>
-    </fieldset>
-    <button class="sf__submit" type="submit" :disabled="submitting">
-      {{ submitting ? '保存中...' : '保存' }}
-    </button>
+        >卡类型<select v-model="form.membershipType">
+          <option value="count">次卡</option>
+          <option value="month">月卡</option>
+          <option value="quarter">季卡</option>
+          <option value="year">年卡</option>
+          <option value="stored">储值卡</option>
+        </select></label
+      ><label>开始日期<input v-model="form.membershipStartsOn" type="date" required /></label
+      ><label>到期日期<input v-model="form.membershipExpiresOn" type="date" required /></label
+      ><label
+        >次数/余额<input
+          v-model.number="form.membershipBalance"
+          type="number"
+          min="0"
+          required /></label
+    ></template>
+    <h3>健康与训练档案</h3>
+    <label>健康备注<textarea v-model="form.healthNotes" /></label
+    ><label>伤病史<textarea v-model="form.injuryHistory" /></label
+    ><label>禁忌事项<textarea v-model="form.contraindications" /></label
+    ><label>训练目标<textarea v-model="form.trainingGoal" /></label
+    ><label>偏好流派<input v-model.trim="form.preferredStyle" /></label>
+    <p v-if="error" class="error">{{ error }}</p>
+    <button class="primary" :disabled="saving">{{ saving ? '保存中…' : '保存' }}</button>
   </form>
 </template>
 <style scoped>
-.sf {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  max-width: 560px;
-  padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-}
-.sf__error {
-  padding: var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--color-error-600);
-  background: var(--color-error-50);
-  border-radius: var(--radius-md);
-}
-.sf__section {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-.sf__section legend {
-  font-weight: var(--font-semibold);
-  font-size: var(--text-sm);
-  padding: 0 var(--space-2);
-}
-.sf__row {
+.form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
+  max-width: 720px;
 }
-.sf label {
-  display: flex;
-  flex-direction: column;
+.form h3 {
+  margin: var(--space-4) 0 0;
+}
+.form label {
+  display: grid;
   gap: var(--space-1);
-  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }
-.sf__mt {
-  margin-top: var(--space-1);
-}
-.sf__input {
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-base);
+input,
+select,
+textarea {
+  padding: var(--space-3);
+  font: inherit;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
-  outline: none;
 }
-.sf__input:focus {
-  border-color: var(--color-border-focus);
+textarea {
+  min-height: 76px;
 }
-.sf__textarea {
-  resize: vertical;
-  min-height: 48px;
-}
-.sf__submit {
+.primary {
   padding: var(--space-3);
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
   color: var(--color-text-inverse);
   background: var(--color-brand);
-  border: none;
+  border: 0;
   border-radius: var(--radius-button);
-  cursor: pointer;
 }
-.sf__submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.error {
+  color: var(--color-danger);
 }
 </style>
