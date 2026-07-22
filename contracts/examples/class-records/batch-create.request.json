@@ -1,0 +1,13 @@
+{
+  "schedule_id": 301,
+  "common_data": {
+    "theme": "团课核心训练",
+    "pose_sequence": {"warmup": [], "main": [], "cooldown": []},
+    "trainer_notes": "公共训练记录",
+    "homework": "每日核心练习"
+  },
+  "student_overrides": {
+    "203": {"completion_rating": 4},
+    "205": {"completion_rating": 3, "improvement_tags": ["核心稳定"]}
+  }
+}

@@ -136,37 +136,239 @@ AttendanceStatsSuccessResponse:
     code: {type: string, enum: [OK]}
     message: {type: string}
     data: {$ref: '#/AttendanceStatsData'}
+PoseItem:
+  type: object
+  additionalProperties: false
+  required: [name, duration]
+  properties:
+    name: {type: string, minLength: 1}
+    duration: {type: integer, minimum: 1, description: Minutes.}
+    notes: {type: string, default: ''}
+    variations: {type: string, default: ''}
+    assists: {type: string, default: ''}
+
+PoseSequence:
+  type: object
+  additionalProperties: false
+  required: [warmup, main, cooldown]
+  properties:
+    warmup: {type: array, items: {$ref: '#/PoseItem'}}
+    main: {type: array, items: {$ref: '#/PoseItem'}}
+    cooldown: {type: array, items: {$ref: '#/PoseItem'}}
+
+ClassMedia:
+  type: object
+  additionalProperties: false
+  required: [id, class_record, media_type, file_url, thumbnail_url, caption, annotations, sort_order]
+  properties:
+    id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    class_record: {type: integer, format: int64, minimum: 1, readOnly: true}
+    media_type: {type: string, enum: [image, video]}
+    file_url: {type: string, format: uri}
+    thumbnail_url: {type: string, default: '', description: Empty when no thumbnail exists.}
+    caption: {type: string, maxLength: 255, default: ''}
+    annotations: {type: object, nullable: true, additionalProperties: true}
+    sort_order: {type: integer, minimum: 0, default: 0}
+
+ClassMediaCreateRequest:
+  type: object
+  additionalProperties: false
+  required: [media_type, file_url]
+  properties:
+    media_type: {type: string, enum: [image, video]}
+    file_url: {type: string, format: uri}
+    thumbnail_url: {type: string, default: '', description: Empty when no thumbnail exists.}
+    caption: {type: string, maxLength: 255, default: ''}
+    annotations: {type: object, nullable: true, additionalProperties: true}
+    sort_order: {type: integer, minimum: 0, default: 0}
+
+ClassMediaUpdateRequest:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    media_type: {type: string, enum: [image, video]}
+    file_url: {type: string, format: uri}
+    thumbnail_url: {type: string, description: Empty when no thumbnail exists.}
+    caption: {type: string, maxLength: 255}
+    annotations: {type: object, nullable: true, additionalProperties: true}
+    sort_order: {type: integer, minimum: 0}
+
+ClassMediaSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/ClassMedia'}
+
+ClassMediaListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/ClassMedia'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+
+ClassMediaListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/ClassMediaListData'}
+
 ClassRecord:
   type: object
   additionalProperties: false
-  required: [id, company_id, schedule_id, student_id, trainer_id, content, goals, completion, trainer_notes, student_performance, status, media]
+  required: [id, company, attendance, attendance_status, schedule, student, student_name, trainer, trainer_name, store, plan, class_date, theme, session_number, pose_sequence, trainer_notes, homework, completion_rating, improvement_tags, next_focus, status, media, created_at, updated_at]
   properties:
     id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    company: {type: integer, format: int64, minimum: 1, readOnly: true}
+    attendance: {type: integer, format: int64, minimum: 1, nullable: true, readOnly: true}
+    attendance_status: {type: string, enum: [present, late, absent, leave], nullable: true, readOnly: true}
+    schedule: {type: integer, format: int64, minimum: 1, nullable: true, readOnly: true}
+    student: {type: integer, format: int64, minimum: 1, readOnly: true}
+    student_name: {type: string, readOnly: true}
+    trainer: {type: integer, format: int64, minimum: 1, readOnly: true}
+    trainer_name: {type: string, readOnly: true}
+    store: {type: integer, format: int64, minimum: 1, readOnly: true}
+    plan: {type: integer, format: int64, minimum: 1, nullable: true}
+    class_date: {type: string, format: date, readOnly: true}
+    theme: {type: string, minLength: 1, maxLength: 200}
+    session_number: {type: integer, minimum: 1, readOnly: true}
+    pose_sequence: {$ref: '#/PoseSequence'}
+    trainer_notes: {type: string, default: ''}
+    homework: {type: string, default: ''}
+    completion_rating: {type: integer, minimum: 1, maximum: 5, nullable: true}
+    improvement_tags: {type: array, items: {type: string}}
+    next_focus: {type: string, maxLength: 200, default: ''}
+    status: {type: string, enum: [draft, completed], readOnly: true}
+    media: {type: array, items: {$ref: '#/ClassMedia'}, readOnly: true}
+    created_at: {type: string, format: date-time, readOnly: true}
+    updated_at: {type: string, format: date-time, readOnly: true}
+
+ClassRecordCreateRequest:
+  type: object
+  additionalProperties: false
+  required: [attendance_id, theme, pose_sequence]
+  properties:
+    attendance_id: {type: integer, format: int64, minimum: 1}
+    plan: {type: integer, format: int64, minimum: 1, nullable: true}
+    theme: {type: string, minLength: 1, maxLength: 200}
+    pose_sequence: {$ref: '#/PoseSequence'}
+    trainer_notes: {type: string, default: ''}
+    homework: {type: string, default: ''}
+    completion_rating: {type: integer, minimum: 1, maximum: 5, nullable: true}
+    improvement_tags: {type: array, items: {type: string}, default: []}
+    next_focus: {type: string, maxLength: 200, default: ''}
+
+ClassRecordUpdateRequest:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    plan: {type: integer, format: int64, minimum: 1, nullable: true}
+    theme: {type: string, minLength: 1, maxLength: 200}
+    pose_sequence: {$ref: '#/PoseSequence'}
+    trainer_notes: {type: string}
+    homework: {type: string}
+    completion_rating: {type: integer, minimum: 1, maximum: 5, nullable: true}
+    improvement_tags: {type: array, items: {type: string}}
+    next_focus: {type: string, maxLength: 200}
+
+ClassRecordSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/ClassRecord'}
+
+ClassRecordListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/ClassRecord'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+
+ClassRecordListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/ClassRecordListData'}
+
+BatchStudentOverride:
+  type: object
+  additionalProperties: false
+  properties:
+    completion_rating: {type: integer, minimum: 1, maximum: 5}
+    trainer_notes: {type: string}
+    improvement_tags: {type: array, items: {type: string}}
+    homework: {type: string}
+
+BatchClassRecordCommonData:
+  type: object
+  additionalProperties: false
+  required: [theme, pose_sequence]
+  properties:
+    theme: {type: string, minLength: 1, maxLength: 200}
+    pose_sequence: {$ref: '#/PoseSequence'}
+    trainer_notes: {type: string, default: ''}
+    homework: {type: string, default: ''}
+
+BatchClassRecordRequest:
+  type: object
+  additionalProperties: false
+  required: [schedule_id, common_data, student_overrides]
+  properties:
     schedule_id: {type: integer, format: int64, minimum: 1}
-    student_id: {type: integer, format: int64, minimum: 1}
-    trainer_id: {type: integer, format: int64, minimum: 1}
-    content: {type: string}
-    goals: {type: string}
-    completion: {type: string}
-    trainer_notes: {type: string, nullable: true}
-    student_performance: {type: string, nullable: true}
-    status: {type: string, enum: [draft, completed]}
-    media: {type: array, items: {$ref: './common.yaml#/MediaResource'}}
-BulkOperationResult:
+    common_data: {$ref: '#/BatchClassRecordCommonData'}
+    student_overrides:
+      type: object
+      additionalProperties: {$ref: '#/BatchStudentOverride'}
+
+BatchClassRecordData:
   type: object
   additionalProperties: false
-  required: [succeeded, failed, items]
+  required: [created_count, items]
   properties:
-    succeeded: {type: integer, minimum: 0}
-    failed: {type: integer, minimum: 0}
-    items: {type: array, items: {type: object}}
-Upload:
+    created_count: {type: integer, minimum: 0}
+    items: {type: array, items: {$ref: '#/ClassRecord'}}
+
+BatchClassRecordSuccessResponse:
   type: object
   additionalProperties: false
-  required: [upload_id, upload_url, expires_at, status]
+  required: [code, message, data]
   properties:
-    upload_id: {type: string}
-    upload_url: {type: string, format: uri}
-    expires_at: {type: string, format: date-time}
-    status: {type: string, enum: [pending, uploaded, failed, deleted]}
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/BatchClassRecordData'}
+
+FileUploadData:
+  type: object
+  additionalProperties: false
+  required: [file_url, thumbnail_url]
+  properties:
+    file_url: {type: string, format: uri}
+    thumbnail_url: {type: string, description: Empty for videos.}
+
+FileUploadSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/FileUploadData'}

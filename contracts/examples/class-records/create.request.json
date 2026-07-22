@@ -1,1 +1,14 @@
-{}
+{
+  "attendance_id": 501,
+  "theme": "核心稳定与髋部灵活",
+  "pose_sequence": {
+    "warmup": [{"name": "猫牛式", "duration": 5, "notes": "均匀呼吸", "variations": "坐姿", "assists": "口令"}],
+    "main": [{"name": "战士二式", "duration": 20, "notes": "膝盖对齐", "variations": "缩短步距", "assists": "瑜伽砖"}],
+    "cooldown": [{"name": "婴儿式", "duration": 5, "notes": "放松", "variations": "宽膝", "assists": "抱枕"}]
+  },
+  "trainer_notes": "动作控制良好",
+  "homework": "每日练习猫牛式",
+  "completion_rating": 5,
+  "improvement_tags": ["核心稳定", "肩部灵活"],
+  "next_focus": "呼吸与动作同步"
+}

@@ -1,5 +1,17 @@
 # Contract Changelog
 
+## CONTRACT-20260722-08
+
+- Released contract version `1.5.0` for Phase 8 class records, media uploads and reusable class templates.
+- Replaced class-record, class-media and class-template draft placeholders with the implemented model, request, response, filter and permission shapes.
+- Froze attendance-derived record creation, trainer-owned draft editing, one-way completion and immutable completed records.
+- Froze atomic batch creation for every present/late attendance, with common content and per-student rating, notes, tags and homework overrides.
+- Froze tenant-scoped media metadata CRUD, 10MB image/video upload, UUID storage paths and local 300x300 thumbnail generation.
+- Froze trainer visibility to company-shared and self-owned personal templates, with company-administrator-only template writes.
+- Added a formal training initial migration and dedicated Phase 8 example validation mappings.
+- Promoted class records, class media and class templates to `CONTRACT_READY / API_READY` after migration, permission, rollback, upload and contract validation passed.
+- Rebundled `openapi.yaml` exclusively from `contracts/src/**`.
+
 ## CONTRACT-20260722-07
 
 - Released contract version `1.4.0` for Phase 7 attendance and statistics.

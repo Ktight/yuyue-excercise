@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.4.0",
+  "contract_version": "1.5.0",
   "modules": {
     "system": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "auth": {"contract": "CONTRACT_READY", "api": "API_READY"},
@@ -13,9 +13,9 @@
     "schedules": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "bookings": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "attendance": {"contract": "CONTRACT_READY", "api": "API_READY"},
-    "class_records": {"contract": "DRAFT", "api": "NOT_STARTED"},
-    "class_media": {"contract": "DRAFT", "api": "NOT_STARTED"},
-    "class_templates": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "class_records": {"contract": "CONTRACT_READY", "api": "API_READY"},
+    "class_media": {"contract": "CONTRACT_READY", "api": "API_READY"},
+    "class_templates": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "training_plans": {"contract": "DRAFT", "api": "NOT_STARTED"},
     "feedback": {"contract": "DRAFT", "api": "NOT_STARTED"},
     "reports": {"contract": "DRAFT", "api": "NOT_STARTED"},

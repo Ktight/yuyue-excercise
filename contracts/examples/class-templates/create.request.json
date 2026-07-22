@@ -1,1 +1,9 @@
-{}
+{
+  "trainer": 101,
+  "name": "核心稳定模板",
+  "scope": "company_shared",
+  "course_template": 51,
+  "pose_sequence": {"warmup": [], "main": [], "cooldown": []},
+  "notes_template": "关注呼吸和骨盆中立位",
+  "is_active": true
+}

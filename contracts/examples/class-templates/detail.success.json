@@ -1,5 +1,8 @@
 {
-  "code": "OK",
-  "message": "",
-  "data": {}
+  "code": "OK", "message": "", "data": {
+    "id": 701, "company": 1, "trainer": 101, "trainer_name": "测试教练", "name": "核心稳定模板",
+    "scope": "company_shared", "course_template": 51, "course_template_name": "私教课",
+    "pose_sequence": {"warmup": [], "main": [], "cooldown": []}, "notes_template": "关注呼吸和骨盆中立位",
+    "is_active": true, "created_at": "2026-07-22T09:00:00+08:00", "updated_at": "2026-07-22T09:00:00+08:00"
+  }
 }

@@ -1,5 +1,10 @@
 {
   "code": "OK",
   "message": "",
-  "data": {}
+  "data": {
+    "id": 901, "class_record": 801, "media_type": "image",
+    "file_url": "http://localhost:8000/media/1/class_media/example.png",
+    "thumbnail_url": "http://localhost:8000/media/1/class_media/thumbnails/example_thumbnail.jpg",
+    "caption": "战士二式膝盖对齐", "annotations": {"points": []}, "sort_order": 0
+  }
 }

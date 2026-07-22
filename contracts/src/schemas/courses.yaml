@@ -68,11 +68,72 @@ CourseTemplateListSuccessResponse:
 ClassTemplate:
   type: object
   additionalProperties: false
-  required: [id, company_id, owner_id, name, scope, content_items]
+  required: [id, company, trainer, trainer_name, name, scope, course_template, course_template_name, pose_sequence, notes_template, is_active, created_at, updated_at]
   properties:
     id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1}
-    owner_id: {type: integer, format: int64, minimum: 1}
-    name: {type: string}
-    scope: {type: string, enum: [personal, company]}
-    content_items: {type: array, items: {type: object}}
+    company: {type: integer, format: int64, minimum: 1, readOnly: true}
+    trainer: {type: integer, format: int64, minimum: 1}
+    trainer_name: {type: string, readOnly: true}
+    name: {type: string, minLength: 1, maxLength: 200}
+    scope: {type: string, enum: [personal, company_shared]}
+    course_template: {type: integer, format: int64, minimum: 1, nullable: true}
+    course_template_name: {type: string, nullable: true, readOnly: true}
+    pose_sequence: {$ref: './records.yaml#/PoseSequence'}
+    notes_template: {type: string, default: ''}
+    is_active: {type: boolean, default: true}
+    created_at: {type: string, format: date-time, readOnly: true}
+    updated_at: {type: string, format: date-time, readOnly: true}
+
+ClassTemplateCreateRequest:
+  type: object
+  additionalProperties: false
+  required: [trainer, name, scope, pose_sequence]
+  properties:
+    trainer: {type: integer, format: int64, minimum: 1}
+    name: {type: string, minLength: 1, maxLength: 200}
+    scope: {type: string, enum: [personal, company_shared]}
+    course_template: {type: integer, format: int64, minimum: 1, nullable: true}
+    pose_sequence: {$ref: './records.yaml#/PoseSequence'}
+    notes_template: {type: string, default: ''}
+    is_active: {type: boolean, default: true}
+
+ClassTemplateUpdateRequest:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    trainer: {type: integer, format: int64, minimum: 1}
+    name: {type: string, minLength: 1, maxLength: 200}
+    scope: {type: string, enum: [personal, company_shared]}
+    course_template: {type: integer, format: int64, minimum: 1, nullable: true}
+    pose_sequence: {$ref: './records.yaml#/PoseSequence'}
+    notes_template: {type: string}
+    is_active: {type: boolean}
+
+ClassTemplateSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/ClassTemplate'}
+
+ClassTemplateListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/ClassTemplate'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+
+ClassTemplateListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/ClassTemplateListData'}

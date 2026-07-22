@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: 瑜悦练 API
-  version: 1.4.0
+  version: 1.5.0
   description: Project API contract. CONTRACT_READY/API_READY modules may be integrated; DRAFT modules are design and Mock
     only. See status.json.
 servers:
@@ -799,76 +799,109 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-  /api/uploads/presign/:
+  /api/upload/:
     post:
-      operationId: postUploadsPresign
+      operationId: uploadClassMediaFile
       tags:
       - class-media
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Saves an image or video up to 10MB. Images receive a JPEG thumbnail bounded to 300x300 pixels.
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              type: object
+              additionalProperties: false
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                media_type:
+                  type: string
+                  enum:
+                  - image
+                  - video
+                  description: Optional when inferable from MIME type.
       responses:
-        '200':
-          description: 成功
+        '201':
+          description: File stored
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/FileUploadSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/uploads/{upload_id}/complete/:
+  /api/class-records/{record_id}/media/:
     parameters:
-    - name: upload_id
+    - name: record_id
       in: path
       required: true
       schema:
-        type: string
-    post:
-      operationId: postUploadsUploadIdComplete
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: listClassMedia
       tags:
       - class-media
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      responses:
+        '200':
+          description: Class media list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassMediaListSuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createClassMedia
+      tags:
+      - class-media
+      x-status: CONTRACT_READY
+      x-roles:
+      - trainer
+      x-tenant-scope: company
+      description: The owning trainer attaches a previously uploaded file URL to a class record.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ClassMediaCreateRequest'
       responses:
-        '200':
-          description: 成功
+        '201':
+          description: Media attached
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/ClassMediaSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -877,12 +910,15 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/media/{media_id}/:
+  /api/class-records/{record_id}/media/{media_id}/:
     parameters:
+    - name: record_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
     - name: media_id
       in: path
       required: true
@@ -890,88 +926,164 @@ paths:
         type: integer
         format: int64
         minimum: 1
-    delete:
-      operationId: deleteMediaMediaId
+    get:
+      operationId: retrieveClassMedia
       tags:
       - class-media
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Media detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EmptySuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/ClassMediaSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/class-records/:
-    get:
-      operationId: getClassRecords
+    patch:
+      operationId: updateClassMedia
       tags:
-      - class-records
-      x-status: DRAFT
+      - class-media
+      x-status: CONTRACT_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-    post:
-      operationId: postClassRecords
-      tags:
-      - class-records
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ClassMediaUpdateRequest'
       responses:
+        '200':
+          description: Media updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassMediaSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteClassMedia
+      tags:
+      - class-media
+      x-status: CONTRACT_READY
+      x-roles:
+      - trainer
+      x-tenant-scope: company
+      description: Deletes the media metadata row. Uploaded-file lifecycle cleanup is deferred to the configured storage backend.
+      responses:
+        '200':
+          description: Media deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptySuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/class-records/:
+    get:
+      operationId: listClassRecords
+      tags:
+      - class-records
+      x-status: CONTRACT_READY
+      x-roles:
+      - super_admin
+      - company_admin
+      - store_manager
+      - trainer
+      x-tenant-scope: company
+      description: Company-scoped history ordered by newest class date. Only super admins may select company_id.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - name: student_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: trainer_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: date_from
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_range
+        in: query
+        description: Comma-separated inclusive start and end dates.
+        schema:
+          type: string
+          example: 2026-07-01,2026-07-31
+      - name: company_id
+        in: query
+        description: Super admin only.
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Class-record history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassRecordListSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createClassRecord
+      tags:
+      - class-records
+      x-status: CONTRACT_READY
+      x-roles:
+      - trainer
+      x-tenant-scope: company
+      description: Creates one draft record from a present/late attendance owned by the authenticated trainer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassRecordCreateRequest'
+      responses:
+        '201':
+          description: Class record created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassRecordSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -982,14 +1094,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/class-records/{record_id}/:
     parameters:
     - name: record_id
@@ -1000,61 +1104,51 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getClassRecordsRecordId
+      operationId: retrieveClassRecord
       tags:
       - class-records
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Class-record detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/ClassRecordSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchClassRecordsRecordId
+      operationId: updateClassRecord
       tags:
       - class-records
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: The owning trainer may edit a draft record. Completed records are immutable.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ClassRecordUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: Class record updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/ClassRecordSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1065,8 +1159,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/class-records/{record_id}/complete/:
     parameters:
     - name: record_id
@@ -1077,32 +1169,21 @@ paths:
         format: int64
         minimum: 1
     post:
-      operationId: postClassRecordsRecordIdComplete
+      operationId: completeClassRecord
       tags:
       - class-records
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+      description: The owning trainer transitions a draft record to completed. Repeating the action returns conflict.
       responses:
         '200':
-          description: 成功
+          description: Class record completed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/ClassRecordSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1111,34 +1192,30 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/class-records/bulk/:
+  /api/training/batch-records/:
     post:
-      operationId: postClassRecordsBulk
+      operationId: batchCreateClassRecords
       tags:
       - class-records
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Atomically creates records for every present/late attendance in the trainer's schedule. Student overrides
+        replace common values.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/BatchClassRecordRequest'
       responses:
-        '200':
-          description: 成功
+        '201':
+          description: Batch created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/BatchClassRecordSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1149,77 +1226,77 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/class-templates/:
     get:
-      operationId: getClassTemplates
+      operationId: listClassTemplates
       tags:
       - class-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Trainers see company-shared templates and their own personal templates. Administrators see company templates.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - name: scope
+        in: query
+        schema:
+          type: string
+          enum:
+          - personal
+          - company_shared
+      - name: company_id
+        in: query
+        description: Super admin only.
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
-          description: 成功
+          description: Class-template list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/ClassTemplateListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postClassTemplates
+      operationId: createClassTemplate
       tags:
       - class-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Company administrators create personal or company-shared templates for a trainer in the same company.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ClassTemplateCreateRequest'
       responses:
+        '201':
+          description: Class template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassTemplateSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/class-templates/{template_id}/:
     parameters:
     - name: template_id
@@ -1230,61 +1307,51 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getClassTemplatesTemplateId
+      operationId: retrieveClassTemplate
       tags:
       - class-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Class-template detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/ClassTemplateSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchClassTemplatesTemplateId
+      operationId: updateClassTemplate
       tags:
       - class-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ClassTemplateUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: Class template updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/ClassTemplateSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1293,41 +1360,28 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     delete:
-      operationId: deleteClassTemplatesTemplateId
+      operationId: deleteClassTemplate
       tags:
       - class-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Class template deleted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmptySuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/companies/:
     get:
       operationId: listCompanies
@@ -4895,36 +4949,189 @@ components:
       additionalProperties: false
       required:
       - id
-      - company_id
-      - owner_id
+      - company
+      - trainer
+      - trainer_name
       - name
       - scope
-      - content_items
+      - course_template
+      - course_template_name
+      - pose_sequence
+      - notes_template
+      - is_active
+      - created_at
+      - updated_at
       properties:
         id:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        company_id:
+        company:
           type: integer
           format: int64
           minimum: 1
-        owner_id:
+          readOnly: true
+        trainer:
+          type: integer
+          format: int64
+          minimum: 1
+        trainer_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        scope:
+          type: string
+          enum:
+          - personal
+          - company_shared
+        course_template:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        course_template_name:
+          type: string
+          nullable: true
+          readOnly: true
+        pose_sequence:
+          $ref: '#/components/schemas/PoseSequence'
+        notes_template:
+          type: string
+          default: ''
+        is_active:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    ClassTemplateCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - trainer
+      - name
+      - scope
+      - pose_sequence
+      properties:
+        trainer:
           type: integer
           format: int64
           minimum: 1
         name:
           type: string
+          minLength: 1
+          maxLength: 200
         scope:
           type: string
           enum:
           - personal
-          - company
-        content_items:
+          - company_shared
+        course_template:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        pose_sequence:
+          $ref: '#/components/schemas/PoseSequence'
+        notes_template:
+          type: string
+          default: ''
+        is_active:
+          type: boolean
+          default: true
+    ClassTemplateUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        trainer:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        scope:
+          type: string
+          enum:
+          - personal
+          - company_shared
+        course_template:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        pose_sequence:
+          $ref: '#/components/schemas/PoseSequence'
+        notes_template:
+          type: string
+        is_active:
+          type: boolean
+    ClassTemplateSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ClassTemplate'
+    ClassTemplateListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/ClassTemplate'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    ClassTemplateListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ClassTemplateListData'
     Company:
       type: object
       additionalProperties: false
@@ -5779,108 +5986,588 @@ components:
           type: string
         data:
           $ref: '#/components/schemas/AttendanceStatsData'
-    ClassRecord:
+    PoseItem:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - duration
+      properties:
+        name:
+          type: string
+          minLength: 1
+        duration:
+          type: integer
+          minimum: 1
+          description: Minutes.
+        notes:
+          type: string
+          default: ''
+        variations:
+          type: string
+          default: ''
+        assists:
+          type: string
+          default: ''
+    PoseSequence:
+      type: object
+      additionalProperties: false
+      required:
+      - warmup
+      - main
+      - cooldown
+      properties:
+        warmup:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoseItem'
+        main:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoseItem'
+        cooldown:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoseItem'
+    ClassMedia:
       type: object
       additionalProperties: false
       required:
       - id
-      - company_id
-      - schedule_id
-      - student_id
-      - trainer_id
-      - content
-      - goals
-      - completion
-      - trainer_notes
-      - student_performance
-      - status
-      - media
+      - class_record
+      - media_type
+      - file_url
+      - thumbnail_url
+      - caption
+      - annotations
+      - sort_order
       properties:
         id:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        company_id:
+        class_record:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        schedule_id:
+        media_type:
+          type: string
+          enum:
+          - image
+          - video
+        file_url:
+          type: string
+          format: uri
+        thumbnail_url:
+          type: string
+          default: ''
+          description: Empty when no thumbnail exists.
+        caption:
+          type: string
+          maxLength: 255
+          default: ''
+        annotations:
+          type: object
+          nullable: true
+          additionalProperties: true
+        sort_order:
+          type: integer
+          minimum: 0
+          default: 0
+    ClassMediaCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - media_type
+      - file_url
+      properties:
+        media_type:
+          type: string
+          enum:
+          - image
+          - video
+        file_url:
+          type: string
+          format: uri
+        thumbnail_url:
+          type: string
+          default: ''
+          description: Empty when no thumbnail exists.
+        caption:
+          type: string
+          maxLength: 255
+          default: ''
+        annotations:
+          type: object
+          nullable: true
+          additionalProperties: true
+        sort_order:
+          type: integer
+          minimum: 0
+          default: 0
+    ClassMediaUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        media_type:
+          type: string
+          enum:
+          - image
+          - video
+        file_url:
+          type: string
+          format: uri
+        thumbnail_url:
+          type: string
+          description: Empty when no thumbnail exists.
+        caption:
+          type: string
+          maxLength: 255
+        annotations:
+          type: object
+          nullable: true
+          additionalProperties: true
+        sort_order:
+          type: integer
+          minimum: 0
+    ClassMediaSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ClassMedia'
+    ClassMediaListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassMedia'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    ClassMediaListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ClassMediaListData'
+    ClassRecord:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - company
+      - attendance
+      - attendance_status
+      - schedule
+      - student
+      - student_name
+      - trainer
+      - trainer_name
+      - store
+      - plan
+      - class_date
+      - theme
+      - session_number
+      - pose_sequence
+      - trainer_notes
+      - homework
+      - completion_rating
+      - improvement_tags
+      - next_focus
+      - status
+      - media
+      - created_at
+      - updated_at
+      properties:
+        id:
           type: integer
           format: int64
           minimum: 1
-        student_id:
+          readOnly: true
+        company:
           type: integer
           format: int64
           minimum: 1
-        trainer_id:
+          readOnly: true
+        attendance:
           type: integer
           format: int64
           minimum: 1
-        content:
+          nullable: true
+          readOnly: true
+        attendance_status:
           type: string
-        goals:
+          enum:
+          - present
+          - late
+          - absent
+          - leave
+          nullable: true
+          readOnly: true
+        schedule:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+          readOnly: true
+        student:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        student_name:
           type: string
-        completion:
+          readOnly: true
+        trainer:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        trainer_name:
           type: string
+          readOnly: true
+        store:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        plan:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        class_date:
+          type: string
+          format: date
+          readOnly: true
+        theme:
+          type: string
+          minLength: 1
+          maxLength: 200
+        session_number:
+          type: integer
+          minimum: 1
+          readOnly: true
+        pose_sequence:
+          $ref: '#/components/schemas/PoseSequence'
         trainer_notes:
           type: string
-          nullable: true
-        student_performance:
+          default: ''
+        homework:
           type: string
+          default: ''
+        completion_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
           nullable: true
+        improvement_tags:
+          type: array
+          items:
+            type: string
+        next_focus:
+          type: string
+          maxLength: 200
+          default: ''
         status:
           type: string
           enum:
           - draft
           - completed
+          readOnly: true
         media:
           type: array
           items:
-            $ref: '#/components/schemas/MediaResource'
-    BulkOperationResult:
+            $ref: '#/components/schemas/ClassMedia'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    ClassRecordCreateRequest:
       type: object
       additionalProperties: false
       required:
-      - succeeded
-      - failed
-      - items
+      - attendance_id
+      - theme
+      - pose_sequence
       properties:
-        succeeded:
+        attendance_id:
+          type: integer
+          format: int64
+          minimum: 1
+        plan:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        theme:
+          type: string
+          minLength: 1
+          maxLength: 200
+        pose_sequence:
+          $ref: '#/components/schemas/PoseSequence'
+        trainer_notes:
+          type: string
+          default: ''
+        homework:
+          type: string
+          default: ''
+        completion_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        improvement_tags:
+          type: array
+          items:
+            type: string
+          default: []
+        next_focus:
+          type: string
+          maxLength: 200
+          default: ''
+    ClassRecordUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        plan:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        theme:
+          type: string
+          minLength: 1
+          maxLength: 200
+        pose_sequence:
+          $ref: '#/components/schemas/PoseSequence'
+        trainer_notes:
+          type: string
+        homework:
+          type: string
+        completion_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        improvement_tags:
+          type: array
+          items:
+            type: string
+        next_focus:
+          type: string
+          maxLength: 200
+    ClassRecordSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ClassRecord'
+    ClassRecordListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassRecord'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
           type: integer
           minimum: 0
-        failed:
+    ClassRecordListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ClassRecordListData'
+    BatchStudentOverride:
+      type: object
+      additionalProperties: false
+      properties:
+        completion_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        trainer_notes:
+          type: string
+        improvement_tags:
+          type: array
+          items:
+            type: string
+        homework:
+          type: string
+    BatchClassRecordCommonData:
+      type: object
+      additionalProperties: false
+      required:
+      - theme
+      - pose_sequence
+      properties:
+        theme:
+          type: string
+          minLength: 1
+          maxLength: 200
+        pose_sequence:
+          $ref: '#/components/schemas/PoseSequence'
+        trainer_notes:
+          type: string
+          default: ''
+        homework:
+          type: string
+          default: ''
+    BatchClassRecordRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - schedule_id
+      - common_data
+      - student_overrides
+      properties:
+        schedule_id:
+          type: integer
+          format: int64
+          minimum: 1
+        common_data:
+          $ref: '#/components/schemas/BatchClassRecordCommonData'
+        student_overrides:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/BatchStudentOverride'
+    BatchClassRecordData:
+      type: object
+      additionalProperties: false
+      required:
+      - created_count
+      - items
+      properties:
+        created_count:
           type: integer
           minimum: 0
         items:
           type: array
           items:
-            type: object
-    Upload:
+            $ref: '#/components/schemas/ClassRecord'
+    BatchClassRecordSuccessResponse:
       type: object
       additionalProperties: false
       required:
-      - upload_id
-      - upload_url
-      - expires_at
-      - status
+      - code
+      - message
+      - data
       properties:
-        upload_id:
-          type: string
-        upload_url:
-          type: string
-          format: uri
-        expires_at:
-          type: string
-          format: date-time
-        status:
+        code:
           type: string
           enum:
-          - pending
-          - uploaded
-          - failed
-          - deleted
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/BatchClassRecordData'
+    FileUploadData:
+      type: object
+      additionalProperties: false
+      required:
+      - file_url
+      - thumbnail_url
+      properties:
+        file_url:
+          type: string
+          format: uri
+        thumbnail_url:
+          type: string
+          description: Empty for videos.
+    FileUploadSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/FileUploadData'
     Report:
       type: object
       additionalProperties: false
@@ -7257,24 +7944,24 @@ components:
       schema:
         type: string
   responses:
-    Unauthorized:
-      description: 未认证或令牌无效
+    BadRequest:
+      description: 请求参数或业务校验失败
       content: &id001
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    NotFound:
-      description: 资源不存在或为避免跨租户枚举而隐藏
+    Forbidden:
+      description: 权限不足
       content: *id001
     ServerError:
       description: 内部错误，不泄露 traceback 或配置
       content: *id001
-    Forbidden:
-      description: 权限不足
-      content: *id001
-    BadRequest:
-      description: 请求参数或业务校验失败
+    Unauthorized:
+      description: 未认证或令牌无效
       content: *id001
     Conflict:
       description: 唯一性或资源状态冲突
+      content: *id001
+    NotFound:
+      description: 资源不存在或为避免跨租户枚举而隐藏
       content: *id001

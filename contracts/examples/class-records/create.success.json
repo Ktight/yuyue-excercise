@@ -1,5 +1,30 @@
 {
   "code": "OK",
   "message": "",
-  "data": {}
+  "data": {
+    "id": 801,
+    "company": 1,
+    "attendance": 501,
+    "attendance_status": "present",
+    "schedule": 301,
+    "student": 201,
+    "student_name": "测试学员",
+    "trainer": 101,
+    "trainer_name": "测试教练",
+    "store": 11,
+    "plan": null,
+    "class_date": "2026-07-22",
+    "theme": "核心稳定与髋部灵活",
+    "session_number": 1,
+    "pose_sequence": {"warmup": [], "main": [], "cooldown": []},
+    "trainer_notes": "动作控制良好",
+    "homework": "每日练习猫牛式",
+    "completion_rating": 5,
+    "improvement_tags": ["核心稳定", "肩部灵活"],
+    "next_focus": "呼吸与动作同步",
+    "status": "draft",
+    "media": [],
+    "created_at": "2026-07-22T10:00:00+08:00",
+    "updated_at": "2026-07-22T10:00:00+08:00"
+  }
 }
