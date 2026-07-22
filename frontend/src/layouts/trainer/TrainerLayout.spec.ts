@@ -7,6 +7,7 @@ describe('TrainerLayout', () => {
     stubs: {
       RouterLink: { template: '<a><slot /></a>' },
       RouterView: { template: '<div data-test="router-view" />' },
+      AccountActions: { template: '<div data-test="account-actions" />' },
     },
   };
 

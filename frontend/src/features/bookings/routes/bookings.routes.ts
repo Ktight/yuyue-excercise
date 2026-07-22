@@ -1,10 +1,10 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { STAFF_ROLES } from '@/features/auth';
+import { MANAGEMENT_ROLES } from '@/features/auth';
 export const bookingsRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/bookings',
     component: () => import('@/features/bookings/pages/BookingListPage.vue'),
-    meta: { roles: STAFF_ROLES },
+    meta: { roles: MANAGEMENT_ROLES },
   },
   {
     path: '/trainer/bookings',

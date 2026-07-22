@@ -15,6 +15,7 @@ const total = ref(0);
 const loading = ref(false);
 const error = ref('');
 const canManage = computed(() => ['super_admin', 'company_admin'].includes(auth.userRole ?? ''));
+const routePrefix = computed(() => (auth.userRole === 'trainer' ? '/trainer' : '/admin'));
 const pageCount = computed(() =>
   Math.max(1, Math.ceil(total.value / (query.value.pageSize ?? 20))),
 );
@@ -60,7 +61,7 @@ onMounted(loadTemplates);
     <CourseTemplateList
       v-else
       :templates="templates"
-      @select="(template) => router.push(`/admin/course-templates/${template.id}`)"
+      @select="(template) => router.push(`${routePrefix}/course-templates/${template.id}`)"
     />
     <nav v-if="!loading && !error && total" class="pagination" aria-label="课程模板分页">
       <button :disabled="(query.page ?? 1) <= 1" @click="changePage((query.page ?? 1) - 1)">

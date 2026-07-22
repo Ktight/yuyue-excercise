@@ -10,6 +10,7 @@ export default defineConfig({
     },
   },
   test: {
+    exclude: ['tests/e2e/**', 'node_modules/**', 'dist/**'],
     // jsdom simulates a browser environment for component tests
     environment: 'jsdom',
     // Enable global test APIs: describe, it, expect, vi

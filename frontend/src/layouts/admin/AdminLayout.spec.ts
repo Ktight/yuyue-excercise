@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { publishSession } from '@/shared/session';
 import AdminLayout from './AdminLayout.vue';
 
 describe('AdminLayout', () => {
@@ -7,8 +8,13 @@ describe('AdminLayout', () => {
     stubs: {
       RouterLink: { template: '<a><slot /></a>' },
       RouterView: { template: '<div data-test="router-view" />' },
+      AccountActions: { template: '<div data-test="account-actions" />' },
     },
   };
+
+  beforeEach(() => {
+    publishSession({ name: '管理员', role: 'super_admin' });
+  });
 
   it('renders brand name', () => {
     const wrapper = mount(AdminLayout, { global });

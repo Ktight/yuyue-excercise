@@ -59,20 +59,39 @@ onMounted(load);
       </div>
       <form class="grid" @submit.prevent="save">
         <label
-          >卡类型<select v-model="form.cardType">
+          >卡类型<select v-model="form.cardType" :disabled="readonly || saving">
             <option value="count">次卡</option>
             <option value="month">月卡</option>
             <option value="quarter">季卡</option>
             <option value="year">年卡</option>
             <option value="stored">储值卡</option>
           </select></label
-        ><label>开始日期<input v-model="form.startsOn" type="date" /></label
-        ><label>到期日期<input v-model="form.expiresOn" type="date" /></label
+        ><label
+          >开始日期<input v-model="form.startsOn" type="date" :disabled="readonly || saving"
+        /></label>
+        <label
+          >到期日期<input v-model="form.expiresOn" type="date" :disabled="readonly || saving"
+        /></label>
         ><label v-if="form.cardType === 'count'"
-          >剩余次数<input v-model.number="form.remainingCount" type="number" min="0" /></label
+          >剩余次数<input
+            v-model.number="form.remainingCount"
+            type="number"
+            min="0"
+            :disabled="readonly || saving"
+        /></label>
         ><label v-if="form.cardType === 'stored'"
-          >余额（分）<input v-model.number="form.balanceMinor" type="number" min="0" /></label
-        ><label class="check"><input v-model="form.active" type="checkbox" />启用会员卡</label
+          >余额（分）<input
+            v-model.number="form.balanceMinor"
+            type="number"
+            min="0"
+            :disabled="readonly || saving"
+        /></label>
+        <label class="check"
+          ><input
+            v-model="form.active"
+            type="checkbox"
+            :disabled="readonly || saving"
+          />启用会员卡</label
         ><button v-if="!readonly" :disabled="saving">保存会员资格</button>
       </form></template
     >

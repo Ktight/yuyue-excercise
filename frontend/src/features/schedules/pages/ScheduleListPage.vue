@@ -17,6 +17,7 @@ const items = ref<Schedule[]>([]),
 const canCreate = ['super_admin', 'company_admin', 'store_manager'].includes(auth.userRole ?? '');
 async function load() {
   loading.value = true;
+  error.value = '';
   try {
     items.value = (
       await fetchSchedules({

@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { MANAGEMENT_ROLES, STAFF_ROLES } from '@/features/auth';
+import { MANAGEMENT_ROLES } from '@/features/auth';
 export const schedulesRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/schedules',
@@ -24,6 +24,6 @@ export const schedulesRoutes: RouteRecordRaw[] = [
   {
     path: '/trainer/schedules/:id',
     component: () => import('@/features/schedules/pages/ScheduleDetailPage.vue'),
-    meta: { roles: STAFF_ROLES },
+    meta: { roles: ['trainer'] },
   },
 ];

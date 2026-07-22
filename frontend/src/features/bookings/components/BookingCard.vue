@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Booking } from '@/features/bookings/model';
-defineProps<{ booking: Booking }>();
+withDefaults(defineProps<{ booking: Booking; cancelling?: boolean }>(), { cancelling: false });
 defineEmits<{ cancel: [number] }>();
 </script>
 <template>
@@ -14,8 +14,12 @@ defineEmits<{ cancel: [number] }>();
       <p>{{ booking.student.name }} · {{ booking.schedule.trainerName }}</p>
     </div>
     <span>{{ booking.status === 'booked' ? '已预约' : '已取消' }}</span
-    ><button v-if="booking.status === 'booked'" @click="$emit('cancel', booking.id)">
-      取消预约
+    ><button
+      v-if="booking.status === 'booked'"
+      :disabled="cancelling"
+      @click="$emit('cancel', booking.id)"
+    >
+      {{ cancelling ? '取消中…' : '取消预约' }}
     </button>
   </article>
 </template>

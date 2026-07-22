@@ -7,6 +7,13 @@
 - 以上项目尚未修复，因此不得据此将 Phase 1–7 整体标记为完全 `VERIFIED`。
 - 完整证据、优先级、后端依赖与实施顺序见 `PHASE_1_7_FRONTEND_AUDIT.md`。
 
+### 收口结果
+
+- 审查中记录的路由布局、异步动作、重试与旧错误、会员只读、登录回跳、账户入口和角色菜单问题均已修复。
+- `check:all` 通过：274 个源文件边界、36 个测试文件、124 项测试、619 个生产模块。
+- 新增的 Playwright 登录回跳与布局 E2E 通过；管理考勤页浏览器烟雾回归通过且无控制台错误。
+- 当前达到 `IMPLEMENTED / AUTOMATED_CHECKS_PASSED / BROWSER_SMOKE_PASSED`；完整角色与生产验收前仍不标记整体 `VERIFIED`。
+
 ## Phase 7 前端实现记录（2026-07-22）
 
 - 当前状态：`INTEGRATED / UI_READY / MOCK_READY / NOT_VERIFIED`。

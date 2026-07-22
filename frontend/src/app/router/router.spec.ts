@@ -36,4 +36,26 @@ describe('router', () => {
     const notFound = router.getRoutes().find((r) => r.name === 'not-found');
     expect(notFound).toBeDefined();
   });
+
+  it('nests management feature pages inside the admin layout', () => {
+    const resolved = router.resolve('/admin/attendance');
+    expect(resolved.matched.map((record) => record.path)).toEqual(['/admin', '/admin/attendance']);
+  });
+
+  it('nests trainer feature pages inside the trainer layout', () => {
+    const resolved = router.resolve('/trainer/schedules/1');
+    expect(resolved.matched.map((record) => record.path)).toEqual([
+      '/trainer',
+      '/trainer/schedules/:id',
+    ]);
+    expect(resolved.meta.roles).toEqual(['trainer']);
+  });
+
+  it('nests student feature pages inside the student layout', () => {
+    const resolved = router.resolve('/student/bookings');
+    expect(resolved.matched.map((record) => record.path)).toEqual([
+      '/student',
+      '/student/bookings',
+    ]);
+  });
 });

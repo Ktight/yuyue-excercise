@@ -19,11 +19,7 @@ import { bookingsRoutes } from '@/features/bookings';
 import { attendanceRoutes } from '@/features/attendance';
 import { registerGuards } from './guards';
 
-const routes: RouteRecordRaw[] = [
-  // 认证路由（登录页等）
-  ...authRoutes,
-
-  // 组织管理路由
+const featureRoutes: RouteRecordRaw[] = [
   ...companiesRoutes,
   ...storesRoutes,
   ...courseTemplatesRoutes,
@@ -32,6 +28,17 @@ const routes: RouteRecordRaw[] = [
   ...schedulesRoutes,
   ...bookingsRoutes,
   ...attendanceRoutes,
+];
+
+function childrenFor(prefix: '/admin/' | '/trainer/' | '/student/'): RouteRecordRaw[] {
+  return featureRoutes
+    .filter((route) => typeof route.path === 'string' && route.path.startsWith(prefix))
+    .map((route) => ({ ...route, path: route.path.slice(prefix.length) }));
+}
+
+const routes: RouteRecordRaw[] = [
+  // 认证路由（登录页等）
+  ...authRoutes,
 
   // 根路径重定向
   {
@@ -57,8 +64,7 @@ const routes: RouteRecordRaw[] = [
         name: 'admin-dashboard',
         component: () => import('@/app/views/AdminDashboard.vue'),
       },
-      // 后续功能路由在此聚合，例如：
-      // { path: 'users', component: () => import('@/features/users') },
+      ...childrenFor('/admin/'),
     ],
   },
 
@@ -75,6 +81,7 @@ const routes: RouteRecordRaw[] = [
         name: 'trainer-dashboard',
         component: () => import('@/app/views/TrainerDashboard.vue'),
       },
+      ...childrenFor('/trainer/'),
     ],
   },
 
@@ -91,6 +98,7 @@ const routes: RouteRecordRaw[] = [
         name: 'student-home',
         component: () => import('@/app/views/StudentHome.vue'),
       },
+      ...childrenFor('/student/'),
     ],
   },
 

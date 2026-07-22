@@ -1,10 +1,10 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { STAFF_ROLES } from '@/features/auth';
+import { MANAGEMENT_ROLES } from '@/features/auth';
 export const attendanceRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/attendance',
     component: () => import('@/features/attendance/pages/AttendanceListPage.vue'),
-    meta: { roles: STAFF_ROLES },
+    meta: { roles: MANAGEMENT_ROLES },
   },
   {
     path: '/trainer/attendance',

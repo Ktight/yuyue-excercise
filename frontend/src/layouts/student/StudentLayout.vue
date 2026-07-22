@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { AccountActions } from '@/layouts/components';
 
 const sidebarOpen = ref(false);
 
@@ -34,6 +35,7 @@ const primaryNavItems = [
       <div class="student-layout__spacer" />
       <div class="student-layout__user-area">
         <slot name="header-extra" />
+        <AccountActions />
       </div>
     </header>
 
