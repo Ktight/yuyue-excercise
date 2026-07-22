@@ -1,217 +1,93 @@
 /api/body-assessments/:
   get:
-    operationId: getBodyAssessments
-    tags:
-    - body-assessments
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: listBodyAssessments
+    tags: [body-assessments]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    parameters:
+      - {$ref: '../root.yaml#/components/parameters/PageParameter'}
+      - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
+      - {name: student_id, in: query, schema: {type: integer, minimum: 1}}
+      - {name: ordering, in: query, schema: {type: string, enum: [assess_date, -assess_date], default: -assess_date}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Assessment list, content: {application/json: {schema: {$ref: '../schemas/students.yaml#/BodyAssessmentListSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
   post:
-    operationId: postBodyAssessments
-    tags:
-    - body-assessments
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: createBodyAssessment
+    tags: [body-assessments]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Trainers may create only for assigned students; managers for their store; admins for their company. Photos are read-only and uploads are deferred.
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/students.yaml#/BodyAssessmentCreateRequest'}}}
     responses:
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-      '201':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '201': {description: Created, content: {application/json: {schema: {$ref: '../schemas/students.yaml#/BodyAssessmentSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
 /api/body-assessments/{assessment_id}/:
   parameters:
-  - name: assessment_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
+    - {name: assessment_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
   get:
-    operationId: getBodyAssessmentsAssessmentId
-    tags:
-    - body-assessments
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: retrieveBodyAssessment
+    tags: [body-assessments]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Detail, content: {application/json: {schema: {$ref: '../schemas/students.yaml#/BodyAssessmentSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
   patch:
-    operationId: patchBodyAssessmentsAssessmentId
-    tags:
-    - body-assessments
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: updateBodyAssessment
+    tags: [body-assessments]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/students.yaml#/BodyAssessmentUpdateRequest'}}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Updated, content: {application/json: {schema: {$ref: '../schemas/students.yaml#/BodyAssessmentSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
   delete:
-    operationId: deleteBodyAssessmentsAssessmentId
-    tags:
-    - body-assessments
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: deleteBodyAssessment
+    tags: [body-assessments]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Physical delete is restricted to administrators. Phase 5 has no audit-log model; clients must confirm explicitly and no sensitive content may enter logs. Audit retention is required before broadening this operation.
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/EmptySuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Deleted, content: {application/json: {schema: {$ref: '../schemas/common.yaml#/EmptySuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
 /api/students/{student_id}/body-assessment-trend/:
   parameters:
-  - name: student_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
+    - {name: student_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
   get:
-    operationId: getStudentsStudentIdBodyAssessmentTrend
-    tags:
-    - body-assessments
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: retrieveBodyAssessmentTrend
+    tags: [body-assessments]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    parameters:
+      - {name: metric, in: query, schema: {type: string, enum: [height, weight, flexibility_score, core_strength_score], default: weight}}
+      - {name: date_from, in: query, schema: {type: string, format: date}}
+      - {name: date_to, in: query, schema: {type: string, format: date}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Trend, content: {application/json: {schema: {$ref: '../schemas/students.yaml#/BodyAssessmentTrendSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}

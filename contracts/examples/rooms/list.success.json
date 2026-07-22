@@ -1,10 +1,1 @@
-{
-  "code": "OK",
-  "message": "",
-  "data": {
-    "items": [],
-    "page": 1,
-    "page_size": 20,
-    "total": 0
-  }
-}
+{"code":"OK","message":"","data":{"items":[{"id":1,"store":1,"name":"瑜伽一室","capacity":10,"facilities":["瑜伽垫","瑜伽砖","墙绳"],"status":"active"}],"page":1,"page_size":20,"total":1}}

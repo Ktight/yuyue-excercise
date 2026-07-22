@@ -1,1 +1,17 @@
-{}
+{
+  "user": {"name": "Demo Student", "phone": "13910000004", "password": "DemoPass123!"},
+  "home_store": 1,
+  "primary_trainer": 4,
+  "gender": "female",
+  "birth_date": "2000-01-01",
+  "emergency_contact": "Family 13810000001",
+  "member_card_type": "count",
+  "member_card_start": "2026-07-22",
+  "member_card_expire": "2027-07-22",
+  "member_card_balance": 10,
+  "health_notes": "",
+  "injury_history": "",
+  "contraindications": "",
+  "training_goal": "Mobility",
+  "preferred_style": "Private"
+}

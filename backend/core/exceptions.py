@@ -1,6 +1,7 @@
 """Canonical API exceptions and the global DRF exception handler."""
 
 from django.db import IntegrityError
+from django.http import Http404
 from rest_framework import exceptions, status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
@@ -122,7 +123,7 @@ def contract_exception_handler(exc, context):
             request_id,
             status.HTTP_403_FORBIDDEN,
         )
-    if isinstance(exc, exceptions.NotFound):
+    if isinstance(exc, (exceptions.NotFound, Http404)):
         return _error_response(
             'NOT_FOUND',
             '资源不存在',

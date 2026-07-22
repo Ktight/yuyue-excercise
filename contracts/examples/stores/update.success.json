@@ -1,5 +1,1 @@
-{
-  "code": "OK",
-  "message": "",
-  "data": {}
-}
+{"code":"OK","message":"","data":{"id":1,"company":1,"name":"静安店","address":"上海市静安区示例路1号","phone":"021-60000000","business_hours":"08:00-21:00","status":"active","created_at":"2026-07-21T10:10:00+08:00","rooms":[]}}

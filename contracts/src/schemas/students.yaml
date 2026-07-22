@@ -1,41 +1,263 @@
+StudentUser:
+  type: object
+  additionalProperties: false
+  required: [id, name, phone, avatar, is_active]
+  properties:
+    id: {$ref: './common.yaml#/Id'}
+    name: {type: string, minLength: 1, maxLength: 50}
+    phone: {type: string, pattern: '^1[3-9][0-9]{9}$'}
+    avatar: {type: string, nullable: true, readOnly: true}
+    is_active: {type: boolean}
+StudentAccountCreateRequest:
+  type: object
+  additionalProperties: false
+  required: [name, phone]
+  properties:
+    name: {type: string, minLength: 1, maxLength: 50}
+    phone: {type: string, pattern: '^1[3-9][0-9]{9}$'}
+    password: {type: string, format: password, minLength: 8, writeOnly: true}
+MembershipStatusDetail:
+  type: object
+  additionalProperties: false
+  required: [status, is_valid, reason]
+  properties:
+    status: {type: string, enum: [active, expired, suspended, exhausted]}
+    is_valid: {type: boolean}
+    reason: {type: string}
 Membership:
   type: object
   additionalProperties: false
-  required: [card_type, status, expires_on, remaining_count, balance]
+  required: [card_type, status, starts_on, expires_on, remaining_count, balance_minor, active]
   properties:
     card_type: {type: string, enum: [count, month, quarter, year, stored]}
-    status: {type: string, enum: [active, expired, suspended, exhausted]}
-    expires_on: {type: string, format: date, nullable: true}
-    remaining_count: {type: integer, minimum: 0, nullable: true}
-    balance: {$ref: './common.yaml#/Money'}
+    status: {type: string, enum: [active, expired, suspended, exhausted], readOnly: true}
+    starts_on: {type: string, format: date}
+    expires_on: {type: string, format: date}
+    remaining_count: {type: integer, minimum: 0, nullable: true, description: Non-null only for count cards.}
+    balance_minor: {type: integer, minimum: 0, nullable: true, description: Non-null only for stored cards; integer minor currency units.}
+    active: {type: boolean}
+MembershipUpdateRequest:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    card_type: {type: string, enum: [count, month, quarter, year, stored]}
+    starts_on: {type: string, format: date}
+    expires_on: {type: string, format: date}
+    remaining_count: {type: integer, minimum: 0}
+    balance_minor: {type: integer, minimum: 0}
+    active: {type: boolean}
+MembershipSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/Membership'}
 Student:
   type: object
   additionalProperties: false
-  required: [id, user_id, company_id, store_id, trainer_id, name, phone, gender, birthday, goals, health_notes, membership, status]
+  required: [id, user, company, home_store, primary_trainer, gender, birth_date, emergency_contact, member_card_type, member_card_start, member_card_expire, member_card_balance, member_card_active, member_card_status, health_notes, injury_history, contraindications, training_goal, preferred_style, recent_assessment, status, created_at, updated_at]
   properties:
-    id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    user_id: {type: integer, format: int64, minimum: 1}
-    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    store_id: {type: integer, format: int64, minimum: 1, nullable: true}
-    trainer_id: {type: integer, format: int64, minimum: 1, nullable: true}
-    name: {type: string, minLength: 1}
-    phone: {type: string, pattern: '^1[3-9][0-9]{9}$'}
+    id: {$ref: './common.yaml#/Id'}
+    user: {$ref: '#/StudentUser'}
+    company: {$ref: './common.yaml#/Id'}
+    home_store: {$ref: './common.yaml#/Id'}
+    primary_trainer: {type: integer, format: int64, minimum: 1, nullable: true}
     gender: {type: string, enum: [male, female]}
-    birthday: {type: string, format: date, nullable: true}
-    goals: {type: string, nullable: true}
-    health_notes: {type: string, nullable: true, description: 敏感字段，仅授权角色可见}
-    membership: {$ref: '#/Membership'}
+    birth_date: {type: string, format: date, nullable: true}
+    emergency_contact: {type: string, maxLength: 100}
+    member_card_type: {type: string, enum: [count, month, quarter, year, stored]}
+    member_card_start: {type: string, format: date}
+    member_card_expire: {type: string, format: date}
+    member_card_balance: {type: integer, minimum: 0}
+    member_card_active: {type: boolean}
+    member_card_status: {$ref: '#/MembershipStatusDetail'}
+    health_notes: {type: string, description: Sensitive; returned only because this endpoint is restricted to authorized staff.}
+    injury_history: {type: string, description: Sensitive health data.}
+    contraindications: {type: string, description: Sensitive health data.}
+    training_goal: {type: string, maxLength: 255}
+    preferred_style: {type: string, maxLength: 255}
+    recent_assessment: {allOf: [{$ref: '#/BodyAssessment'}], nullable: true}
     status: {$ref: './common.yaml#/ResourceStatus'}
+    created_at: {type: string, format: date-time, readOnly: true}
+    updated_at: {type: string, format: date-time, readOnly: true}
+StudentCreateRequest:
+  type: object
+  additionalProperties: false
+  required: [user, home_store, gender, emergency_contact, member_card_type, member_card_start, member_card_expire, health_notes, injury_history, contraindications, training_goal, preferred_style]
+  properties:
+    user: {$ref: '#/StudentAccountCreateRequest'}
+    home_store: {$ref: './common.yaml#/Id'}
+    primary_trainer: {type: integer, format: int64, minimum: 1, nullable: true}
+    gender: {type: string, enum: [male, female]}
+    birth_date: {type: string, format: date, nullable: true}
+    emergency_contact: {type: string, maxLength: 100}
+    member_card_type: {type: string, enum: [count, month, quarter, year, stored]}
+    member_card_start: {type: string, format: date}
+    member_card_expire: {type: string, format: date}
+    member_card_balance: {type: integer, minimum: 0, default: 0}
+    member_card_active: {type: boolean, default: true}
+    health_notes: {type: string}
+    injury_history: {type: string}
+    contraindications: {type: string}
+    training_goal: {type: string, maxLength: 255}
+    preferred_style: {type: string, maxLength: 255}
+StudentUpdateRequest:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    home_store: {$ref: './common.yaml#/Id'}
+    primary_trainer: {type: integer, format: int64, minimum: 1, nullable: true}
+    gender: {type: string, enum: [male, female]}
+    birth_date: {type: string, format: date, nullable: true}
+    emergency_contact: {type: string, maxLength: 100}
+    health_notes: {type: string}
+    injury_history: {type: string}
+    contraindications: {type: string}
+    training_goal: {type: string, maxLength: 255}
+    preferred_style: {type: string, maxLength: 255}
+StudentSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/Student'}
+StudentListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/Student'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+StudentListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/StudentListData'}
+StudentEligibility:
+  type: object
+  additionalProperties: false
+  required: [is_eligible, can_book, can_check_in, can_consume, reason_code, reason]
+  properties:
+    is_eligible: {type: boolean}
+    can_book: {type: boolean}
+    can_check_in: {type: boolean}
+    can_consume: {type: boolean}
+    reason_code: {type: string, enum: [ELIGIBLE, MEMBERSHIP_EXPIRED, MEMBERSHIP_SUSPENDED, MEMBERSHIP_EXHAUSTED]}
+    reason: {type: string}
+StudentEligibilitySuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/StudentEligibility'}
 BodyAssessment:
   type: object
   additionalProperties: false
-  required: [id, company_id, student_id, assessed_at, height_cm, weight_kg, measurements_cm, scores]
+  required: [id, student, assess_date, height, weight, posture_spine, posture_pelvis, posture_shoulder, flexibility_score, core_strength_score, photos, notes, created_at]
   properties:
-    id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    student_id: {type: integer, format: int64, minimum: 1}
-    assessed_at: {type: string, format: date-time}
-    height_cm: {type: string, pattern: '^[0-9]+(\.[0-9]{1,2})?$'}
-    weight_kg: {type: string, pattern: '^[0-9]+(\.[0-9]{1,2})?$'}
-    measurements_cm: {type: object, additionalProperties: {type: string}}
-    scores: {type: object, additionalProperties: {type: number, minimum: 0, maximum: 100}}
+    id: {$ref: './common.yaml#/Id'}
+    student: {$ref: './common.yaml#/Id'}
+    assess_date: {type: string, format: date, description: Asia/Shanghai local calendar date; future dates are rejected.}
+    height: {type: number, format: float, minimum: 0.000001, nullable: true, description: Centimetres.}
+    weight: {type: number, format: float, minimum: 0.000001, nullable: true, description: Kilograms.}
+    posture_spine: {type: string, maxLength: 100}
+    posture_pelvis: {type: string, maxLength: 100}
+    posture_shoulder: {type: string, maxLength: 100}
+    flexibility_score: {type: integer, minimum: 1, maximum: 10, nullable: true}
+    core_strength_score: {type: integer, minimum: 1, maximum: 10, nullable: true}
+    photos: {type: array, readOnly: true, description: Always an empty/read-only URL array in Phase 5; upload is deferred until the media contract is frozen., items: {type: string, format: uri}}
+    notes: {type: string}
+    created_at: {type: string, format: date-time, readOnly: true}
+BodyAssessmentCreateRequest:
+  type: object
+  additionalProperties: false
+  required: [student, assess_date]
+  properties:
+    student: {$ref: './common.yaml#/Id'}
+    assess_date: {type: string, format: date}
+    height: {type: number, format: float, minimum: 0.000001, nullable: true}
+    weight: {type: number, format: float, minimum: 0.000001, nullable: true}
+    posture_spine: {type: string, maxLength: 100}
+    posture_pelvis: {type: string, maxLength: 100}
+    posture_shoulder: {type: string, maxLength: 100}
+    flexibility_score: {type: integer, minimum: 1, maximum: 10, nullable: true}
+    core_strength_score: {type: integer, minimum: 1, maximum: 10, nullable: true}
+    notes: {type: string}
+BodyAssessmentUpdateRequest:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    assess_date: {type: string, format: date}
+    height: {type: number, format: float, minimum: 0.000001, nullable: true}
+    weight: {type: number, format: float, minimum: 0.000001, nullable: true}
+    posture_spine: {type: string, maxLength: 100}
+    posture_pelvis: {type: string, maxLength: 100}
+    posture_shoulder: {type: string, maxLength: 100}
+    flexibility_score: {type: integer, minimum: 1, maximum: 10, nullable: true}
+    core_strength_score: {type: integer, minimum: 1, maximum: 10, nullable: true}
+    notes: {type: string}
+BodyAssessmentSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/BodyAssessment'}
+BodyAssessmentListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/BodyAssessment'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+BodyAssessmentListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/BodyAssessmentListData'}
+BodyAssessmentTrendPoint:
+  type: object
+  additionalProperties: false
+  required: [assessment_id, assess_date, value]
+  properties:
+    assessment_id: {$ref: './common.yaml#/Id'}
+    assess_date: {type: string, format: date}
+    value: {type: number}
+BodyAssessmentTrend:
+  type: object
+  additionalProperties: false
+  required: [student_id, metric, unit, has_trend, points]
+  properties:
+    student_id: {$ref: './common.yaml#/Id'}
+    metric: {type: string, enum: [height, weight, flexibility_score, core_strength_score]}
+    unit: {type: string, enum: [cm, kg, score_1_10]}
+    has_trend: {type: boolean, description: False when fewer than two non-null points exist.}
+    points: {type: array, description: Ascending by assess_date then id; missing values are omitted and never replaced by zero., items: {$ref: '#/BodyAssessmentTrendPoint'}}
+BodyAssessmentTrendSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/BodyAssessmentTrend'}

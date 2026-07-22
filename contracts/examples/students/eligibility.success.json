@@ -1,0 +1,1 @@
+{"code": "OK", "message": "", "data": {"is_eligible": false, "can_book": false, "can_check_in": false, "can_consume": false, "reason_code": "MEMBERSHIP_SUSPENDED", "reason": "Membership is suspended"}}

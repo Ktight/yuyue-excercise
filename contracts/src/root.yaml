@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: 瑜悦练 API
-  version: 1.0.0-draft
-  description: 全项目契约。DRAFT 接口仅用于设计和 Mock；真实实现状态见 status.json。
+  version: 1.2.0
+  description: Project API contract. CONTRACT_READY/API_READY modules may be integrated; DRAFT modules are design and Mock only. See status.json.
 servers:
   - url: http://localhost:8000
     description: 本地开发

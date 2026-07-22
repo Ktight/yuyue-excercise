@@ -1,0 +1,1 @@
+{"code": "OK", "message": "", "data": {"student_id": 1, "metric": "weight", "unit": "kg", "has_trend": true, "points": [{"assessment_id": 1, "assess_date": "2026-06-22", "value": 58.2}, {"assessment_id": 2, "assess_date": "2026-07-22", "value": 55.8}]}}

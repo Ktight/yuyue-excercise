@@ -53,6 +53,20 @@ class MemberCardType:
     )
 
 
+class MembershipStatus:
+    ACTIVE = 'active'
+    EXPIRED = 'expired'
+    SUSPENDED = 'suspended'
+    EXHAUSTED = 'exhausted'
+
+    CHOICES = (
+        (ACTIVE, '有效'),
+        (EXPIRED, '已过期'),
+        (SUSPENDED, '已暂停'),
+        (EXHAUSTED, '已耗尽'),
+    )
+
+
 class CourseCategory:
     PRIVATE = 'private'
     SMALL_GROUP = 'small_group'
@@ -62,6 +76,18 @@ class CourseCategory:
         (PRIVATE, '私教课'),
         (SMALL_GROUP, '小班课'),
         (GROUP, '团体课'),
+    )
+
+
+class CourseDifficulty:
+    BEGINNER = 'beginner'
+    INTERMEDIATE = 'intermediate'
+    ADVANCED = 'advanced'
+
+    CHOICES = (
+        (BEGINNER, '初级'),
+        (INTERMEDIATE, '中级'),
+        (ADVANCED, '高级'),
     )
 
 

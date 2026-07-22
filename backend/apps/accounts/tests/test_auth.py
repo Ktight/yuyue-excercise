@@ -1,9 +1,13 @@
 """Authentication contract tests."""
 
+from datetime import date
+
 from django.test import override_settings
 from rest_framework.test import APITestCase
 
 from core.constants import UserRole
+
+from apps.companies.models import Company
 
 from ..models import User
 
@@ -11,12 +15,19 @@ from ..models import User
 @override_settings(ALLOWED_HOSTS=['testserver'])
 class AuthenticationAPITests(APITestCase):
     def setUp(self):
+        self.company = Company.objects.create(
+            name='Test Company',
+            contact_person='Tester',
+            contact_phone='13900000000',
+            contract_start=date(2026, 1, 1),
+            contract_end=date(2026, 12, 31),
+        )
         self.user = User.objects.create_user(
             phone='13900000000',
             password='StrongPass123!',
             name='测试管理员',
             role=UserRole.COMPANY_ADMIN,
-            company_id=1,
+            company=self.company,
         )
 
     def login(self, password='StrongPass123!'):
@@ -88,6 +99,48 @@ class AuthenticationAPITests(APITestCase):
         )
         self.assertEqual(second.status_code, 401)
         self.assertEqual(second.data['code'], 'REFRESH_TOKEN_INVALID')
+
+    def test_logout_blacklists_refresh_token(self):
+        tokens = self.login().data['data']
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {tokens['access_token']}"
+        )
+        logout = self.client.post(
+            '/api/auth/logout/',
+            {'refresh_token': tokens['refresh_token']},
+            format='json',
+        )
+        self.assertEqual(logout.status_code, 200)
+        self.assertEqual(logout.data, {
+            'code': 'OK', 'message': '退出登录成功', 'data': None,
+        })
+        self.client.credentials()
+        refresh = self.client.post(
+            '/api/auth/refresh/',
+            {'refresh_token': tokens['refresh_token']},
+            format='json',
+        )
+        self.assertEqual(refresh.status_code, 401)
+        self.assertEqual(refresh.data['code'], 'REFRESH_TOKEN_INVALID')
+
+    def test_logout_rejects_another_users_refresh_token(self):
+        other = User.objects.create_user(
+            phone='13800000000', password='StrongPass123!', name='其他用户',
+            role=UserRole.TRAINER, company=self.company,
+        )
+        other_tokens = self.client.post(
+            '/api/auth/login/',
+            {'phone': other.phone, 'password': 'StrongPass123!'},
+            format='json',
+        ).data['data']
+        self.authenticate()
+        response = self.client.post(
+            '/api/auth/logout/',
+            {'refresh_token': other_tokens['refresh_token']},
+            format='json',
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.data['code'], 'REFRESH_TOKEN_INVALID')
 
     def test_password_change_invalidates_old_password(self):
         self.authenticate()

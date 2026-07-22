@@ -1,238 +1,82 @@
 /api/course-templates/:
   get:
-    operationId: getCourseTemplates
-    tags:
-    - course-templates
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: listCourseTemplates
+    tags: [course-templates]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Company-scoped templates only. Default ordering is category,name. Only active templates are eligible for new scheduling.
+    parameters:
+      - {$ref: '../root.yaml#/components/parameters/PageParameter'}
+      - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
+      - {$ref: '../root.yaml#/components/parameters/SearchParameter'}
+      - {$ref: '../root.yaml#/components/parameters/OrderingParameter'}
+      - {name: category, in: query, schema: {type: string, enum: [private, small_group, group]}}
+      - {name: difficulty, in: query, schema: {type: string, enum: [beginner, intermediate, advanced]}}
+      - {name: status, in: query, schema: {$ref: '../schemas/common.yaml#/ResourceStatus'}}
+      - {name: company_id, in: query, description: Super admin only; other roles receive 403 when requesting another tenant., schema: {type: integer, minimum: 1}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Course template list, content: {application/json: {schema: {$ref: '../schemas/courses.yaml#/CourseTemplateListSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
   post:
-    operationId: postCourseTemplates
-    tags:
-    - course-templates
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: createCourseTemplate
+    tags: [course-templates]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Company is derived from the authenticated user. Private templates require max_capacity=1 and names are unique per company.
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/courses.yaml#/CourseTemplateCreateRequest'}}}
     responses:
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-      '201':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '201': {description: Created, content: {application/json: {schema: {$ref: '../schemas/courses.yaml#/CourseTemplateSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}
 /api/course-templates/{template_id}/:
   parameters:
-  - name: template_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
+    - {name: template_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
   get:
-    operationId: getCourseTemplatesTemplateId
-    tags:
-    - course-templates
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: retrieveCourseTemplate
+    tags: [course-templates]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Detail, content: {application/json: {schema: {$ref: '../schemas/courses.yaml#/CourseTemplateSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
   patch:
-    operationId: patchCourseTemplatesTemplateId
-    tags:
-    - course-templates
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: updateCourseTemplate
+    tags: [course-templates]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: PATCH status is idempotent. Inactive templates remain visible in history but cannot be selected for new schedules.
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/courses.yaml#/CourseTemplateUpdateRequest'}}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/course-templates/{template_id}/activate/:
-  parameters:
-  - name: template_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  post:
-    operationId: postCourseTemplatesTemplateIdActivate
-    tags:
-    - course-templates
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+      '200': {description: Updated, content: {application/json: {schema: {$ref: '../schemas/courses.yaml#/CourseTemplateSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}
+  delete:
+    operationId: deleteCourseTemplate
+    tags: [course-templates]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+    description: Physical deletion is currently allowed because scheduling references are not implemented. Prefer PATCH status=inactive; future references will return 409.
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/course-templates/{template_id}/deactivate/:
-  parameters:
-  - name: template_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  post:
-    operationId: postCourseTemplatesTemplateIdDeactivate
-    tags:
-    - course-templates
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
-    responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Deleted, content: {application/json: {schema: {$ref: '../schemas/common.yaml#/EmptySuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}

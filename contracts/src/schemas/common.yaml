@@ -21,6 +21,7 @@ ErrorCode:
     - CONFLICT
     - RATE_LIMITED
     - INTERNAL_ERROR
+    - API_ERROR
     - INVALID_CREDENTIALS
     - ACCOUNT_DISABLED
     - REFRESH_TOKEN_INVALID
@@ -31,6 +32,15 @@ ErrorCode:
     - STORE_REQUIRED_FOR_ROLE
     - STORE_NOT_ALLOWED_FOR_ROLE
     - CROSS_TENANT_ACCESS_DENIED
+    - COURSE_TEMPLATE_NAME_CONFLICT
+    - PRIVATE_CAPACITY_INVALID
+    - STUDENT_PHONE_ALREADY_EXISTS
+    - STUDENT_STORE_INVALID
+    - STUDENT_TRAINER_INVALID
+    - MEMBERSHIP_COMBINATION_INVALID
+    - ASSESSMENT_VALUE_INVALID
+    - ASSESSMENT_DATE_IN_FUTURE
+    - MEDIA_UPLOAD_DEFERRED
     - SCHEDULE_TIME_CONFLICT
     - ROOM_TIME_CONFLICT
     - TRAINER_TIME_CONFLICT
@@ -60,6 +70,20 @@ EmptySuccessResponse:
     code: {type: string, enum: [OK]}
     message: {type: string}
     data: {nullable: true}
+Health:
+  type: object
+  additionalProperties: false
+  required: [status]
+  properties:
+    status: {type: string, enum: [healthy]}
+HealthSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/Health'}
 DraftResource:
   type: object
   description: DRAFT 模块的资源结构由对应领域 Schema 细化；冻结前禁止真实联调。

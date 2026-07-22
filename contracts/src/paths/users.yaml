@@ -70,7 +70,7 @@
   post:
     operationId: usersResetPassword
     tags: [Users]
-    x-status: DRAFT
+    x-status: API_READY
     x-roles: [super_admin, company_admin]
     x-tenant-scope: company
     requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/ResetPasswordRequest'}}}}
