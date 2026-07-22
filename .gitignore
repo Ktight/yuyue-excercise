@@ -5,6 +5,7 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+.codex_tmp/
 
 # Virtual environments and local configuration
 .venv/

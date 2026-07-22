@@ -17,6 +17,7 @@ from core.exceptions import (
     StoreNotAllowedForRole,
     StoreRequiredForRole,
 )
+from apps.companies.models import Store
 
 from .models import User
 
@@ -186,6 +187,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
                 {'role': ['本阶段不通过管理员接口创建学员。']}
             )
         _validate_role_store(role, store_id)
+        _validate_store_tenant(request_user, store_id)
         password_validation.validate_password(attrs['password'])
         return attrs
 
@@ -243,6 +245,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             attrs['store_id'] = None
             store_id = None
         _validate_role_store(role, store_id)
+        _validate_store_tenant(request_user, store_id)
         return attrs
 
     def to_representation(self, instance):
@@ -258,3 +261,19 @@ def _validate_role_store(role, store_id):
         raise StoreRequiredForRole()
     if role not in STORE_ROLES and store_id is not None:
         raise StoreNotAllowedForRole()
+
+
+def _validate_store_tenant(request_user, store_id):
+    if store_id is None:
+        return
+    if request_user.role == UserRole.SUPER_ADMIN:
+        if not Store.objects.filter(pk=store_id).exists():
+            raise serializers.ValidationError({'store_id': ['Store does not exist.']})
+        return
+    if not Store.objects.filter(
+        pk=store_id,
+        company_id=request_user.company_id,
+    ).exists():
+        raise serializers.ValidationError(
+            {'store_id': ['Store does not belong to the current company.']}
+        )

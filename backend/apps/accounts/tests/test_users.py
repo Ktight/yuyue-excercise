@@ -52,6 +52,13 @@ class UserManagementAPITests(APITestCase):
             phone='13800000000',
             business_hours='07:00-22:00',
         )
+        self.other_store = Store.objects.create(
+            company=self.other_tenant,
+            name='Other Store',
+            address='Other Address',
+            phone='13800000009',
+            business_hours='07:00-22:00',
+        )
         self.company_admin = self.make_user(
             '13900000001', UserRole.COMPANY_ADMIN,
             company_id=self.company.id, name='甲公司管理员'
@@ -152,6 +159,22 @@ class UserManagementAPITests(APITestCase):
             format='json',
         )
         self.assertEqual(forbidden_store.status_code, 400)
+
+    def test_create_rejects_store_from_another_tenant(self):
+        self.authenticate(self.company_admin)
+        response = self.client.post(
+            '/api/users/',
+            {
+                'phone': '13800000008',
+                'name': 'Cross tenant manager',
+                'password': 'ChangeMe123!',
+                'role': UserRole.STORE_MANAGER,
+                'store_id': self.other_store.id,
+            },
+            format='json',
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('store_id', response.data['errors'])
 
     def test_cross_tenant_detail_is_hidden_as_not_found(self):
         self.authenticate(self.company_admin)
