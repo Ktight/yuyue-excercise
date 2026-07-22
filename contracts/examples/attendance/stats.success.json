@@ -1,0 +1,21 @@
+{
+  "code": "OK",
+  "message": "",
+  "data": {
+    "student_stats": {
+      "student_id": 7,
+      "total_count": 8,
+      "attended_count": 6,
+      "attendance_rate": 75.0,
+      "late_count": 1,
+      "leave_count": 1,
+      "consecutive_attendance": 3
+    },
+    "course_stats": {
+      "schedule_id": 1,
+      "booking_count": 8,
+      "arrived_count": 5,
+      "attendance_rate": 62.5
+    }
+  }
+}

@@ -1,14 +1,141 @@
 Attendance:
   type: object
   additionalProperties: false
-  required: [id, company_id, schedule_id, student_id, status, recorded_at]
+  required: [id, company, booking, schedule, student, student_name, schedule_name, check_in_time, status, checked_by, checked_by_name, created_at, updated_at]
   properties:
     id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    schedule_id: {type: integer, format: int64, minimum: 1}
-    student_id: {type: integer, format: int64, minimum: 1}
+    company: {type: integer, format: int64, minimum: 1, readOnly: true}
+    booking: {type: integer, format: int64, minimum: 1, readOnly: true}
+    schedule: {type: integer, format: int64, minimum: 1, readOnly: true}
+    student: {type: integer, format: int64, minimum: 1, readOnly: true}
+    student_name: {type: string, readOnly: true}
+    schedule_name: {type: string, readOnly: true}
+    check_in_time: {type: string, format: date-time, nullable: true, readOnly: true}
     status: {type: string, enum: [present, late, absent, leave]}
-    recorded_at: {type: string, format: date-time}
+    checked_by: {type: integer, format: int64, minimum: 1, nullable: true, readOnly: true}
+    checked_by_name: {type: string, nullable: true, readOnly: true}
+    created_at: {type: string, format: date-time, readOnly: true}
+    updated_at: {type: string, format: date-time, readOnly: true}
+
+AttendanceSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/Attendance'}
+
+AttendanceListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/Attendance'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+
+AttendanceListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/AttendanceListData'}
+
+AttendanceScheduleRequest:
+  type: object
+  additionalProperties: false
+  required: [schedule_id]
+  properties:
+    schedule_id: {type: integer, format: int64, minimum: 1}
+
+AttendanceBatchCheckInRequest:
+  type: object
+  additionalProperties: false
+  required: [schedule_id, student_ids]
+  properties:
+    schedule_id: {type: integer, format: int64, minimum: 1}
+    student_ids:
+      type: array
+      minItems: 1
+      uniqueItems: true
+      items: {type: integer, format: int64, minimum: 1}
+
+AttendanceBatchData:
+  type: object
+  additionalProperties: false
+  required: [updated_count, items]
+  properties:
+    updated_count: {type: integer, minimum: 0}
+    items: {type: array, items: {$ref: '#/Attendance'}}
+
+AttendanceBatchSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/AttendanceBatchData'}
+
+AttendanceAutoCreateData:
+  type: object
+  additionalProperties: false
+  required: [created_count]
+  properties:
+    created_count: {type: integer, minimum: 0}
+
+AttendanceAutoCreateSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/AttendanceAutoCreateData'}
+
+StudentAttendanceStats:
+  type: object
+  additionalProperties: false
+  required: [student_id, total_count, attended_count, attendance_rate, late_count, leave_count, consecutive_attendance]
+  properties:
+    student_id: {type: integer, format: int64, minimum: 1}
+    total_count: {type: integer, minimum: 0}
+    attended_count: {type: integer, minimum: 0}
+    attendance_rate: {type: number, format: float, minimum: 0, maximum: 100}
+    late_count: {type: integer, minimum: 0}
+    leave_count: {type: integer, minimum: 0}
+    consecutive_attendance: {type: integer, minimum: 0}
+
+CourseAttendanceStats:
+  type: object
+  additionalProperties: false
+  required: [schedule_id, booking_count, arrived_count, attendance_rate]
+  properties:
+    schedule_id: {type: integer, format: int64, minimum: 1}
+    booking_count: {type: integer, minimum: 0}
+    arrived_count: {type: integer, minimum: 0}
+    attendance_rate: {type: number, format: float, minimum: 0, maximum: 100}
+
+AttendanceStatsData:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    student_stats: {$ref: '#/StudentAttendanceStats'}
+    course_stats: {$ref: '#/CourseAttendanceStats'}
+
+AttendanceStatsSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/AttendanceStatsData'}
 ClassRecord:
   type: object
   additionalProperties: false

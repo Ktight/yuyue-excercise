@@ -1,5 +1,16 @@
 # Contract Changelog
 
+## CONTRACT-20260722-07
+
+- Released contract version `1.4.0` for Phase 7 attendance and statistics.
+- Replaced attendance draft placeholders with implemented attendance records, check-in, batch check-in, leave, auto-create and statistics shapes.
+- Froze automatic absent-record creation for active bookings, present/late classification at schedule start time, and trainer-or-higher operational permissions.
+- Froze student self check-in and own-statistics access while retaining company tenant isolation for all records and actions.
+- Froze student attendance rate, late/leave counts and consecutive attendance, plus course booking/arrival counts and attendance rate.
+- Excluded cancelled bookings and their stale attendance records from course booking and arrival statistics.
+- Promoted attendance to `CONTRACT_READY / API_READY` after migration drift, backend tests, permission checks and Phase 7 integration scenarios passed.
+- Rebundled `openapi.yaml` exclusively from `contracts/src/**`.
+
 ## CONTRACT-20260722-06
 
 - Released contract version `1.3.0` for Phase 6 schedules and bookings.

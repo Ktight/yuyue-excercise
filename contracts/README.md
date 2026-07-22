@@ -1,6 +1,6 @@
 # API Contracts
 
-`src/**` is the modular source of truth. `openapi.yaml` is generated and must never be edited by hand. The current frozen version is `1.3.0`; module readiness is recorded in `status.json`.
+`src/**` is the modular source of truth. `openapi.yaml` is generated and must never be edited by hand. The current frozen version is `1.4.0`; module readiness is recorded in `status.json`.
 
 Public response formats are frozen:
 
@@ -33,4 +33,4 @@ The frontend consumes `contracts/openapi.yaml` and `contracts/enums.json`. It mu
 - Sensitive health fields are available only through staff-only tenant-scoped endpoints. Cross-tenant and out-of-scope object access returns 404; sensitive values must not be echoed in logs/errors.
 - Body assessment physical deletion is company/super-admin only. Phase 5 does not yet have a persistent audit-log model; audit retention must be added before widening deletion rights.
 
-See `PHASE_4_5_DELIVERY.md` for startup, demo accounts, tenant data and verification evidence.
+See `PHASE_7_DELIVERY.md` for the latest attendance contract decisions and verification evidence.

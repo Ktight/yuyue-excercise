@@ -181,6 +181,15 @@ def main():
         'bookings/detail.success.json': 'BookingSuccessResponse',
         'bookings/create.request.json': 'BookingCreateRequest',
         'bookings/create.success.json': 'BookingSuccessResponse',
+        'attendance/list.success.json': 'AttendanceListSuccessResponse',
+        'attendance/detail.success.json': 'AttendanceSuccessResponse',
+        'attendance/auto-create.request.json': 'AttendanceScheduleRequest',
+        'attendance/auto-create.success.json': 'AttendanceAutoCreateSuccessResponse',
+        'attendance/batch-check-in.request.json': 'AttendanceBatchCheckInRequest',
+        'attendance/batch-check-in.success.json': 'AttendanceBatchSuccessResponse',
+        'attendance/check-in.success.json': 'AttendanceSuccessResponse',
+        'attendance/mark-leave.success.json': 'AttendanceSuccessResponse',
+        'attendance/stats.success.json': 'AttendanceStatsSuccessResponse',
     }
     for example in examples:
         value = json.loads(example.read_text(encoding='utf-8'))
