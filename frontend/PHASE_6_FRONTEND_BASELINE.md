@@ -45,3 +45,8 @@
 ## 当前状态
 
 `CONTRACT_READY / API_READY / FRONTEND_NOT_STARTED`
+
+## 已登记的后端依赖
+
+- `BE-06-01`：契约允许学员执行自助预约，但 `/api/schedules/` 只允许员工角色，当前没有学员可访问的可预约课程发现端点。前端不会扩大员工端点权限，也不会猜测新路径；学员端暂时只提供“我的预约与取消”，待正式冻结课程发现接口后在 schedules 适配器中接入。
+- `BE-06-02`：预约请求的 `student_id` 在后端实际引用 User ID，而 `/api/students/` 的顶层 `Student.id` 是 StudentProfile ID。前端代预约选择器明确提交 `student.user.id`，但契约应补充该字段的资源语义，避免其他客户端误传档案 ID。

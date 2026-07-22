@@ -9,7 +9,8 @@ const navItems = [
   { label: '公司管理', key: 'companies', to: '/admin/companies' },
   { label: '门店管理', key: 'stores', to: '/admin/stores' },
   { label: '课程模板', key: 'course-templates', to: '/admin/course-templates' },
-  { label: '排课管理', key: 'scheduling' },
+  { label: '排课管理', key: 'scheduling', to: '/admin/schedules' },
+  { label: '预约管理', key: 'bookings', to: '/admin/bookings' },
   { label: '数据看板', key: 'analytics' },
 ];
 </script>

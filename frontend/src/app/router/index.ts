@@ -14,6 +14,8 @@ import { storesRoutes } from '@/features/stores';
 import { courseTemplatesRoutes } from '@/features/course-templates';
 import { studentsRoutes } from '@/features/students';
 import { usersRoutes } from '@/features/users';
+import { schedulesRoutes } from '@/features/schedules';
+import { bookingsRoutes } from '@/features/bookings';
 import { registerGuards } from './guards';
 
 const routes: RouteRecordRaw[] = [
@@ -26,6 +28,8 @@ const routes: RouteRecordRaw[] = [
   ...courseTemplatesRoutes,
   ...studentsRoutes,
   ...usersRoutes,
+  ...schedulesRoutes,
+  ...bookingsRoutes,
 
   // 根路径重定向
   {
