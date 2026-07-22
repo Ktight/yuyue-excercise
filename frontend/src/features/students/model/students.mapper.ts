@@ -1,31 +1,14 @@
-import type { StudentDto, MembershipType } from './students.types';
+import type { Student } from './students.types';
 
-export interface Student {
-  id: string;
-  name: string;
-  phone: string;
-  gender: string;
-  birthday: string;
-  avatar?: string;
-  membershipType: MembershipType;
-  membershipExpireDate: string;
-  trainingGoal: string;
-  notes: string;
-  createdAt: string;
-}
+export const MEMBERSHIP_LABELS = {
+  count: '次卡',
+  month: '月卡',
+  quarter: '季卡',
+  year: '年卡',
+  stored: '储值卡',
+} as const;
 
-export function mapStudent(dto: StudentDto): Student {
-  return {
-    id: dto.id,
-    name: dto.name,
-    phone: dto.phone,
-    gender: dto.gender || '',
-    birthday: dto.birthday || '',
-    avatar: dto.avatar,
-    membershipType: dto.membership_type,
-    membershipExpireDate: dto.membership_expire_date || '',
-    trainingGoal: dto.training_goal || '',
-    notes: dto.notes || '',
-    createdAt: dto.created_at || '',
-  };
+/** @deprecated API 已直接返回领域模型，保留此函数避免旧调用方中断。 */
+export function mapStudent(student: Student): Student {
+  return student;
 }

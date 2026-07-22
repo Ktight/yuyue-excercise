@@ -1,1 +1,7 @@
-export { fetchCompanies, fetchCompany, createCompany, updateCompany } from './companies.api';
+export {
+  fetchCompanies,
+  fetchCompany,
+  createCompany,
+  updateCompany,
+  setCompanyActive,
+} from './companies.api';

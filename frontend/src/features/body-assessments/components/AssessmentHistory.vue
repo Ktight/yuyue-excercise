@@ -1,46 +1,50 @@
 <script setup lang="ts">
-import type { BodyAssessmentDto } from '@/features/body-assessments/model';
-defineProps<{ assessments: BodyAssessmentDto[]; loading?: boolean }>();
+import type { BodyAssessment } from '@/features/body-assessments/model';
+withDefaults(defineProps<{ assessments: BodyAssessment[]; canDelete?: boolean }>(), {
+  canDelete: false,
+});
+defineEmits<{ edit: [BodyAssessment]; remove: [number] }>();
 </script>
 <template>
-  <div class="ah">
-    <div v-if="loading" class="ah__msg">加载中...</div>
-    <div v-else-if="assessments.length === 0" class="ah__msg">暂无评估记录</div>
-    <div v-for="a in assessments" :key="a.id" class="ah__item">
-      <div>
-        <strong>{{ a.assessed_at?.slice(0, 10) }}</strong>
-      </div>
-      <div class="ah__metrics">
-        身高 {{ a.height }}cm · 体重 {{ a.weight }}kg · BMI {{ a.bmi || '-' }} · 体脂
-        {{ a.body_fat_pct ?? '-' }}%
-      </div>
-      <div v-if="a.notes" class="ah__notes">{{ a.notes }}</div>
-    </div>
+  <div class="history">
+    <article v-for="item in assessments" :key="item.id">
+      <header>
+        <strong>{{ item.assessDate }}</strong
+        ><span
+          ><button @click="$emit('edit', item)">编辑</button
+          ><button v-if="canDelete" @click="$emit('remove', item.id)">删除</button></span
+        >
+      </header>
+      <p>身高 {{ item.height ?? '—' }} cm · 体重 {{ item.weight ?? '—' }} kg</p>
+      <p>柔韧 {{ item.flexibilityScore ?? '—' }} · 核心 {{ item.coreStrengthScore ?? '—' }}</p>
+      <small>{{ item.notes || '无备注' }}</small>
+    </article>
+    <p v-if="!assessments.length">暂无身体评估记录</p>
   </div>
 </template>
 <style scoped>
-.ah {
+.history {
+  display: grid;
+  gap: var(--space-3);
+}
+article {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
 }
-.ah__msg {
-  padding: var(--space-8);
-  text-align: center;
-  color: var(--color-text-tertiary);
-  font-size: var(--text-sm);
+button {
+  margin-left: var(--space-2);
+  color: var(--color-brand);
+  background: none;
+  border: 0;
 }
-.ah__item {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border);
-}
-.ah__metrics {
-  font-size: var(--text-sm);
+p,
+small {
   color: var(--color-text-secondary);
-  margin-top: 2px;
-}
-.ah__notes {
-  font-size: var(--text-xs);
-  color: var(--color-text-tertiary);
-  margin-top: 2px;
 }
 </style>

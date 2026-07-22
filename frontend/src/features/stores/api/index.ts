@@ -1,1 +1,1 @@
-export { fetchStores, fetchStore, createStore, updateStore } from './stores.api';
+export { fetchStores, fetchStore, createStore, updateStore, setStoreActive } from './stores.api';

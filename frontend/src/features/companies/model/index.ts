@@ -1,3 +1,8 @@
-export type { CompanyDto, CompanyListRequestDto, CompanyCreateRequestDto } from './companies.types';
-export { mapCompany } from './companies.mapper';
-export type { Company } from './companies.mapper';
+export type {
+  Company,
+  CompanyWriteInput,
+  CompanyListQuery,
+  CompanyListResult,
+  ResourceStatus,
+} from './companies.types';
+export { validateCompany, type CompanyFieldError } from './company.schema';

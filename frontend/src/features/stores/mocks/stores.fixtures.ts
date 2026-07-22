@@ -1,27 +1,25 @@
-import type { StoreDto } from '@/features/stores/model';
-export const MOCK_STORES: StoreDto[] = [
+import type { components } from '@/generated/api-types';
+export const MOCK_STORES: components['schemas']['Store'][] = [
   {
-    id: 's-001',
-    name: '静心瑜伽-朝阳店',
-    company_id: 'c-001',
-    address: '北京市朝阳区建国路88号',
+    id: 1,
+    company: 1,
+    name: '示范门店 A',
+    address: '北京市朝阳区建国路 88 号',
+    phone: '01088888888',
+    business_hours: '07:00-22:00',
     status: 'active',
     created_at: '2026-01-01T00:00:00Z',
+    rooms: [],
   },
   {
-    id: 's-002',
-    name: '静心瑜伽-海淀店',
-    company_id: 'c-001',
-    address: '北京市海淀区中关村大街1号',
+    id: 2,
+    company: 2,
+    name: '示范门店 B',
+    address: '上海市浦东新区示范路 1 号',
+    phone: '02188888888',
+    business_hours: '08:00-21:00',
     status: 'active',
     created_at: '2026-02-01T00:00:00Z',
-  },
-  {
-    id: 's-003',
-    name: '莲花瑜伽-浦东店',
-    company_id: 'c-002',
-    address: '上海市浦东新区陆家嘴',
-    status: 'active',
-    created_at: '2026-03-01T00:00:00Z',
+    rooms: [],
   },
 ];

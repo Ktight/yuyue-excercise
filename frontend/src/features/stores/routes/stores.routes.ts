@@ -11,4 +11,10 @@ export const storesRoutes: RouteRecordRaw[] = [
     component: () => import('@/features/stores/pages/StoreCreatePage.vue'),
     meta: { roles: MANAGEMENT_ROLES },
   },
+  {
+    path: '/admin/stores/:id',
+    name: 'store-detail',
+    component: () => import('@/features/stores/pages/StoreDetailPage.vue'),
+    meta: { roles: MANAGEMENT_ROLES },
+  },
 ];

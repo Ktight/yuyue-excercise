@@ -14,5 +14,8 @@
 
 - `auth.adapter.ts`：登录、刷新令牌、当前用户、修改密码。
 - `users.adapter.ts`：用户列表和创建用户。
+- `companies.adapter.ts`：公司列表、详情、创建和更新。
+- `stores.adapter.ts`：门店列表、详情、创建和更新。
+- `rooms.adapter.ts`：场地列表、详情、创建和更新。
 
 `features/*/api` 目前仅保留兼容导出，不包含任何后端转换逻辑，后续功能可直接通过本层接入。

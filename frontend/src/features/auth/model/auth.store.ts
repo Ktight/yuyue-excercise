@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { getProfile, login as loginApi, refreshToken } from '@/features/auth/api';
 import { tokenStorage } from './token-storage';
+import { configureSessionRecovery } from '@/shared/api';
+import { configureSessionLogout, publishSession } from '@/shared/session';
 import type { UserProfile, UserRole } from './auth.types';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -16,6 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
     const result = await loginApi({ phone, password });
     persistTokens(result.accessToken, result.refreshToken);
     user.value = result.user;
+    publishSession({ name: result.user.name, role: result.user.role });
     isInitialized.value = true;
   }
 
@@ -30,6 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const result = await getProfile();
       user.value = result;
+      publishSession({ name: result.name, role: result.role });
     } catch {
       clearSession();
     } finally {
@@ -61,8 +65,19 @@ export const useAuthStore = defineStore('auth', () => {
   function clearSession() {
     token.value = null;
     user.value = null;
+    publishSession(null);
     tokenStorage.remove();
   }
+
+  configureSessionRecovery(async () => {
+    try {
+      await refresh();
+    } catch (error) {
+      clearSession();
+      throw error;
+    }
+  });
+  configureSessionLogout(logout);
 
   return {
     token,

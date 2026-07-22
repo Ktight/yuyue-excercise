@@ -2,12 +2,13 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchCompanies } from '@/features/companies/api';
-import { mapCompany } from '@/features/companies/model';
 import type { Company } from '@/features/companies/model';
 import { CompanyList } from '@/features/companies/components';
 import { AppPage, AppLoading, AppEmpty, AppError } from '@/app/components';
+import { useAuthStore } from '@/features/auth';
 
 const router = useRouter();
+const auth = useAuthStore();
 const companies = ref<Company[]>([]);
 const loading = ref(true);
 const error = ref('');
@@ -15,7 +16,7 @@ const error = ref('');
 onMounted(async () => {
   try {
     const r = await fetchCompanies();
-    companies.value = r.data.items.map(mapCompany);
+    companies.value = r.items;
   } catch {
     error.value = '加载失败';
   } finally {
@@ -27,7 +28,13 @@ onMounted(async () => {
 <template>
   <AppPage title="公司管理">
     <template #header-extra>
-      <button class="btn-primary" @click="router.push('/admin/companies/new')">新建公司</button>
+      <button
+        v-if="auth.userRole === 'super_admin'"
+        class="btn-primary"
+        @click="router.push('/admin/companies/new')"
+      >
+        新建公司
+      </button>
     </template>
     <AppLoading v-if="loading" />
     <AppError
@@ -38,7 +45,7 @@ onMounted(async () => {
         loading = true;
         error = '';
         fetchCompanies()
-          .then((r) => (companies = r.data.items.map(mapCompany)))
+          .then((r) => (companies = r.items))
           .catch(() => (error = '加载失败'))
           .finally(() => (loading = false));
       "

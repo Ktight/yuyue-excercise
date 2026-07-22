@@ -1,6 +1,5 @@
-export { fetchStores, fetchStore, createStore, updateStore } from './api';
-export { StoreList, StoreForm } from './components';
+export { fetchStores, fetchStore, createStore, updateStore, setStoreActive } from './api';
+export { StoreList, StoreForm, StoreSelect } from './components';
 export { storesRoutes } from './routes';
-export { mapStore } from './model';
-export type { StoreDto, StoreListRequestDto, StoreCreateRequestDto, Store } from './model';
+export type { Store, StoreWriteInput, StoreListQuery, StoreListResult } from './model';
 export { storesHandlers } from './mocks/stores.handlers';

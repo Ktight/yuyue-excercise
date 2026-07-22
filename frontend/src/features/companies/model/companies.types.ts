@@ -1,23 +1,31 @@
-/** 公司模块类型（契约未冻结，字段待确认） */
-
-export interface CompanyDto {
-  id: string;
+export type ResourceStatus = 'active' | 'inactive';
+export interface Company {
+  id: number;
   name: string;
-  address?: string;
-  phone?: string;
-  logo?: string;
-  status: 'active' | 'inactive';
-  created_at?: string;
+  contactPerson: string;
+  contactPhone: string;
+  contractStart: string;
+  contractEnd: string;
+  status: ResourceStatus;
+  createdAt: string;
 }
-
-export interface CompanyListRequestDto {
+export interface CompanyWriteInput {
+  name: string;
+  contactPerson: string;
+  contactPhone: string;
+  contractStart: string;
+  contractEnd: string;
+  status?: ResourceStatus;
+}
+export interface CompanyListQuery {
   page?: number;
-  page_size?: number;
+  pageSize?: number;
   search?: string;
+  status?: ResourceStatus;
 }
-
-export interface CompanyCreateRequestDto {
-  name: string;
-  address?: string;
-  phone?: string;
+export interface CompanyListResult {
+  items: Company[];
+  page: number;
+  pageSize: number;
+  total: number;
 }

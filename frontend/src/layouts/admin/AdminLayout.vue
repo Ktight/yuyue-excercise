@@ -1,17 +1,38 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { AccountActions } from '@/layouts/components';
+import { sessionSummary } from '@/shared/session';
 
 const sidebarOpen = ref(false);
 
-const navItems = [
+const allNavItems = [
   { label: '首页', key: 'dashboard', to: '/admin' },
-  { label: '用户管理', key: 'users', to: '/admin/users' },
-  { label: '公司管理', key: 'companies', to: '/admin/companies' },
+  {
+    label: '用户管理',
+    key: 'users',
+    to: '/admin/users',
+    roles: ['super_admin', 'company_admin'],
+  },
+  {
+    label: '公司管理',
+    key: 'companies',
+    to: '/admin/companies',
+    roles: ['super_admin', 'company_admin'],
+  },
   { label: '门店管理', key: 'stores', to: '/admin/stores' },
   { label: '课程模板', key: 'course-templates', to: '/admin/course-templates' },
-  { label: '排课管理', key: 'scheduling' },
+  { label: '排课管理', key: 'scheduling', to: '/admin/schedules' },
+  { label: '预约管理', key: 'bookings', to: '/admin/bookings' },
+  { label: '签到考勤', key: 'attendance', to: '/admin/attendance' },
   { label: '数据看板', key: 'analytics' },
 ];
+const navItems = computed(() =>
+  allNavItems.filter(
+    (item) =>
+      !item.roles ||
+      (sessionSummary.value?.role ? item.roles.includes(sessionSummary.value.role) : false),
+  ),
+);
 </script>
 
 <template>
@@ -46,6 +67,7 @@ const navItems = [
         <h2 class="admin-layout__title">管理后台</h2>
         <div class="admin-layout__user-area">
           <slot name="header-extra" />
+          <AccountActions />
         </div>
       </header>
       <div class="admin-layout__content">

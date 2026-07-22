@@ -2,18 +2,24 @@
 /**
  * 登录页面 — 组装 LoginForm + authStore + router。
  */
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ROLE_HOME } from '../model';
 import { LoginForm } from '../components';
 import { useAuthStore } from '../model';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 async function handleLogin(phone: string, password: string) {
   await authStore.login(phone, password);
   const role = authStore.userRole;
-  await router.replace(role ? ROLE_HOME[role] : '/login');
+  const requested = typeof route.query.redirect === 'string' ? route.query.redirect : '';
+  const safeRedirect =
+    requested.startsWith('/') && !requested.startsWith('//') && requested !== '/login'
+      ? requested
+      : null;
+  await router.replace(safeRedirect ?? (role ? ROLE_HOME[role] : '/login'));
 }
 </script>
 

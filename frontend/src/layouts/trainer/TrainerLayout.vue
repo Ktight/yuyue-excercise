@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { AccountActions } from '@/layouts/components';
 
 const sidebarOpen = ref(false);
 
 const navItems = [
   { label: '首页', key: 'dashboard', to: '/trainer' },
   { label: '学员管理', key: 'students', to: '/trainer/students' },
-  { label: '课程安排', key: 'schedule' },
-  { label: '预约管理', key: 'bookings' },
-  { label: '签到考勤', key: 'attendance' },
+  { label: '课程安排', key: 'schedule', to: '/trainer/schedules' },
+  { label: '课程模板', key: 'course-templates', to: '/trainer/course-templates' },
+  { label: '预约管理', key: 'bookings', to: '/trainer/bookings' },
+  { label: '签到考勤', key: 'attendance', to: '/trainer/attendance' },
   { label: '课时档案', key: 'records' },
   { label: '训练规划', key: 'plans' },
 ];
@@ -16,7 +18,7 @@ const navItems = [
 const mobileNavItems = [
   { label: '首页', key: 'home', icon: '⌂', to: '/trainer' },
   { label: '学员', key: 'students', icon: '♙', to: '/trainer/students' },
-  { label: '课程', key: 'courses', icon: '□' },
+  { label: '课程', key: 'courses', icon: '□', to: '/trainer/schedules' },
   { label: '我的', key: 'profile', icon: '○' },
 ];
 </script>
@@ -55,6 +57,7 @@ const mobileNavItems = [
         <h2 class="trainer-layout__title">训练师工作台</h2>
         <div class="trainer-layout__user-area">
           <slot name="header-extra" />
+          <AccountActions />
         </div>
       </header>
       <div class="trainer-layout__content">

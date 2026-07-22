@@ -1,48 +1,55 @@
-/** 课程模板类型。枚举值待契约冻结，当前为占位定义。 */
+import type { CourseCategory, CourseDifficulty, ResourceStatus } from '@/generated/enums';
+import {
+  COURSE_CATEGORY_LABELS,
+  COURSE_DIFFICULTY_LABELS,
+  RESOURCE_STATUS_LABELS,
+} from '@/generated/enums';
 
-export type CourseCategory = 'yoga' | 'pilates' | 'meditation' | 'personal';
-export type CourseDifficulty = 'beginner' | 'intermediate' | 'advanced';
-export type CourseStatus = 'active' | 'inactive';
+export type { CourseCategory, CourseDifficulty, ResourceStatus as CourseStatus };
 
-export interface CourseTemplateDto {
-  id: string;
+export interface CourseTemplate {
+  id: number;
+  companyId: number;
   name: string;
   category: CourseCategory;
-  duration_minutes: number;
+  durationMinutes: number;
+  maxCapacity: number;
   difficulty: CourseDifficulty;
-  capacity: number;
-  status: CourseStatus;
-  description?: string;
-  created_at?: string;
+  description: string;
+  coverImage: string;
+  status: ResourceStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface CourseTemplateListRequestDto {
+export interface CourseTemplateQuery {
   page?: number;
-  page_size?: number;
+  pageSize?: number;
   search?: string;
+  ordering?: string;
   category?: CourseCategory;
   difficulty?: CourseDifficulty;
-  status?: CourseStatus;
+  status?: ResourceStatus;
+  companyId?: number;
 }
 
-export interface CourseTemplateCreateRequestDto {
+export interface CourseTemplateListResult {
+  items: CourseTemplate[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+export interface CourseTemplateWriteInput {
   name: string;
   category: CourseCategory;
-  duration_minutes: number;
+  durationMinutes: number;
+  maxCapacity: number;
   difficulty: CourseDifficulty;
-  capacity: number;
-  description?: string;
+  description: string;
+  status?: ResourceStatus;
 }
 
-export const CATEGORY_LABELS: Record<CourseCategory, string> = {
-  yoga: '瑜伽',
-  pilates: '普拉提',
-  meditation: '冥想',
-  personal: '私教',
-};
-export const DIFFICULTY_LABELS: Record<CourseDifficulty, string> = {
-  beginner: '初级',
-  intermediate: '中级',
-  advanced: '高级',
-};
-export const STATUS_LABELS: Record<CourseStatus, string> = { active: '启用', inactive: '停用' };
+export const CATEGORY_LABELS = COURSE_CATEGORY_LABELS;
+export const DIFFICULTY_LABELS = COURSE_DIFFICULTY_LABELS;
+export const STATUS_LABELS = RESOURCE_STATUS_LABELS;

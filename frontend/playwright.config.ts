@@ -16,20 +16,21 @@ export default defineConfig({
   reporter: 'html',
 
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://127.0.0.1:5197',
     trace: 'on-first-retry',
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], channel: 'msedge' },
     },
   ],
 
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
+    command: 'npm run dev -- --host 127.0.0.1 --port 5197 --strictPort',
+    url: 'http://127.0.0.1:5197',
+    env: { ...process.env, VITE_ENABLE_MOCK: 'true' },
+    reuseExistingServer: false,
   },
 });

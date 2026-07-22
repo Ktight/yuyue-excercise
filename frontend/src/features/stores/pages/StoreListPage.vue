@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchStores } from '@/features/stores/api';
-import { mapStore } from '@/features/stores/model';
 import type { Store } from '@/features/stores/model';
 import { StoreList } from '@/features/stores/components';
 import { AppPage, AppLoading, AppEmpty, AppError } from '@/app/components';
@@ -10,16 +9,19 @@ const router = useRouter();
 const stores = ref<Store[]>([]);
 const loading = ref(true);
 const error = ref('');
-onMounted(async () => {
+async function load() {
+  loading.value = true;
+  error.value = '';
   try {
     const r = await fetchStores();
-    stores.value = r.data.items.map(mapStore);
+    stores.value = r.items;
   } catch {
     error.value = '加载失败';
   } finally {
     loading.value = false;
   }
-});
+}
+onMounted(load);
 </script>
 <template>
   <AppPage title="门店管理"
@@ -28,7 +30,12 @@ onMounted(async () => {
         新建门店
       </button></template
     >
-    <AppLoading v-if="loading" /><AppError v-else-if="error" :message="error" show-retry />
+    <AppLoading v-if="loading" /><AppError
+      v-else-if="error"
+      :message="error"
+      show-retry
+      @retry="load"
+    />
     <AppEmpty v-else-if="stores.length === 0" description="暂无门店" />
     <StoreList v-else :stores="stores" @select="(s) => router.push(`/admin/stores/${s.id}`)" />
   </AppPage>

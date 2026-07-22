@@ -1,1 +1,1 @@
-export { fetchRooms, createRoom } from './rooms.api';
+export { fetchRooms, fetchRoom, createRoom, updateRoom, setRoomActive } from './rooms.api';

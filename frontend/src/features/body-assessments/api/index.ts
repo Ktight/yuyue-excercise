@@ -1,1 +1,1 @@
-export { fetchAssessments, createAssessment } from './body-assessments.api';
+export * from './body-assessments.api';

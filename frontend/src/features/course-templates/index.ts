@@ -3,14 +3,16 @@ export {
   fetchCourseTemplate,
   createCourseTemplate,
   updateCourseTemplate,
-  toggleCourseTemplateStatus,
+  setCourseTemplateActive,
+  deleteCourseTemplate,
 } from './api';
-export { CourseTemplateList, CourseTemplateForm } from './components';
+export { CourseTemplateList, CourseTemplateForm, CourseTemplateFilters } from './components';
 export { courseTemplatesRoutes } from './routes';
 export type {
-  CourseTemplateDto,
-  CourseTemplateListRequestDto,
-  CourseTemplateCreateRequestDto,
+  CourseTemplate,
+  CourseTemplateQuery,
+  CourseTemplateListResult,
+  CourseTemplateWriteInput,
   CourseCategory,
   CourseDifficulty,
   CourseStatus,

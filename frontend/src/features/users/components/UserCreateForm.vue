@@ -2,11 +2,12 @@
 /**
  * 创建用户表单 — 基础字段，门店联动在 Phase 3 完成。
  */
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { validateUserCreateForm } from '@/features/users/model/user-create.schema';
 import { ROLE_LABELS, USER_ROLES } from '@/features/auth';
 import type { UserRole } from '@/features/auth';
 import { ApiError } from '@/shared/api';
+import { StoreSelect, type Store } from '@/features/stores';
 
 const props = defineProps<{
   onSubmit: (data: {
@@ -14,7 +15,9 @@ const props = defineProps<{
     phone: string;
     password: string;
     role: UserRole;
+    storeId?: number | null;
   }) => Promise<void>;
+  stores: Store[];
 }>();
 
 const emit = defineEmits<{
@@ -23,10 +26,23 @@ const emit = defineEmits<{
 
 const roles = USER_ROLES.map((value) => ({ value, label: ROLE_LABELS[value] }));
 
-const form = reactive({ name: '', phone: '', password: '', role: 'trainer' as UserRole });
+const form = reactive({
+  name: '',
+  phone: '',
+  password: '',
+  role: 'trainer' as UserRole,
+  storeId: null as number | null,
+});
 const fieldErrors = reactive<Record<string, string>>({});
 const serverError = ref('');
 const submitting = ref(false);
+const supportsStore = () => form.role === 'store_manager' || form.role === 'trainer';
+watch(
+  () => form.role,
+  () => {
+    if (!supportsStore()) form.storeId = null;
+  },
+);
 
 function clearErrors() {
   serverError.value = '';
@@ -51,7 +67,10 @@ async function handleSubmit() {
       // 字段级错误
       if (error.fieldErrors) {
         for (const [field, msgs] of Object.entries(error.fieldErrors)) {
-          if (field in fieldErrors) fieldErrors[field] = msgs[0] || '';
+          const target = field === 'store_id' ? 'storeId' : field;
+          if (['name', 'phone', 'password', 'role', 'storeId'].includes(target)) {
+            fieldErrors[target] = msgs[0] || '';
+          }
         }
       }
     } else {
@@ -81,6 +100,19 @@ async function handleSubmit() {
       <span v-if="fieldErrors.name" class="user-create-form__error">{{ fieldErrors.name }}</span>
     </label>
 
+    <label v-if="supportsStore()" class="user-create-form__field">
+      <span>所属门店{{ form.role === 'store_manager' ? ' *' : '' }}</span>
+      <StoreSelect
+        v-model="form.storeId"
+        :stores="stores"
+        :required="form.role === 'store_manager'"
+        :disabled="submitting"
+      />
+      <span v-if="fieldErrors.storeId" class="user-create-form__error">{{
+        fieldErrors.storeId
+      }}</span>
+    </label>
+
     <label class="user-create-form__field">
       <span>手机号</span>
       <input
@@ -103,7 +135,7 @@ async function handleSubmit() {
         :class="{ 'has-error': fieldErrors.password }"
         type="password"
         :disabled="submitting"
-        placeholder="至少 6 位"
+        placeholder="至少 8 位"
       />
       <span v-if="fieldErrors.password" class="user-create-form__error">
         {{ fieldErrors.password }}

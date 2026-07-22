@@ -8,6 +8,7 @@ export interface UserCreateFormData {
   phone: string;
   password: string;
   role: UserRole;
+  storeId: number | null;
 }
 
 export interface FieldError {
@@ -30,8 +31,11 @@ export function validateUserCreateForm(data: UserCreateFormData): FieldError[] {
 
   if (!data.password) {
     errors.push({ field: 'password', message: '请输入密码' });
-  } else if (data.password.length < 6) {
-    errors.push({ field: 'password', message: '密码至少 6 位' });
+  } else if (data.password.length < 8) {
+    errors.push({ field: 'password', message: '密码至少 8 位' });
+  }
+  if (data.role === 'store_manager' && data.storeId === null) {
+    errors.push({ field: 'storeId', message: '店长必须选择所属门店' });
   }
 
   return errors;

@@ -1,4 +1,4 @@
-export { fetchAssessments, createAssessment } from './api';
-export { AssessmentHistory, AssessmentTrend } from './components';
-export type { BodyAssessmentDto, BodyAssessmentCreateRequestDto } from './model';
+export * from './api';
+export * from './components';
+export type * from './model';
 export { bodyAssessmentsHandlers } from './mocks/body-assessments.handlers';

@@ -1,37 +1,19 @@
-import type { BodyAssessmentDto } from '@/features/body-assessments/model';
-export const MOCK_ASSESSMENTS: Record<string, BodyAssessmentDto[]> = {
-  'stu-001': [
-    {
-      id: 'ba-001',
-      student_id: 'stu-001',
-      height: 165,
-      weight: 55,
-      body_fat_pct: 24,
-      bmi: 20.2,
-      notes: '初次评估',
-      assessed_at: '2026-01-15T00:00:00Z',
-      created_at: '2026-01-15T00:00:00Z',
-    },
-    {
-      id: 'ba-002',
-      student_id: 'stu-001',
-      height: 165,
-      weight: 53,
-      body_fat_pct: 22,
-      bmi: 19.5,
-      notes: '柔韧性改善',
-      assessed_at: '2026-04-15T00:00:00Z',
-      created_at: '2026-04-15T00:00:00Z',
-    },
-    {
-      id: 'ba-003',
-      student_id: 'stu-001',
-      height: 165,
-      weight: 52,
-      body_fat_pct: 21,
-      bmi: 19.1,
-      assessed_at: '2026-07-01T00:00:00Z',
-      created_at: '2026-07-01T00:00:00Z',
-    },
-  ],
-};
+import type { components } from '@/generated/api-types';
+export type MockAssessment = components['schemas']['BodyAssessment'];
+export const MOCK_ASSESSMENTS: MockAssessment[] = [
+  {
+    id: 1,
+    student: 1,
+    assess_date: '2026-07-01',
+    height: 165,
+    weight: 55,
+    posture_spine: '正常',
+    posture_pelvis: '正常',
+    posture_shoulder: '轻微高低肩',
+    flexibility_score: 7,
+    core_strength_score: 6,
+    photos: [],
+    notes: '基线评估',
+    created_at: '2026-07-01T10:00:00+08:00',
+  },
+];

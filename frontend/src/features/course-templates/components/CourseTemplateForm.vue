@@ -1,136 +1,138 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import type {
   CourseCategory,
   CourseDifficulty,
-  CourseTemplateDto,
+  CourseTemplate,
+  CourseTemplateWriteInput,
 } from '@/features/course-templates/model';
-import { CATEGORY_LABELS, DIFFICULTY_LABELS } from '@/features/course-templates/model';
+import {
+  CATEGORY_LABELS,
+  DIFFICULTY_LABELS,
+  validateCourseTemplate,
+} from '@/features/course-templates/model';
 import { ApiError } from '@/shared/api';
 
 const props = defineProps<{
-  initial?: Partial<CourseTemplateDto>;
-  onSubmit: (data: {
-    name: string;
-    category: CourseCategory;
-    duration_minutes: number;
-    difficulty: CourseDifficulty;
-    capacity: number;
-    description?: string;
-  }) => Promise<void>;
+  initial?: CourseTemplate;
+  readonly?: boolean;
+  onSubmit: (data: CourseTemplateWriteInput) => Promise<void>;
 }>();
 const emit = defineEmits<{ success: [] }>();
-
-const name = ref(props.initial?.name || '');
-const category = ref<CourseCategory>(props.initial?.category || 'yoga');
-const duration = ref(props.initial?.duration_minutes || 60);
-const difficulty = ref<CourseDifficulty>(props.initial?.difficulty || 'beginner');
-const capacity = ref(props.initial?.capacity || 20);
-const description = ref(props.initial?.description || '');
-
-const isPersonal = computed(() => category.value === 'personal');
+const form = reactive<CourseTemplateWriteInput>({
+  name: props.initial?.name ?? '',
+  category: props.initial?.category ?? 'group',
+  durationMinutes: props.initial?.durationMinutes ?? 60,
+  maxCapacity: props.initial?.maxCapacity ?? 10,
+  difficulty: props.initial?.difficulty ?? 'beginner',
+  description: props.initial?.description ?? '',
+  status: props.initial?.status ?? 'active',
+});
+const errors = reactive<Partial<Record<keyof CourseTemplateWriteInput, string>>>({});
 const serverError = ref('');
 const submitting = ref(false);
+const disabled = computed(() => props.readonly || submitting.value);
+const categories = Object.entries(CATEGORY_LABELS) as [CourseCategory, string][];
+const difficulties = Object.entries(DIFFICULTY_LABELS) as [CourseDifficulty, string][];
 
-// 私教容量固定为 1
-watch(category, (v) => {
-  if (v === 'personal') capacity.value = 1;
-});
+watch(
+  () => form.category,
+  (category) => {
+    if (category === 'private') form.maxCapacity = 1;
+  },
+);
 
 async function handleSubmit() {
-  if (!name.value.trim()) {
-    serverError.value = '请输入课程名称';
-    return;
-  }
-  if (duration.value < 15) {
-    serverError.value = '课程时长至少 15 分钟';
-    return;
-  }
+  if (props.readonly) return;
+  Object.assign(errors, {
+    name: undefined,
+    category: undefined,
+    durationMinutes: undefined,
+    maxCapacity: undefined,
+    difficulty: undefined,
+    description: undefined,
+    status: undefined,
+  });
+  for (const error of validateCourseTemplate(form)) errors[error.field] = error.message;
+  if (Object.values(errors).some(Boolean)) return;
   serverError.value = '';
   submitting.value = true;
   try {
-    await props.onSubmit({
-      name: name.value.trim(),
-      category: category.value,
-      duration_minutes: duration.value,
-      difficulty: difficulty.value,
-      capacity: capacity.value,
-      description: description.value.trim() || undefined,
-    });
+    await props.onSubmit({ ...form, name: form.name.trim(), description: form.description.trim() });
     emit('success');
-  } catch (e) {
-    serverError.value = e instanceof ApiError ? e.message : '保存失败';
+  } catch (error) {
+    serverError.value = error instanceof ApiError ? error.message : '保存失败，请稍后重试';
   } finally {
     submitting.value = false;
   }
 }
-
-const categories = Object.entries(CATEGORY_LABELS) as [CourseCategory, string][];
-const difficulties = Object.entries(DIFFICULTY_LABELS) as [CourseDifficulty, string][];
 </script>
 
 <template>
   <form class="ct-form" novalidate @submit.prevent="handleSubmit">
     <div v-if="serverError" class="ct-form__error" role="alert">{{ serverError }}</div>
-
     <label
       ><span>课程名称 *</span
-      ><input
-        v-model="name"
-        class="ct-form__input"
-        :disabled="submitting"
-        placeholder="请输入课程名称"
-    /></label>
-
+      ><input v-model="form.name" class="ct-form__input" :disabled="disabled" /><small
+        v-if="errors.name"
+        >{{ errors.name }}</small
+      ></label
+    >
     <div class="ct-form__row">
       <label
-        ><span>类别</span>
-        <select v-model="category" class="ct-form__input" :disabled="submitting">
-          <option v-for="[v, l] in categories" :key="v" :value="v">{{ l }}</option>
-        </select>
-      </label>
+        ><span>类别</span
+        ><select v-model="form.category" class="ct-form__input" :disabled="disabled">
+          <option v-for="[value, label] in categories" :key="value" :value="value">
+            {{ label }}
+          </option>
+        </select></label
+      >
       <label
-        ><span>难度</span>
-        <select v-model="difficulty" class="ct-form__input" :disabled="submitting">
-          <option v-for="[v, l] in difficulties" :key="v" :value="v">{{ l }}</option>
-        </select>
-      </label>
+        ><span>难度</span
+        ><select v-model="form.difficulty" class="ct-form__input" :disabled="disabled">
+          <option v-for="[value, label] in difficulties" :key="value" :value="value">
+            {{ label }}
+          </option>
+        </select></label
+      >
     </div>
-
     <div class="ct-form__row">
       <label
-        ><span>时长(分钟)</span
+        ><span>时长（分钟）</span
         ><input
-          v-model.number="duration"
+          v-model.number="form.durationMinutes"
           type="number"
-          class="ct-form__input"
-          :disabled="submitting"
-          min="15"
-      /></label>
-      <label
-        ><span>容量</span
-        ><input
-          v-model.number="capacity"
-          type="number"
-          class="ct-form__input"
-          :disabled="submitting || isPersonal"
           min="1"
-      /></label>
+          class="ct-form__input"
+          :disabled="disabled"
+        /><small v-if="errors.durationMinutes">{{ errors.durationMinutes }}</small></label
+      >
+      <label
+        ><span>最大容量</span
+        ><input
+          v-model.number="form.maxCapacity"
+          type="number"
+          min="1"
+          class="ct-form__input"
+          :disabled="disabled || form.category === 'private'"
+        /><small v-if="form.category === 'private'">私教课容量固定为 1 人</small
+        ><small v-else-if="errors.maxCapacity">{{ errors.maxCapacity }}</small></label
+      >
     </div>
-
     <label
       ><span>描述</span
       ><textarea
-        v-model="description"
-        class="ct-form__input ct-form__textarea"
-        :disabled="submitting"
+        v-model="form.description"
         rows="3"
-        placeholder="课程描述..."
+        class="ct-form__input ct-form__textarea"
+        :disabled="disabled"
       />
     </label>
-
-    <button class="ct-form__submit" type="submit" :disabled="submitting">
-      {{ submitting ? '保存中...' : '保存' }}
+    <p v-if="initial?.coverImage" class="ct-form__cover-note">
+      封面仅展示；按照当前契约，媒体上传功能延期。
+    </p>
+    <button v-if="!readonly" class="ct-form__submit" type="submit" :disabled="submitting">
+      {{ submitting ? '保存中…' : '保存' }}
     </button>
   </form>
 </template>
@@ -141,19 +143,16 @@ const difficulties = Object.entries(DIFFICULTY_LABELS) as [CourseDifficulty, str
   flex-direction: column;
   gap: var(--space-4);
   width: 100%;
-  max-width: 520px;
+  max-width: 560px;
   padding: var(--space-5);
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
 }
-.ct-form__error {
-  padding: var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--color-error-600);
-  background: var(--color-error-50);
-  border-radius: var(--radius-md);
+.ct-form__error,
+small {
+  color: var(--color-error);
 }
 .ct-form label {
   display: flex;
@@ -171,28 +170,27 @@ const difficulties = Object.entries(DIFFICULTY_LABELS) as [CourseDifficulty, str
   font-size: var(--text-base);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
-  outline: none;
-}
-.ct-form__input:focus {
-  border-color: var(--color-border-focus);
 }
 .ct-form__textarea {
+  min-height: 72px;
   resize: vertical;
-  min-height: 60px;
+}
+.ct-form__cover-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }
 .ct-form__submit {
-  margin-top: var(--space-2);
   padding: var(--space-3);
-  font-size: var(--text-base);
   font-weight: var(--font-semibold);
   color: var(--color-text-inverse);
   background: var(--color-brand);
-  border: none;
+  border: 0;
   border-radius: var(--radius-button);
-  cursor: pointer;
 }
-.ct-form__submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+@media (max-width: 640px) {
+  .ct-form__row {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

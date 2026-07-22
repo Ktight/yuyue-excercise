@@ -8,6 +8,9 @@ import { roomsHandlers } from '@/features/rooms';
 import { courseTemplatesHandlers } from '@/features/course-templates';
 import { studentsHandlers } from '@/features/students';
 import { bodyAssessmentsHandlers } from '@/features/body-assessments';
+import { schedulesHandlers } from '@/features/schedules';
+import { bookingsHandlers } from '@/features/bookings';
+import { attendanceHandlers } from '@/features/attendance';
 
 const worker = setupWorker(
   ...healthHandlers,
@@ -19,6 +22,9 @@ const worker = setupWorker(
   ...courseTemplatesHandlers,
   ...studentsHandlers,
   ...bodyAssessmentsHandlers,
+  ...schedulesHandlers,
+  ...bookingsHandlers,
+  ...attendanceHandlers,
 );
 
 export async function startMocks(): Promise<void> {

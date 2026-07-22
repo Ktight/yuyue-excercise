@@ -12,4 +12,10 @@ export const authRoutes: RouteRecordRaw[] = [
     component: () => import('@/features/auth/pages/LoginPage.vue'),
     meta: { guest: true },
   },
+  {
+    path: '/change-password',
+    name: 'change-password',
+    component: () => import('@/features/auth/pages/ChangePasswordPage.vue'),
+    meta: { roles: ['super_admin', 'company_admin', 'store_manager', 'trainer', 'student'] },
+  },
 ];
