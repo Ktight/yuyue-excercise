@@ -11,7 +11,8 @@ import {
 import type { Attendance, AttendanceStats } from '@/features/attendance/model';
 import { AttendanceCard, AttendanceStatsCard } from '@/features/attendance/components';
 import { useAuthStore } from '@/features/auth';
-import { AppPage, AppLoading, AppEmpty, AppError } from '@/app/components';
+import { ScheduleSelect } from '@/features/schedules';
+import { AppPage, AppLoading, AppEmpty, AppError, AppPagination } from '@/app/components';
 import { getErrorMessage } from '@/shared/api';
 const auth = useAuthStore(),
   staff = computed(() => auth.userRole !== 'student');
@@ -23,12 +24,21 @@ const items = ref<Attendance[]>([]),
   error = ref(''),
   notice = ref(''),
   actionError = ref(''),
-  pendingAction = ref('');
+  pendingAction = ref(''),
+  page = ref(1),
+  total = ref(0);
+const pageSize = 20;
 async function load() {
   loading.value = true;
   error.value = '';
   try {
-    items.value = (await fetchAttendances({ scheduleId: scheduleId.value })).items;
+    const result = await fetchAttendances({
+      page: page.value,
+      pageSize,
+      scheduleId: scheduleId.value,
+    });
+    items.value = result.items;
+    total.value = result.total;
     if (auth.userRole === 'student' && auth.user?.id)
       stats.value = await fetchAttendanceStats({ studentId: auth.user.id });
     else if (scheduleId.value)
@@ -38,6 +48,14 @@ async function load() {
   } finally {
     loading.value = false;
   }
+}
+function applyFilter() {
+  page.value = 1;
+  void load();
+}
+function changePage(value: number) {
+  page.value = value;
+  void load();
 }
 function choose(id: number, checked: boolean) {
   selected.value = checked
@@ -93,8 +111,8 @@ onMounted(load);
 </script>
 <template>
   <AppPage :title="staff ? '签到考勤' : '我的考勤'"
-    ><form v-if="staff" class="toolbar" @submit.prevent="load">
-      <label>排课 ID<input v-model.number="scheduleId" type="number" min="1" required /></label
+    ><form v-if="staff" class="toolbar" @submit.prevent="applyFilter">
+      <ScheduleSelect v-model="scheduleId" :disabled="Boolean(pendingAction)" />
       ><button :disabled="Boolean(pendingAction)">查询</button
       ><button type="button" :disabled="Boolean(pendingAction)" @click="createRows">
         {{ pendingAction === 'auto-create' ? '创建中…' : '自动建档' }}</button
@@ -108,9 +126,8 @@ onMounted(load);
       v-else-if="error"
       :message="error"
       show-retry
-      @retry="load" /><AppEmpty
-      v-else-if="!items.length"
-      description="暂无考勤记录" /><AttendanceCard
+      @retry="load"
+    /><AppEmpty v-else-if="!items.length" description="暂无考勤记录" /><AttendanceCard
       v-for="item in items"
       v-else
       :key="item.id"
@@ -121,7 +138,9 @@ onMounted(load);
       @select="choose"
       @check-in="checkIn"
       @leave="leave"
-  /></AppPage>
+    />
+    <AppPagination :page="page" :page-size="pageSize" :total="total" @change="changePage" />
+  </AppPage>
 </template>
 <style scoped>
 .toolbar {

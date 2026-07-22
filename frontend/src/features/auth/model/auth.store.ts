@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { getProfile, login as loginApi, refreshToken } from '@/features/auth/api';
+import {
+  getProfile,
+  login as loginApi,
+  logout as logoutApi,
+  refreshToken,
+} from '@/features/auth/api';
 import { tokenStorage } from './token-storage';
 import { configureSessionRecovery } from '@/shared/api';
 import { configureSessionLogout, publishSession } from '@/shared/session';
@@ -52,9 +57,15 @@ export const useAuthStore = defineStore('auth', () => {
     persistTokens(result.accessToken, result.refreshToken);
   }
 
-  function logout() {
+  async function logout() {
+    const refreshTokenValue = tokenStorage.getRefresh();
     clearSession();
     isInitialized.value = true;
+    try {
+      if (refreshTokenValue) await logoutApi(refreshTokenValue);
+    } catch {
+      // Local logout must succeed even when the revoke endpoint is unavailable.
+    }
   }
 
   function persistTokens(accessToken: string, refreshTokenValue: string) {

@@ -17,10 +17,17 @@ export const schedulesHandlers = [
     const from = u.searchParams.get('date_from'),
       to = u.searchParams.get('date_to'),
       status = u.searchParams.get('status');
+    const page = Number(u.searchParams.get('page')) || 1,
+      pageSize = Number(u.searchParams.get('page_size')) || 20;
     if (from) items = items.filter((v) => v.course_date >= from);
     if (to) items = items.filter((v) => v.course_date <= to);
     if (status) items = items.filter((v) => v.status === status);
-    return ok({ items, page: 1, page_size: 20, total: items.length });
+    return ok({
+      items: items.slice((page - 1) * pageSize, page * pageSize),
+      page,
+      page_size: pageSize,
+      total: items.length,
+    });
   }),
   http.get('/api/schedules/:id/', ({ params }) => {
     const item = MOCK_SCHEDULES.find((v) => v.id === Number(params.id));

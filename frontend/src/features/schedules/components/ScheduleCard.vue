@@ -33,6 +33,16 @@ defineEmits<{ select: [] }>();
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+.card:hover {
+  border-color: var(--color-primary-200);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 .date,
 .main {
@@ -44,5 +54,12 @@ defineEmits<{ select: [] }>();
 }
 small {
   color: var(--color-text-secondary);
+}
+@media (max-width: 640px) {
+  .card {
+    padding-inline: 0;
+    border-inline: 0;
+    border-radius: 0;
+  }
 }
 </style>

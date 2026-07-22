@@ -142,7 +142,10 @@ async function submit() {
   max-width: 720px;
 }
 .form h3 {
-  margin: var(--space-4) 0 0;
+  padding-bottom: var(--space-2);
+  margin: var(--space-5) 0 0;
+  font-family: var(--font-family-display);
+  border-bottom: 1px solid var(--color-border-light);
 }
 .form label {
   display: grid;
@@ -162,6 +165,8 @@ textarea {
   min-height: 76px;
 }
 .primary {
+  min-height: var(--control-height-lg);
+  margin-top: var(--space-2);
   padding: var(--space-3);
   color: var(--color-text-inverse);
   background: var(--color-brand);

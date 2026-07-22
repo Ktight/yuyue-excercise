@@ -29,7 +29,7 @@ defineSlots<{
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  padding: var(--page-padding-y) var(--page-padding-x);
+  padding: var(--page-padding-y) var(--page-padding-x) var(--space-12);
   width: 100%;
   max-width: var(--content-max-width);
   margin: 0 auto;
@@ -40,12 +40,14 @@ defineSlots<{
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .app-page__title {
   margin: 0;
-  font-size: var(--text-2xl);
+  font-size: clamp(var(--text-xl), 2vw, var(--text-3xl));
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
 }
@@ -60,7 +62,7 @@ defineSlots<{
 
 @media (max-width: 640px) {
   .app-page {
-    padding: var(--space-5);
+    padding: var(--space-4) var(--space-4) calc(var(--space-16) + var(--safe-area-inset-bottom));
   }
 
   .app-page__header {
@@ -68,7 +70,7 @@ defineSlots<{
   }
 
   .app-page__title {
-    font-size: var(--text-xl);
+    font-size: var(--text-lg);
   }
 }
 </style>

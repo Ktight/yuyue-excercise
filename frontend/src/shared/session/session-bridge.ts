@@ -5,7 +5,7 @@ export interface SessionSummary {
   role: string;
 }
 
-type LogoutHandler = () => void;
+type LogoutHandler = () => void | Promise<void>;
 
 const summary = ref<SessionSummary | null>(null);
 let logoutHandler: LogoutHandler | null = null;
@@ -20,6 +20,6 @@ export function configureSessionLogout(handler: LogoutHandler): void {
   logoutHandler = handler;
 }
 
-export function logoutSession(): void {
-  logoutHandler?.();
+export async function logoutSession(): Promise<void> {
+  await logoutHandler?.();
 }

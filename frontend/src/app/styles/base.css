@@ -5,9 +5,20 @@ body {
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   color: var(--content-primary);
-  background: var(--surface-page);
+  background:
+    radial-gradient(circle at 100% 0, rgba(220, 79, 11, 0.055), transparent 28rem),
+    var(--surface-page);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--color-link);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus-ring-color);
+  outline-offset: 2px;
 }
 
 ::selection {

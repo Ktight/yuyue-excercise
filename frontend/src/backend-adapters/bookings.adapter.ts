@@ -33,7 +33,13 @@ export function mapBooking(v: Wire): Booking {
 }
 export async function fetchBookings(q: BookingQuery = {}): Promise<BookingListResult> {
   const { data } = await httpClient.get<WireList>('/bookings/', {
-    params: { page: q.page, page_size: q.pageSize },
+    params: {
+      page: q.page,
+      page_size: q.pageSize,
+      status: q.status,
+      schedule_id: q.scheduleId,
+      student_id: q.studentId,
+    },
   });
   return {
     items: data.data.items.map(mapBooking),

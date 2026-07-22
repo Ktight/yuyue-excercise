@@ -62,6 +62,12 @@ button {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
 }
+button {
+  font-weight: var(--font-semibold);
+  color: var(--color-text-inverse);
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+}
 p {
   color: var(--color-danger);
 }

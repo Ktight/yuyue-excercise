@@ -17,13 +17,27 @@ export const studentsHandlers = [
   http.get('/api/students/', ({ request }) => {
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() ?? '';
+    const status = url.searchParams.get('status'),
+      membership = url.searchParams.get('membership_status');
+    const page = Number(url.searchParams.get('page')) || 1,
+      pageSize = Number(url.searchParams.get('page_size')) || 20;
     const items = MOCK_STUDENTS.filter(
       (item) =>
-        !search ||
-        item.user.name.toLowerCase().includes(search) ||
-        item.user.phone.includes(search),
+        (!search ||
+          item.user.name.toLowerCase().includes(search) ||
+          item.user.phone.includes(search)) &&
+        (!status || item.status === status) &&
+        (!membership ||
+          (membership === 'valid'
+            ? item.member_card_status.is_valid
+            : !item.member_card_status.is_valid)),
     );
-    return ok({ items, page: 1, page_size: 20, total: items.length });
+    return ok({
+      items: items.slice((page - 1) * pageSize, page * pageSize),
+      page,
+      page_size: pageSize,
+      total: items.length,
+    });
   }),
   http.get('/api/students/:id/', ({ params }) => {
     const item = MOCK_STUDENTS.find((value) => value.id === Number(params.id));

@@ -40,24 +40,39 @@ async function handleLogin(phone: string, password: string) {
   justify-content: center;
   min-height: 100vh;
   padding: var(--space-4);
+  overflow: hidden;
   background:
-    radial-gradient(circle at 20% 10%, var(--color-primary-100), transparent 36%), var(--color-bg);
+    radial-gradient(circle at 18% 18%, rgba(220, 79, 11, 0.13), transparent 28rem),
+    radial-gradient(circle at 86% 82%, rgba(220, 79, 11, 0.08), transparent 24rem), #fbfaf7;
+}
+.login-page::before {
+  content: '瑜';
+  position: fixed;
+  right: max(5vw, var(--space-6));
+  bottom: -8vh;
+  font-family: Georgia, serif;
+  font-size: min(52vw, 36rem);
+  line-height: 1;
+  color: rgba(220, 79, 11, 0.035);
+  pointer-events: none;
 }
 
 .login-page__card {
   width: 100%;
-  max-width: 400px;
-  padding: var(--space-8);
+  position: relative;
+  max-width: 420px;
+  padding: var(--space-10);
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
 }
 
 .login-page__title {
   margin: 0 0 var(--space-1);
   text-align: center;
-  font-size: var(--text-3xl);
+  font-family: Georgia, 'Noto Serif SC', serif;
+  font-size: var(--text-4xl);
   color: var(--color-brand);
 }
 
@@ -66,5 +81,18 @@ async function handleLogin(phone: string, password: string) {
   text-align: center;
   font-size: var(--text-sm);
   color: var(--color-text-tertiary);
+}
+
+@media (max-width: 640px) {
+  .login-page {
+    align-items: stretch;
+    padding: var(--space-5);
+  }
+  .login-page__card {
+    margin: auto 0;
+    padding: var(--space-8) var(--space-5);
+    border: 0;
+    box-shadow: none;
+  }
 }
 </style>

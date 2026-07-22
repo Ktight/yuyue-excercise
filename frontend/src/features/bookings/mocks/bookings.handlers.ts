@@ -35,9 +35,21 @@ async function make(request: Request, scheduleId?: number) {
   return ok(item, 201);
 }
 export const bookingsHandlers = [
-  http.get('/api/bookings/', () =>
-    ok({ items: MOCK_BOOKINGS, page: 1, page_size: 20, total: MOCK_BOOKINGS.length }),
-  ),
+  http.get('/api/bookings/', ({ request }) => {
+    const url = new URL(request.url),
+      page = Number(url.searchParams.get('page')) || 1,
+      pageSize = Number(url.searchParams.get('page_size')) || 20,
+      status = url.searchParams.get('status');
+    const filtered = status
+      ? MOCK_BOOKINGS.filter((item) => item.status === status)
+      : MOCK_BOOKINGS;
+    return ok({
+      items: filtered.slice((page - 1) * pageSize, page * pageSize),
+      page,
+      page_size: pageSize,
+      total: filtered.length,
+    });
+  }),
   http.get('/api/bookings/:id/', ({ params }) => {
     const item = MOCK_BOOKINGS.find((v) => v.id === Number(params.id));
     return item ? ok(item) : missing();

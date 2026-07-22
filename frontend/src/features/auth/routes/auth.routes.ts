@@ -18,4 +18,10 @@ export const authRoutes: RouteRecordRaw[] = [
     component: () => import('@/features/auth/pages/ChangePasswordPage.vue'),
     meta: { roles: ['super_admin', 'company_admin', 'store_manager', 'trainer', 'student'] },
   },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/features/auth/pages/ProfilePage.vue'),
+    meta: { requiresAuth: true },
+  },
 ];

@@ -1,15 +1,15 @@
-/* 瑜悦练 — 设计令牌。视觉来源：yoga-app-ui-guide (1).html。 */
+/* 瑜悦练 — 橙白商业版设计令牌。视觉基线：docs/design-references。 */
 :root {
-  --color-primary-50: #edf4ff;
-  --color-primary-100: #d6e5ff;
-  --color-primary-200: #b8d2ff;
-  --color-primary-300: #8db4f7;
-  --color-primary-400: #6c9ff5;
-  --color-primary-500: #5b8def;
-  --color-primary-600: #4a7de0;
-  --color-primary-700: #3e68bd;
-  --color-primary-800: #34569a;
-  --color-primary-900: #2d497d;
+  --color-primary-50: #fff6f0;
+  --color-primary-100: #ffeadb;
+  --color-primary-200: #ffd2b5;
+  --color-primary-300: #f9aa79;
+  --color-primary-400: #ef7a35;
+  --color-primary-500: #dc4f0b;
+  --color-primary-600: #c64005;
+  --color-primary-700: #a63308;
+  --color-primary-800: #842b0d;
+  --color-primary-900: #6b260f;
 
   --color-brand: var(--color-primary-500);
   --color-brand-hover: var(--color-primary-600);
@@ -33,16 +33,16 @@
   --color-accent-light: var(--color-accent-50);
 
   --color-white: #ffffff;
-  --color-neutral-50: #f5f6fa;
-  --color-neutral-100: #f3f5f8;
-  --color-neutral-200: #e8ebf0;
-  --color-neutral-300: #d9dde6;
-  --color-neutral-400: #bfc4d0;
-  --color-neutral-500: #8e93a3;
-  --color-neutral-600: #6f7482;
-  --color-neutral-700: #505562;
-  --color-neutral-800: #30343d;
-  --color-neutral-900: #1a1d23;
+  --color-neutral-50: #faf9f7;
+  --color-neutral-100: #f5f2ee;
+  --color-neutral-200: #e8e2da;
+  --color-neutral-300: #d8d0c7;
+  --color-neutral-400: #b8afa5;
+  --color-neutral-500: #8d857d;
+  --color-neutral-600: #6c655e;
+  --color-neutral-700: #4c4742;
+  --color-neutral-800: #2e2b28;
+  --color-neutral-900: #191715;
 
   --color-bg: var(--color-neutral-50);
   --color-surface: var(--color-white);
@@ -115,7 +115,7 @@
   --space-16: 4rem;
   --page-padding-x: var(--space-5);
   --page-padding-y: var(--space-6);
-  --content-max-width: 1120px;
+  --content-max-width: 1440px;
   --mobile-content-max-width: 640px;
 
   --radius-none: 0;
@@ -125,17 +125,17 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.375rem;
   --radius-full: 9999px;
-  --radius-button: var(--radius-lg);
-  --radius-card: var(--radius-xl);
-  --radius-input: var(--radius-md);
+  --radius-button: var(--radius-md);
+  --radius-card: var(--radius-lg);
+  --radius-input: var(--radius-sm);
   --radius-tag: var(--radius-sm);
 
   --shadow-none: none;
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.06);
-  --shadow-xl: 0 18px 48px rgba(30, 55, 100, 0.1);
+  --shadow-xs: 0 1px 2px rgba(62, 43, 28, 0.04);
+  --shadow-sm: 0 3px 12px rgba(62, 43, 28, 0.06);
+  --shadow-md: 0 8px 24px rgba(62, 43, 28, 0.08);
+  --shadow-lg: 0 18px 48px rgba(62, 43, 28, 0.1);
+  --shadow-xl: 0 24px 64px rgba(62, 43, 28, 0.14);
   --shadow-card: var(--shadow-xs);
   --shadow-card-hover: var(--shadow-sm);
   --shadow-dropdown: var(--shadow-lg);

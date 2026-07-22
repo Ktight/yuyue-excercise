@@ -6,6 +6,8 @@ import type {
   UserDto,
   UserListRequestDto,
   UserListResult,
+  UserResetPasswordRequestDto,
+  UserUpdateRequestDto,
 } from '@/features/users/model/users.types';
 
 type Schemas = components['schemas'];
@@ -41,4 +43,27 @@ export async function createUser(dto: UserCreateRequestDto): Promise<UserDto> {
   } satisfies Schemas['UserCreateRequest'];
   const { data: response } = await httpClient.post<Schemas['UserSuccessResponse']>('/users/', body);
   return mapUser(response.data);
+}
+export async function fetchUser(id: number): Promise<UserDto> {
+  const { data: response } = await httpClient.get<Schemas['UserSuccessResponse']>(`/users/${id}/`);
+  return mapUser(response.data);
+}
+export async function updateUser(id: number, dto: UserUpdateRequestDto): Promise<UserDto> {
+  const body = {
+    name: dto.name,
+    role: dto.role,
+    store_id: dto.storeId,
+    is_active: dto.isActive,
+  } satisfies Schemas['UserUpdateRequest'];
+  const { data: response } = await httpClient.patch<Schemas['UserSuccessResponse']>(
+    `/users/${id}/`,
+    body,
+  );
+  return mapUser(response.data);
+}
+export async function resetUserPassword(
+  id: number,
+  dto: UserResetPasswordRequestDto,
+): Promise<void> {
+  await httpClient.post(`/users/${id}/reset-password/`, { new_password: dto.newPassword });
 }

@@ -81,7 +81,7 @@ const navItems = computed(() =>
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--color-bg);
+  background: #fbfaf8;
 }
 
 .admin-layout__menu-btn {
@@ -124,23 +124,25 @@ const navItems = computed(() =>
 }
 
 .admin-layout__sidebar {
-  width: 240px;
+  position: sticky;
+  top: 0;
+  width: 184px;
+  height: 100vh;
   flex-shrink: 0;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  padding: var(--space-6) 0;
-  box-shadow: var(--shadow-xs);
+  padding: var(--space-5) 0;
 }
 
 .admin-layout__brand {
-  padding: 0 var(--space-6) var(--space-6);
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
+  padding: var(--space-1) var(--space-5) var(--space-6);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
   color: var(--color-brand);
-  border-bottom: 1px solid var(--color-border);
-  margin-bottom: var(--space-4);
+  border-bottom: 0;
+  margin-bottom: var(--space-2);
 }
 
 .admin-layout__nav {
@@ -152,7 +154,7 @@ const navItems = computed(() =>
 
 .admin-layout__nav-item {
   display: block;
-  padding: var(--space-2) var(--space-3);
+  padding: 0.7rem var(--space-3);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -167,7 +169,7 @@ const navItems = computed(() =>
   color: var(--color-brand);
 }
 .admin-layout__nav-item.router-link-active {
-  background: var(--color-brand-light);
+  background: linear-gradient(90deg, var(--color-brand-light), #fffaf6);
   color: var(--color-brand);
   font-weight: var(--font-semibold);
 }
@@ -184,26 +186,29 @@ const navItems = computed(() =>
 }
 
 .admin-layout__header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-4) var(--space-6);
+  min-height: 58px;
+  padding: var(--space-3) var(--space-6);
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-xs);
 }
 
 .admin-layout__title {
   margin: 0;
-  font-size: var(--text-xl);
+  font-size: var(--text-base);
   font-weight: var(--font-semibold);
 }
 
 .admin-layout__content {
   flex: 1;
-  padding: var(--space-6);
+  padding: 0 var(--space-5);
   width: 100%;
-  max-width: calc(var(--content-max-width) + var(--space-12));
+  max-width: none;
   margin: 0 auto;
 }
 
@@ -231,7 +236,7 @@ const navItems = computed(() =>
   }
 
   .admin-layout__content {
-    padding: var(--space-4);
+    padding: 0;
   }
 }
 </style>

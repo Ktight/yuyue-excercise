@@ -33,6 +33,9 @@ export interface BookingListResult {
 export interface BookingQuery {
   page?: number;
   pageSize?: number;
+  status?: 'booked' | 'cancelled';
+  scheduleId?: number;
+  studentId?: number;
 }
 export interface BookingCreateInput {
   scheduleId: number;

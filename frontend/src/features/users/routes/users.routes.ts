@@ -13,4 +13,10 @@ export const usersRoutes: RouteRecordRaw[] = [
     component: () => import('@/features/users/pages/UserCreatePage.vue'),
     meta: { roles: ['super_admin', 'company_admin'] },
   },
+  {
+    path: '/admin/users/:id',
+    name: 'users-detail',
+    component: () => import('@/features/users/pages/UserDetailPage.vue'),
+    meta: { roles: ['super_admin', 'company_admin'] },
+  },
 ];

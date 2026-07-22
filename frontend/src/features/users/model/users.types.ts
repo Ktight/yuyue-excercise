@@ -25,6 +25,15 @@ export interface UserCreateRequestDto {
   storeId?: number | null;
   isActive?: boolean;
 }
+export interface UserUpdateRequestDto {
+  name?: string;
+  role?: UserRole;
+  storeId?: number | null;
+  isActive?: boolean;
+}
+export interface UserResetPasswordRequestDto {
+  newPassword: string;
+}
 export interface UserListResult {
   items: UserDto[];
   page: number;

@@ -27,9 +27,9 @@ defineEmits<{ select: [company: Company] }>();
   flex-direction: column;
   overflow: hidden;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-xs);
 }
 .company-list__msg {
   padding: var(--space-8);
@@ -47,6 +47,16 @@ defineEmits<{ select: [company: Company] }>();
 }
 .company-list__item:hover {
   background: var(--color-brand-light);
+}
+@media (max-width: 640px) {
+  .company-list {
+    border-inline: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .company-list__item {
+    padding-inline: 0;
+  }
 }
 .company-list__name {
   font-weight: var(--font-medium);

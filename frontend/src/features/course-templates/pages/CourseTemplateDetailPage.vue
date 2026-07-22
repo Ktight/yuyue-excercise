@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/features/auth';
 import {
   fetchCourseTemplate,
+  deleteCourseTemplate,
   setCourseTemplateActive,
   updateCourseTemplate,
 } from '@/features/course-templates/api';
@@ -13,10 +14,13 @@ import { CourseTemplateForm } from '@/features/course-templates/components';
 import { AppPage, AppLoading, AppError } from '@/app/components';
 
 const route = useRoute();
+const router = useRouter();
 const auth = useAuthStore();
 const template = ref<CourseTemplate | null>(null);
 const loading = ref(false);
 const error = ref('');
+const deleting = ref(false);
+const actionError = ref('');
 const templateId = computed(() => Number(route.params.id));
 const canManage = computed(() => ['super_admin', 'company_admin'].includes(auth.userRole ?? ''));
 
@@ -47,6 +51,24 @@ async function handleToggle() {
     template.value.status !== 'active',
   );
 }
+async function handleDelete() {
+  if (
+    !canManage.value ||
+    deleting.value ||
+    !globalThis.confirm('确认永久删除该课程模板？有关联排课时后端可能拒绝删除。')
+  )
+    return;
+  deleting.value = true;
+  actionError.value = '';
+  try {
+    await deleteCourseTemplate(templateId.value);
+    await router.push('/admin/course-templates');
+  } catch {
+    actionError.value = '课程模板删除失败，请检查关联排课';
+  } finally {
+    deleting.value = false;
+  }
+}
 
 onMounted(loadTemplate);
 </script>
@@ -67,8 +89,12 @@ onMounted(loadTemplate);
           <button v-if="canManage" class="btn-toggle" @click="handleToggle">
             {{ template.status === 'active' ? '停用' : '启用' }}
           </button>
+          <button v-if="canManage" class="btn-delete" :disabled="deleting" @click="handleDelete">
+            {{ deleting ? '删除中…' : '删除模板' }}
+          </button>
           <span v-else class="readonly-note">当前角色仅可查看</span>
         </div>
+        <p v-if="actionError" role="alert">{{ actionError }}</p>
         <CourseTemplateForm
           :key="template.updatedAt"
           :initial="template"
@@ -110,6 +136,13 @@ onMounted(loadTemplate);
   border-radius: var(--radius-button);
   background: var(--color-surface);
   cursor: pointer;
+}
+.btn-delete {
+  padding: var(--space-1) var(--space-4);
+  color: var(--color-danger);
+  background: var(--color-surface);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-button);
 }
 .readonly-note {
   font-size: var(--text-sm);

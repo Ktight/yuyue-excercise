@@ -6,7 +6,8 @@ const sidebarOpen = ref(false);
 
 const navItems = [
   { label: '首页', key: 'home', to: '/student' },
-  { label: '我的课程', key: 'courses', to: '/student/bookings' },
+  { label: '我的课程', key: 'discover', to: '/student/courses' },
+  { label: '预约记录', key: 'courses', to: '/student/bookings' },
   { label: '我的考勤', key: 'schedule', to: '/student/attendance' },
   { label: '我的档案', key: 'profile' },
   { label: '训练历史', key: 'history' },
@@ -16,7 +17,7 @@ const navItems = [
 const primaryNavItems = [
   { label: '首页', key: 'home', icon: '⌂', to: '/student' },
   { label: '学员', key: 'students', icon: '♙' },
-  { label: '课程', key: 'courses', icon: '□', to: '/student/bookings' },
+  { label: '课程', key: 'courses', icon: '□', to: '/student/courses' },
   { label: '我的', key: 'profile', icon: '○' },
 ];
 </script>
@@ -90,7 +91,7 @@ const primaryNavItems = [
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--color-bg);
+  background: #fbfaf8;
 }
 
 .student-layout__topbar {
@@ -103,7 +104,7 @@ const primaryNavItems = [
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  box-shadow: var(--shadow-xs);
+  box-shadow: none;
 }
 
 .student-layout__menu-btn {
@@ -144,7 +145,8 @@ const primaryNavItems = [
 
 .student-layout__brand {
   margin: 0;
-  font-size: var(--text-lg);
+  font-family: Georgia, 'Noto Serif SC', serif;
+  font-size: var(--text-xl);
   font-weight: var(--font-semibold);
   color: var(--color-primary-600);
 }
@@ -272,6 +274,7 @@ const primaryNavItems = [
     background: rgba(255, 255, 255, 0.94);
     border-top: 1px solid var(--color-border-light);
     backdrop-filter: blur(18px);
+    box-shadow: 0 -8px 24px rgba(62, 43, 28, 0.06);
   }
 
   .student-layout__bottom-item {

@@ -1,1 +1,1 @@
-export { login, refreshToken, getProfile, changePassword } from './auth.api';
+export { login, refreshToken, getProfile, updateProfile, changePassword, logout } from './auth.api';
