@@ -146,9 +146,9 @@ async function handleSubmit() {
   max-width: 560px;
   padding: var(--space-5);
   background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-xs);
 }
 .ct-form__error,
 small {
@@ -181,6 +181,8 @@ small {
   color: var(--color-text-secondary);
 }
 .ct-form__submit {
+  min-height: var(--control-height-lg);
+  margin-top: var(--space-2);
   padding: var(--space-3);
   font-weight: var(--font-semibold);
   color: var(--color-text-inverse);
@@ -189,6 +191,12 @@ small {
   border-radius: var(--radius-button);
 }
 @media (max-width: 640px) {
+  .ct-form {
+    padding-inline: 0;
+    border-inline: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
   .ct-form__row {
     grid-template-columns: 1fr;
   }

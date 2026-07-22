@@ -35,11 +35,21 @@ export const authHandlers = [
     return HttpResponse.json({ code: 'OK', message: '刷新成功', data: MOCK_REFRESH_RESPONSE });
   }),
 
+  http.post('/api/auth/logout/', () =>
+    HttpResponse.json({ code: 'OK', message: '退出成功', data: null }),
+  ),
+
   http.get('/api/auth/me/', ({ request }) => {
     if (!request.headers.get('Authorization')) {
       return HttpResponse.json(errorBody('UNAUTHORIZED', '未登录'), { status: 401 });
     }
     return HttpResponse.json({ code: 'OK', message: '查询成功', data: MOCK_USER_TRAINER });
+  }),
+
+  http.patch('/api/auth/me/', async ({ request }) => {
+    const body = (await request.json()) as { name?: string; avatar?: string | null };
+    Object.assign(MOCK_USER_TRAINER, body);
+    return HttpResponse.json({ code: 'OK', message: '保存成功', data: MOCK_USER_TRAINER });
   }),
 
   http.post('/api/auth/change-password/', async ({ request }) => {

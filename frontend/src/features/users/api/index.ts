@@ -1,1 +1,1 @@
-export { fetchUsers, createUser } from './users.api';
+export { fetchUsers, fetchUser, createUser, updateUser, resetUserPassword } from './users.api';

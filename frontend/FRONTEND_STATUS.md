@@ -1,5 +1,21 @@
 # 瑜悦练前端工作状态
 
+## Phase 1–7 前端演示完整性补齐（2026-07-22）
+
+- 已补用户详情/编辑/启停/重置密码、个人资料、服务器退出、主要列表分页筛选、排课资源选择器、考勤排课选择器以及学员课程发现演示页。
+- 前端演示状态更新为 `DEMO_UI_COMPLETE / MOCK_INTEGRATION_READY / REAL_API_NOT_FULLY_VERIFIED`。
+- 真实 API 未完成或契约仍为 DRAFT 的能力已集中记录在 `BACKEND_DEPENDENCIES_PHASE_1_7.md`，不会在页面中临时兼容。
+- 详细页面补齐记录见 `PHASE_1_7_DEMO_COMPLETENESS.md`。
+
+## Phase 1–7 视觉改造（2026-07-22）
+
+- 已依据 `docs/design-references/` 的移动端与桌面端设计图完成第一轮统一样式改造。
+- 改造范围仅为前端 Token、基础样式、三类角色布局、首页展示以及 Phase 1–7 既有表单/列表/卡片呈现；未改 API、契约、适配器、权限、Mock 或业务流程。
+- `check:all` 通过：274 个源文件边界、36 个测试文件、124 项测试、619 个生产模块。
+- Playwright E2E 通过；桌面端与 390 × 844 移动端浏览器回归均未发现业务内容横向溢出。
+- 当前状态：`IMPLEMENTED / AUTOMATED_CHECKS_PASSED / RESPONSIVE_SMOKE_PASSED / NOT_PRODUCT_VERIFIED`。
+- 详细变更和验收边界见 `PHASE_1_7_VISUAL_REFRESH.md`。
+
 ## Phase 1–7 收口审查（2026-07-22）
 
 - 当前前端分支已经包含远端 `main` 的全部提交，无需再次拉取或合并后端。

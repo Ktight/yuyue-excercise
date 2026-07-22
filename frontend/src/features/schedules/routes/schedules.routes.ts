@@ -26,4 +26,10 @@ export const schedulesRoutes: RouteRecordRaw[] = [
     component: () => import('@/features/schedules/pages/ScheduleDetailPage.vue'),
     meta: { roles: ['trainer'] },
   },
+  {
+    path: '/student/courses',
+    name: 'student-course-discovery',
+    component: () => import('@/features/schedules/pages/StudentCourseDiscoveryPage.vue'),
+    meta: { roles: ['student'] },
+  },
 ];

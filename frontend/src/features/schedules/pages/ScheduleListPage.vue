@@ -5,7 +5,7 @@ import { fetchSchedules } from '@/features/schedules/api';
 import type { Schedule, ScheduleStatus } from '@/features/schedules/model';
 import { ScheduleCard } from '@/features/schedules/components';
 import { useAuthStore } from '@/features/auth';
-import { AppPage, AppLoading, AppEmpty, AppError } from '@/app/components';
+import { AppPage, AppLoading, AppEmpty, AppError, AppPagination } from '@/app/components';
 const router = useRouter(),
   auth = useAuthStore();
 const items = ref<Schedule[]>([]),
@@ -13,24 +13,37 @@ const items = ref<Schedule[]>([]),
   error = ref(''),
   dateFrom = ref(''),
   dateTo = ref(''),
-  status = ref<ScheduleStatus | ''>('');
+  status = ref<ScheduleStatus | ''>(''),
+  page = ref(1),
+  total = ref(0);
+const pageSize = 20;
 const canCreate = ['super_admin', 'company_admin', 'store_manager'].includes(auth.userRole ?? '');
 async function load() {
   loading.value = true;
   error.value = '';
   try {
-    items.value = (
-      await fetchSchedules({
-        dateFrom: dateFrom.value || undefined,
-        dateTo: dateTo.value || undefined,
-        status: status.value || undefined,
-      })
-    ).items;
+    const result = await fetchSchedules({
+      page: page.value,
+      pageSize,
+      dateFrom: dateFrom.value || undefined,
+      dateTo: dateTo.value || undefined,
+      status: status.value || undefined,
+    });
+    items.value = result.items;
+    total.value = result.total;
   } catch {
     error.value = '排课加载失败';
   } finally {
     loading.value = false;
   }
+}
+function applyFilters() {
+  page.value = 1;
+  void load();
+}
+function changePage(value: number) {
+  page.value = value;
+  void load();
 }
 onMounted(load);
 </script>
@@ -41,7 +54,7 @@ onMounted(load);
         新建排课
       </button></template
     >
-    <form class="filters" @submit.prevent="load">
+    <form class="filters" @submit.prevent="applyFilters">
       <input v-model="dateFrom" type="date" /><input v-model="dateTo" type="date" /><select
         v-model="status"
       >
@@ -55,7 +68,8 @@ onMounted(load);
       v-else-if="error"
       :message="error"
       show-retry
-      @retry="load" /><AppEmpty v-else-if="!items.length" description="暂无排课" /><ScheduleCard
+      @retry="load"
+    /><AppEmpty v-else-if="!items.length" description="暂无排课" /><ScheduleCard
       v-for="item in items"
       v-else
       :key="item.id"
@@ -63,7 +77,9 @@ onMounted(load);
       @select="
         router.push(`${auth.userRole === 'trainer' ? '/trainer' : '/admin'}/schedules/${item.id}`)
       "
-  /></AppPage>
+    />
+    <AppPagination :page="page" :page-size="pageSize" :total="total" @change="changePage" />
+  </AppPage>
 </template>
 <style scoped>
 .filters {

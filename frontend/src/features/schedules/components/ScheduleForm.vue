@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import type { Schedule, ScheduleWriteInput } from '@/features/schedules/model';
+import ScheduleResourceSelects from './ScheduleResourceSelects.vue';
 const props = defineProps<{
   initial?: Schedule;
   onSubmit: (value: ScheduleWriteInput) => Promise<void>;
@@ -52,16 +53,14 @@ async function submit() {
 </script>
 <template>
   <form class="form" @submit.prevent="submit">
-    <label>门店 ID<input v-model.number="form.storeId" type="number" min="1" required /></label
-    ><label>教室 ID<input v-model.number="form.roomId" type="number" min="1" required /></label
-    ><label
-      >课程模板 ID<input
-        v-model.number="form.courseTemplateId"
-        type="number"
-        min="1"
-        required /></label
-    ><label>教练 ID<input v-model.number="form.trainerId" type="number" min="1" required /></label
-    ><label>课程日期<input v-model="form.courseDate" type="date" required /></label
+    <ScheduleResourceSelects
+      v-model:store-id="form.storeId"
+      v-model:room-id="form.roomId"
+      v-model:course-template-id="form.courseTemplateId"
+      v-model:trainer-id="form.trainerId"
+      :disabled="saving"
+    />
+    <label>课程日期<input v-model="form.courseDate" type="date" required /></label
     ><label>开始时间<input v-model="form.startTime" type="time" required /></label
     ><label>结束时间<input v-model="form.endTime" type="time" required /></label
     ><label>容量<input v-model.number="form.capacity" type="number" min="1" required /></label
@@ -115,6 +114,14 @@ button {
   font: inherit;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
+}
+button {
+  min-height: var(--control-height-lg);
+  margin-top: var(--space-2);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-inverse);
+  background: var(--color-brand);
+  border-color: var(--color-brand);
 }
 .error {
   color: var(--color-danger);

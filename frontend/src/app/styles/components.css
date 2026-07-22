@@ -1,3 +1,107 @@
 button:active:not(:disabled) {
   transform: scale(0.97);
 }
+
+:where(input, select, textarea) {
+  min-height: var(--control-height-md);
+  color: var(--color-text-primary);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+:where(input, select, textarea):focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--focus-ring-color);
+  outline: none;
+}
+
+:where(input, select, textarea):disabled {
+  color: var(--color-text-disabled);
+  background: var(--color-neutral-100);
+  cursor: not-allowed;
+}
+
+:where(button) {
+  font-weight: var(--font-medium);
+  transition:
+    transform var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+:where(button):disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+:where(table) {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: separate;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+:where(th, td) {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+:where(th) {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  background: var(--color-neutral-50);
+}
+
+:where(tr:last-child td) {
+  border-bottom: 0;
+}
+
+:where(.app-page__body > form, .app-page__body > dl) {
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-xs);
+}
+
+:where(.app-page__body h2, .app-page__body h3) {
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+:where(.app-page__body button:not(:disabled)):hover {
+  border-color: var(--color-primary-300);
+  box-shadow: var(--shadow-xs);
+}
+
+:where(p[role='alert'], div[role='alert']:not(.forbidden)) {
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-error-600);
+  background: var(--color-error-bg);
+  border: 1px solid color-mix(in srgb, var(--color-error) 22%, transparent);
+  border-radius: var(--radius-md);
+}
+
+:where([role='status']) {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 640px) {
+  :where(.app-page__body > form, .app-page__body > dl) {
+    padding: var(--space-4) 0;
+    border-inline: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

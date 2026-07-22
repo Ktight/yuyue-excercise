@@ -46,6 +46,16 @@ export async function getProfile(): Promise<UserProfile> {
   const { data: response } = await httpClient.get<Schemas['UserSuccessResponse']>('/auth/me/');
   return mapUser(response.data);
 }
+export async function updateProfile(value: {
+  name?: string;
+  avatar?: string | null;
+}): Promise<UserProfile> {
+  const { data } = await httpClient.patch<Schemas['UserSuccessResponse']>('/auth/me/', value);
+  return mapUser(data.data);
+}
 export async function changePassword(dto: ChangePasswordRequestDto): Promise<void> {
   await httpClient.post('/auth/change-password/', dto);
+}
+export async function logout(refreshTokenValue: string): Promise<void> {
+  await httpClient.post('/auth/logout/', { refresh_token: refreshTokenValue });
 }

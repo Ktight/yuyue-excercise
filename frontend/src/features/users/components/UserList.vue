@@ -29,7 +29,10 @@ defineEmits<{
         <span class="user-list__name">{{ user.name }}</span>
         <span class="user-list__phone">{{ user.phone }}</span>
       </div>
-      <span class="user-list__role">{{ ROLE_LABELS[user.role] }}</span>
+      <span class="user-list__meta"
+        ><span v-if="!user.isActive" class="user-list__inactive">已停用</span
+        ><span class="user-list__role">{{ ROLE_LABELS[user.role] }}</span></span
+      >
     </div>
   </div>
 </template>
@@ -40,9 +43,9 @@ defineEmits<{
   flex-direction: column;
   overflow: hidden;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-xs);
 }
 
 .user-list__loading,
@@ -89,5 +92,27 @@ defineEmits<{
   border-radius: var(--radius-tag);
   background: var(--color-brand-light);
   color: var(--color-brand);
+}
+.user-list__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.user-list__inactive {
+  padding: 2px var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  background: var(--color-error-bg);
+  border-radius: var(--radius-tag);
+}
+@media (max-width: 640px) {
+  .user-list {
+    border-inline: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .user-list__item {
+    padding-inline: 0;
+  }
 }
 </style>

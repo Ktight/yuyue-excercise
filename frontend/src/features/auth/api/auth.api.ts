@@ -1,1 +1,8 @@
-export { login, refreshToken, getProfile, changePassword } from '@/backend-adapters/auth.adapter';
+export {
+  login,
+  refreshToken,
+  getProfile,
+  updateProfile,
+  changePassword,
+  logout,
+} from '@/backend-adapters/auth.adapter';

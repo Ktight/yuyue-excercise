@@ -27,6 +27,10 @@ defineProps<{ stats: AttendanceStats | null }>();
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow-xs);
+}
+.stats strong {
+  color: var(--color-brand);
 }
 .stats div {
   display: grid;

@@ -15,22 +15,34 @@ const error = ref('');
 const page = ref(Math.max(1, Number(route.query.page) || 1));
 const pageSize = 20;
 const total = ref(0);
-const filters = ref<{ search?: string; role?: UserRole }>({
+const filters = ref<{ search?: string; role?: UserRole; isActive?: boolean }>({
   search: typeof route.query.search === 'string' ? route.query.search : undefined,
   role: typeof route.query.role === 'string' ? (route.query.role as UserRole) : undefined,
+  isActive: route.query.isActive === undefined ? undefined : route.query.isActive === 'true',
 });
 const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize)));
 
 async function loadUsers() {
   loading.value = true;
   error.value = '';
-  const params: UserListRequestDto = { ...filters.value, page: page.value, page_size: pageSize };
+  const params: UserListRequestDto = {
+    search: filters.value.search,
+    role: filters.value.role,
+    is_active: filters.value.isActive,
+    page: page.value,
+    page_size: pageSize,
+  };
   try {
     const result = await fetchUsers(params);
     users.value = result.items;
     total.value = result.total;
     await router.replace({
-      query: { ...filters.value, page: page.value > 1 ? String(page.value) : undefined },
+      query: {
+        search: filters.value.search,
+        role: filters.value.role,
+        isActive: filters.value.isActive === undefined ? undefined : String(filters.value.isActive),
+        page: page.value > 1 ? String(page.value) : undefined,
+      },
     });
   } catch {
     error.value = '加载用户列表失败';
@@ -39,7 +51,7 @@ async function loadUsers() {
   }
 }
 
-function applyFilters(value: { search?: string; role?: UserRole }) {
+function applyFilters(value: { search?: string; role?: UserRole; isActive?: boolean }) {
   filters.value = value;
   page.value = 1;
   void loadUsers();
@@ -56,12 +68,17 @@ onMounted(loadUsers);
     <template #header-extra>
       <RouterLink class="create-link" :to="{ name: 'users-create' }">创建用户</RouterLink>
     </template>
-    <UserFilters :search="filters.search" :role="filters.role" @apply="applyFilters" />
+    <UserFilters
+      :search="filters.search"
+      :role="filters.role"
+      :active="filters.isActive === undefined ? '' : (String(filters.isActive) as 'true' | 'false')"
+      @apply="applyFilters"
+    />
     <AppLoading v-if="loading" />
     <AppError v-else-if="error" :message="error" :show-retry="true" @retry="loadUsers" />
     <AppEmpty v-else-if="users.length === 0" description="暂无用户数据" />
     <template v-else>
-      <UserList :users="users" />
+      <UserList :users="users" @select="(user) => router.push(`/admin/users/${user.id}`)" />
       <nav class="pagination" aria-label="用户分页">
         <button :disabled="page <= 1" @click="changePage(page - 1)">上一页</button>
         <span>第 {{ page }} / {{ pageCount }} 页，共 {{ total }} 人</span>

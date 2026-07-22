@@ -62,10 +62,10 @@ async function submit() {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  max-width: 480px;
+  max-width: 560px;
   padding: var(--space-5);
   background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
 }
 label {
@@ -78,6 +78,14 @@ button {
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
+}
+button {
+  min-height: var(--control-height-lg);
+  margin-top: var(--space-2);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-inverse);
+  background: var(--color-brand);
+  border-color: var(--color-brand);
 }
 [role='alert'] {
   color: var(--color-error);

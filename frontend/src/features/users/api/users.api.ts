@@ -1,1 +1,7 @@
-export { fetchUsers, createUser } from '@/backend-adapters/users.adapter';
+export {
+  fetchUsers,
+  fetchUser,
+  createUser,
+  updateUser,
+  resetUserPassword,
+} from '@/backend-adapters/users.adapter';

@@ -84,7 +84,7 @@ const mobileNavItems = [
 .trainer-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--color-bg);
+  background: #fbfaf8;
 }
 
 .trainer-layout__menu-btn {
@@ -134,7 +134,7 @@ const mobileNavItems = [
   display: flex;
   flex-direction: column;
   padding: var(--space-6) 0;
-  box-shadow: var(--shadow-xs);
+  box-shadow: none;
 }
 
 .trainer-layout__brand {
@@ -171,7 +171,7 @@ const mobileNavItems = [
 }
 .trainer-layout__nav-item.router-link-active {
   color: var(--color-brand);
-  background: var(--color-brand-light);
+  background: linear-gradient(90deg, var(--color-brand-light), #fffaf6);
   font-weight: var(--font-semibold);
 }
 .trainer-layout__nav-item.is-disabled {
@@ -187,6 +187,9 @@ const mobileNavItems = [
 }
 
 .trainer-layout__header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -247,6 +250,7 @@ const mobileNavItems = [
     background: rgba(255, 255, 255, 0.94);
     border-top: 1px solid var(--color-border-light);
     backdrop-filter: blur(18px);
+    box-shadow: 0 -8px 24px rgba(62, 43, 28, 0.06);
   }
 
   .trainer-layout__mobile-item {

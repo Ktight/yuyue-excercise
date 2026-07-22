@@ -32,6 +32,15 @@ defineEmits<{ select: [] }>();
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
   cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+.student-card:hover {
+  border-color: var(--color-primary-200);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 .avatar {
   display: grid;
@@ -39,8 +48,15 @@ defineEmits<{ select: [] }>();
   height: 44px;
   place-items: center;
   color: var(--color-text-inverse);
-  background: var(--color-brand);
+  background: linear-gradient(145deg, var(--color-primary-400), var(--color-brand));
   border-radius: 50%;
+}
+@media (max-width: 640px) {
+  .student-card {
+    padding-inline: 0;
+    border-inline: 0;
+    border-radius: 0;
+  }
 }
 .content {
   display: grid;
