@@ -110,7 +110,7 @@
     x-tenant-scope: company
     description: At least one dimension is required. Students may request only their own student dimension and cannot request course statistics.
     parameters:
-      - {name: student_id, in: query, schema: {type: integer, minimum: 1}}
+      - {name: student_id, in: query, description: "accounts.User primary key, not StudentProfile ID.", schema: {type: integer, minimum: 1}}
       - {name: schedule_id, in: query, schema: {type: integer, minimum: 1}}
     responses:
       '200': {description: Student and/or course statistics, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceStatsSuccessResponse'}}}}

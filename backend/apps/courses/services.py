@@ -89,9 +89,19 @@ def create_booking(schedule_id, student_id, company_id):
 
         if schedule.status != 'published':
             raise ContractAPIException(message='该排课未发布，无法预约。')
+        now = timezone.localtime()
+        local_time = now.time().replace(tzinfo=None)
+        if (
+            schedule.course_date < now.date()
+            or (
+                schedule.course_date == now.date()
+                and schedule.start_time <= local_time
+            )
+        ):
+            raise ContractAPIException(message='课程已经开始，无法预约。')
         if (
             schedule.booking_deadline is not None
-            and timezone.now() > schedule.booking_deadline
+            and now > schedule.booking_deadline
         ):
             raise ContractAPIException(message='已超过预约截止时间。')
 

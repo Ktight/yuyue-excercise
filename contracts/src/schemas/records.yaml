@@ -7,7 +7,7 @@ Attendance:
     company: {type: integer, format: int64, minimum: 1, readOnly: true}
     booking: {type: integer, format: int64, minimum: 1, readOnly: true}
     schedule: {type: integer, format: int64, minimum: 1, readOnly: true}
-    student: {type: integer, format: int64, minimum: 1, readOnly: true}
+    student: {type: integer, format: int64, minimum: 1, readOnly: true, description: "accounts.User primary key, not StudentProfile ID."}
     student_name: {type: string, readOnly: true}
     schedule_name: {type: string, readOnly: true}
     check_in_time: {type: string, format: date-time, nullable: true, readOnly: true}
@@ -62,6 +62,7 @@ AttendanceBatchCheckInRequest:
       type: array
       minItems: 1
       uniqueItems: true
+      description: accounts.User primary keys, not StudentProfile IDs.
       items: {type: integer, format: int64, minimum: 1}
 
 AttendanceBatchData:
@@ -102,7 +103,7 @@ StudentAttendanceStats:
   additionalProperties: false
   required: [student_id, total_count, attended_count, attendance_rate, late_count, leave_count, consecutive_attendance]
   properties:
-    student_id: {type: integer, format: int64, minimum: 1}
+    student_id: {type: integer, format: int64, minimum: 1, description: "accounts.User primary key, not StudentProfile ID."}
     total_count: {type: integer, minimum: 0}
     attended_count: {type: integer, minimum: 0}
     attendance_rate: {type: number, format: float, minimum: 0, maximum: 100}

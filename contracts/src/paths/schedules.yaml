@@ -3,9 +3,9 @@
     operationId: listSchedules
     tags: [schedules]
     x-status: CONTRACT_READY
-    x-roles: [super_admin, company_admin, store_manager, trainer]
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
     x-tenant-scope: company
-    description: Company-scoped schedules with annotated booking counts.
+    description: Company-scoped schedules with active booking counts. Student requests are server-filtered to published, future, before-deadline schedules with remaining capacity, valid membership, no time conflict and no previous booking by the authenticated student. Personal booking status is intentionally read from GET /api/bookings/ and is not duplicated here.
     parameters:
       - {$ref: '../root.yaml#/components/parameters/PageParameter'}
       - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
@@ -45,8 +45,9 @@
     operationId: retrieveSchedule
     tags: [schedules]
     x-status: CONTRACT_READY
-    x-roles: [super_admin, company_admin, store_manager, trainer]
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
     x-tenant-scope: company
+    description: Staff may retrieve any visible company schedule. Students may retrieve only schedules that satisfy the same discovery rules as the list endpoint.
     responses:
       '200': {description: Schedule detail, content: {application/json: {schema: {$ref: '../schemas/scheduling.yaml#/ScheduleSuccessResponse'}}}}
       '401': {$ref: '../schemas/common.yaml#/Unauthorized'}

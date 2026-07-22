@@ -1,4 +1,5 @@
-from django.db.models import Count, Q
+from django.db.models import Count, Exists, F, OuterRef, Q
+from django.utils import timezone
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -6,6 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.views import APIView
 
+from apps.members.models import StudentProfile
+from apps.members.services import validate_member_card
 from core.constants import CourseCategory, CourseDifficulty, ResourceStatus, UserRole
 from core.mixins import ContractResponseMixin
 from core.permissions import IsCompanyAdmin, IsStoreManager, IsTrainer
@@ -107,7 +110,7 @@ class CourseScheduleViewSet(ContractResponseMixin, viewsets.ModelViewSet):
         return CourseScheduleSerializer
 
     def get_permissions(self):
-        if self.action in {'book', 'cancel_booking'}:
+        if self.action in {'list', 'retrieve', 'book', 'cancel_booking'}:
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = (
@@ -116,7 +119,12 @@ class CourseScheduleViewSet(ContractResponseMixin, viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        queryset = super().get_queryset().annotate(bookings_count=Count('bookings'))
+        queryset = super().get_queryset().annotate(
+            bookings_count=Count(
+                'bookings',
+                filter=Q(bookings__status='booked'),
+            )
+        )
         user = self.request.user
         requested_company = self.request.query_params.get('company_id')
         if user.role == UserRole.SUPER_ADMIN:
@@ -126,6 +134,45 @@ class CourseScheduleViewSet(ContractResponseMixin, viewsets.ModelViewSet):
             if requested_company and str(requested_company) != str(user.company_id):
                 raise PermissionDenied('不能筛选其他公司的排课。')
             queryset = queryset.filter(company_id=user.company_id)
+
+        if user.role == UserRole.STUDENT:
+            try:
+                profile = StudentProfile.objects.get(
+                    user=user,
+                    company_id=user.company_id,
+                )
+            except StudentProfile.DoesNotExist:
+                return queryset.none()
+            is_eligible, _ = validate_member_card(profile)
+            if not is_eligible:
+                return queryset.none()
+
+            now = timezone.localtime()
+            local_time = now.time().replace(tzinfo=None)
+            existing_booking = CourseBooking.objects.filter(
+                schedule_id=OuterRef('pk'),
+                student=user,
+            )
+            time_conflict = CourseBooking.objects.filter(
+                student=user,
+                status='booked',
+                schedule__course_date=OuterRef('course_date'),
+                schedule__start_time__lt=OuterRef('end_time'),
+                schedule__end_time__gt=OuterRef('start_time'),
+            )
+            queryset = queryset.annotate(
+                has_existing_booking=Exists(existing_booking),
+                has_time_conflict=Exists(time_conflict),
+            ).filter(
+                Q(course_date__gt=now.date())
+                | Q(course_date=now.date(), start_time__gt=local_time),
+                Q(booking_deadline__isnull=True)
+                | Q(booking_deadline__gte=now),
+                status='published',
+                bookings_count__lt=F('capacity'),
+                has_existing_booking=False,
+                has_time_conflict=False,
+            )
 
         date_from = self.request.query_params.get('date_from')
         date_to = self.request.query_params.get('date_to')

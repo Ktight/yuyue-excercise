@@ -19,6 +19,7 @@
         "recurring_rule": {"weekdays": [2, 4], "weeks": 8},
         "status": "published",
         "bookings_count": 1,
+        "remaining_capacity": 19,
         "course_template_name": "Group Yoga",
         "trainer_name": "Trainer",
         "room_name": "Room A",

@@ -42,6 +42,7 @@ class CourseTemplateSerializer(serializers.ModelSerializer):
 
 class CourseScheduleSerializer(serializers.ModelSerializer):
     bookings_count = serializers.IntegerField(read_only=True, default=0)
+    remaining_capacity = serializers.SerializerMethodField()
     course_template_name = serializers.CharField(
         source='course_template.name',
         read_only=True,
@@ -53,6 +54,11 @@ class CourseScheduleSerializer(serializers.ModelSerializer):
         model = CourseSchedule
         fields = '__all__'
         read_only_fields = ['company']
+
+    @staticmethod
+    def get_remaining_capacity(instance):
+        bookings_count = getattr(instance, 'bookings_count', 0)
+        return max(instance.capacity - bookings_count, 0)
 
 
 class CourseScheduleCreateSerializer(serializers.ModelSerializer):

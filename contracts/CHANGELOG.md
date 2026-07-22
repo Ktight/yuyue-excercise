@@ -1,5 +1,16 @@
 # Contract Changelog
 
+## CONTRACT-20260722-09
+
+- Released contract version `1.6.0` to close frontend/backend Phase 6 discovery and resource-ID alignment items.
+- Added student access to `GET /api/schedules/` and schedule detail while freezing server-side tenant, publication, future-time, deadline, active-capacity, membership, time-conflict and previous-booking filters.
+- Removed the superseded draft `/api/student/schedules/` placeholder; `/api/schedules/` is the single canonical discovery endpoint used by the frontend adapter.
+- Defined `bookings_count` as active reservations only and added explicit `remaining_capacity` to schedule responses.
+- Froze every booking and attendance `student_id` covered by Phase 6-7 as an `accounts.User` primary key, never a `StudentProfile` primary key.
+- Added repeatable Phase 1-7 demo data for five roles, two tenants, valid/expired/exhausted memberships, schedule and booking states, and all attendance states.
+- Restricted the fixed-credential demo-data command to DEBUG environments so it cannot run in production settings.
+- Rebundled `openapi.yaml` exclusively from `contracts/src/**`.
+
 ## CONTRACT-20260722-08
 
 - Released contract version `1.5.0` for Phase 8 class records, media uploads and reusable class templates.
