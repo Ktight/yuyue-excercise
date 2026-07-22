@@ -11,6 +11,13 @@
 - Vue Router 全局守卫已由弃用的 `next()` 回调改为返回值模式；路由定向测试 14 项、完整 `check:all` 和浏览器控制台回归均通过，不再产生弃用警告。
 - 完整证据和待联调清单见 `PHASE_4_FRONTEND_DELIVERY.md`。
 
+## Phase 5 测试基线（2026-07-22）
+
+- 后端学员列表、详情、会员、eligibility、身体评估列表和趋势的真实查询基线已执行，角色和双租户隔离符合当前契约。
+- 当前 Phase 5 前端仍是旧 DTO 原型；真实学员列表请求成功后在 `StudentCard.vue` 因正式嵌套 `user` 字段未适配而渲染失败。
+- Phase 5 当前状态为 `IN_PROGRESS / NOT_UI_READY / NOT_MOCK_READY`，本轮没有修改 Phase 5 业务代码。
+- 具体证据、差异和实施边界见 `PHASE_5_TEST_BASELINE.md`。
+
 更新时间：2026-07-22
 
 ## 样式分层（2026-07-22）
