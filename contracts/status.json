@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.2.0",
+  "contract_version": "1.3.0",
   "modules": {
     "system": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "auth": {"contract": "CONTRACT_READY", "api": "API_READY"},
@@ -10,8 +10,8 @@
     "course_templates": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "students": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "body_assessments": {"contract": "CONTRACT_READY", "api": "API_READY"},
-    "schedules": {"contract": "DRAFT", "api": "NOT_STARTED"},
-    "bookings": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "schedules": {"contract": "CONTRACT_READY", "api": "API_READY"},
+    "bookings": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "attendance": {"contract": "DRAFT", "api": "NOT_STARTED"},
     "class_records": {"contract": "DRAFT", "api": "NOT_STARTED"},
     "class_media": {"contract": "DRAFT", "api": "NOT_STARTED"},

@@ -1,5 +1,15 @@
 # Contract Changelog
 
+## CONTRACT-20260722-06
+
+- Released contract version `1.3.0` for Phase 6 schedules and bookings.
+- Replaced schedule and booking draft placeholders with the implemented date/time, recurrence, nested summary, membership validation and count-card consumption shapes.
+- Froze ISO weekday recurrence (`1=Monday` through `7=Sunday`), atomic recurring creation, room/trainer collision responses, and the annotated `bookings_count` list field.
+- Froze student self-booking, trainer/manager proxy booking, deadline/capacity/student-time/membership validation, duplicate protection, and count-card decrement/restore behavior.
+- Published only implemented routes, including `/api/schedules/{schedule_id}/book/`, `/api/bookings/`, and DELETE cancellation routes; removed unimplemented draft publish/confirm operations.
+- Promoted schedules and bookings to `CONTRACT_READY / API_READY` after migration drift, empty-database migration, 32 backend tests, and Phase 6 integration checks passed.
+- Rebundled `openapi.yaml` exclusively from `contracts/src/**`.
+
 ## CONTRACT-20260722-05
 
 - Released contract version `1.2.0` for frontend Phase 4 / feature 05 Course Templates and frontend Phase 5 / features 06–07 Students and Body Assessments.

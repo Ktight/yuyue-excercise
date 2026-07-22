@@ -1,1 +1,14 @@
-{}
+{
+  "store": 1,
+  "room": 1,
+  "course_template": 1,
+  "trainer": 4,
+  "course_date": "2026-08-04",
+  "start_time": "10:00:00",
+  "end_time": "11:00:00",
+  "capacity": 20,
+  "booking_deadline": "2026-08-04T08:00:00+08:00",
+  "schedule_mode": "recurring",
+  "recurring_rule": {"weekdays": [2, 4], "weeks": 8},
+  "status": "published"
+}

@@ -171,6 +171,16 @@ def main():
         'body-assessments/update.request.json': 'BodyAssessmentUpdateRequest',
         'body-assessments/update.success.json': 'BodyAssessmentSuccessResponse',
         'body-assessments/trend.success.json': 'BodyAssessmentTrendSuccessResponse',
+        'schedules/list.success.json': 'ScheduleListSuccessResponse',
+        'schedules/detail.success.json': 'ScheduleSuccessResponse',
+        'schedules/create.request.json': 'ScheduleCreateRequest',
+        'schedules/create.success.json': 'ScheduleCreateSuccessResponse',
+        'schedules/update.request.json': 'ScheduleUpdateRequest',
+        'schedules/update.success.json': 'ScheduleSuccessResponse',
+        'bookings/list.success.json': 'BookingListSuccessResponse',
+        'bookings/detail.success.json': 'BookingSuccessResponse',
+        'bookings/create.request.json': 'BookingCreateRequest',
+        'bookings/create.success.json': 'BookingSuccessResponse',
     }
     for example in examples:
         value = json.loads(example.read_text(encoding='utf-8'))

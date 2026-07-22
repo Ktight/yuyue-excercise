@@ -1,6 +1,6 @@
 # API Contracts
 
-`src/**` is the modular source of truth. `openapi.yaml` is generated and must never be edited by hand. The current frozen version is `1.2.0`; module readiness is recorded in `status.json`.
+`src/**` is the modular source of truth. `openapi.yaml` is generated and must never be edited by hand. The current frozen version is `1.3.0`; module readiness is recorded in `status.json`.
 
 Public response formats are frozen:
 
