@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { createStudent } from '@/features/students/api';
 import { StudentForm } from '@/features/students/components';
+import { getStudentsBasePath } from '@/features/students/routes';
 import { AppPage } from '@/app/components';
+const route = useRoute();
 const router = useRouter();
 async function handleCreate(d: Parameters<typeof createStudent>[0]) {
   await createStudent(d);
-  router.push('/admin/students');
+  router.push(getStudentsBasePath(route.path));
 }
 </script>
 <template>

@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { ApiError } from '@/shared/api';
+import { validateCompany } from '../model';
 
 const props = defineProps<{
-  initial?: { name?: string; address?: string; phone?: string };
-  onSubmit: (data: { name: string; address: string; phone: string }) => Promise<void>;
+  initial?: { name?: string; address?: string; contactName?: string; contactPhone?: string };
+  onSubmit: (data: {
+    name: string;
+    address: string;
+    contactName: string;
+    contactPhone: string;
+  }) => Promise<void>;
 }>();
 
 const emit = defineEmits<{ success: [] }>();
@@ -12,14 +18,16 @@ const emit = defineEmits<{ success: [] }>();
 const form = reactive({
   name: props.initial?.name || '',
   address: props.initial?.address || '',
-  phone: props.initial?.phone || '',
+  contactName: props.initial?.contactName || '',
+  contactPhone: props.initial?.contactPhone || '',
 });
 const serverError = ref('');
 const submitting = ref(false);
 
 async function handleSubmit() {
-  if (!form.name.trim()) {
-    serverError.value = '请输入公司名称';
+  const validation = validateCompany(form);
+  if (validation.length) {
+    serverError.value = validation[0]?.message ?? '请检查输入';
     return;
   }
   serverError.value = '';
@@ -55,9 +63,17 @@ async function handleSubmit() {
         placeholder="请输入地址"
     /></label>
     <label
-      ><span>电话</span
+      ><span>联系人</span
       ><input
-        v-model="form.phone"
+        v-model="form.contactName"
+        class="company-form__input"
+        :disabled="submitting"
+        placeholder="请输入联系人"
+    /></label>
+    <label
+      ><span>联系电话</span
+      ><input
+        v-model="form.contactPhone"
         class="company-form__input"
         :disabled="submitting"
         placeholder="请输入电话"

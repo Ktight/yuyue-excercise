@@ -1,5 +1,5 @@
-// 全局设计令牌 — 必须在所有组件之前加载
-import '@/app/styles/tokens.css';
+// 全局样式分层入口 — 必须在所有组件之前加载
+import '@/app/styles/index.css';
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';

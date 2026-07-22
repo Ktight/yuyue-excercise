@@ -1,6 +1,18 @@
 # 瑜悦练前端工作状态
 
-更新时间：2026-07-21
+更新时间：2026-07-22
+
+## 样式分层（2026-07-22）
+
+- 全局样式改为单一 `src/app/styles/index.css` 入口；
+- 固定 `reset → tokens → theme → base → layout → components → utilities` CSS Layer 顺序；
+- 原 `tokens.css` 变量名称全部保留，现有 38 个 scoped Vue 样式无需迁移；
+- 新增默认主题语义变量，未来换肤只覆盖语义层；
+- 新增无业务含义的布局类和少量工具类，目前未强制替换业务页面；
+- 移除会改变现有盒模型、标题间距、输入背景和焦点外观的新增规则，确保本次以结构调整为主；
+- API、Store、Schema、路由、权限、事件和后端适配器均未因本次分层修改。
+
+验证结果：`check:all` 通过；202 个源文件边界检查、26 个测试文件/98 项测试、514 模块生产构建全部成功。页面视觉方向仍待确认，本次不代表最终 UI 风格冻结。
 
 ## 当前 Git 状态
 
@@ -20,6 +32,7 @@
 - 后端未实现、实现错误或偏离契约的内容不在前端修复。
 - 前端通过 Mock、生成类型和适配器保证自身可独立开发和验证。
 - 后端接口发生变化时，优先只修改 `src/backend-adapters/`，避免改动页面、组件和 Store。
+- Phase 1/2 代码逻辑、商业级完成门禁和统一记录模板见 `PHASE_DEVELOPMENT_AND_COMPLETION_STANDARD.md`。
 
 ## 已完成的适配层
 
@@ -95,7 +108,103 @@ npm.cmd run check:all
 
 ## 下一步
 
-1. 审阅并提交两份新增协作文档。
-2. 请后端确认 Phase 1/2 对齐清单中的待确认事项。
-3. 在后端接口和运行环境可用后执行真实联调；在此之前不得标记 VERIFIED。
-4. 确认 Phase 3 边界后，再选择一个独立前端步骤实施。
+1. 审阅并提交当前本地前端改动和新增协作文档。
+2. 将 `PHASE_4_CONTRACT_FREEZE_REQUEST.md` 交给后端与契约维护者，一次性冻结课程模板契约。
+3. 请后端继续确认 Phase 1/2/3 对齐清单中的待确认事项。
+4. Phase 4 达到 `CONTRACT_READY` 后，从 FE-4.1 的领域模型、适配器和契约 Mock 开始实施。
+5. 在后端接口和运行环境可用后执行真实联调；在此之前不得标记 VERIFIED。
+
+Phase 3 的契约冻结要求已整理在 `PHASE_3_CONTRACT_FREEZE_REQUEST.md`。在 Companies/Stores/Rooms 契约达到 `CONTRACT_READY` 前，只推进不依赖未确认字段的前端结构和交互，不进行真实联调。
+
+## Phase 2 最终测试清单
+
+以下项目均为待验证项。全部通过并保存测试证据前，Phase 2 只能标记为“前端实现基本完成、部分真实联调完成”，不得整体标记为 `VERIFIED`。
+
+- [ ] 管理员在浏览器中真实创建用户成功，列表能显示新用户。
+- [ ] 创建用户时验证重复手机号、必填字段、密码长度和后端字段错误映射。
+- [ ] 当前用户在浏览器中真实修改密码成功。
+- [ ] 旧密码错误时页面能展示契约规定的错误信息，且不会清除有效会话。
+- [ ] 修改密码后验证旧密码不可登录、新密码可以登录；确认既定 Token 失效策略。
+- [ ] 使用五种角色分别验证可访问路由、菜单显示、按钮权限和越权响应。
+- [ ] 使用至少两个公司及其门店数据验证租户数据隔离，避免跨公司或跨门店读取与操作。
+- [ ] 使用真实 Companies/Stores 数据验证创建用户时公司、门店选择及其约束关系。
+- [ ] 验证多个并发请求同时返回 401 时只刷新一次 Token，并能重放原请求。
+- [ ] 验证 Refresh Token 失效后清理会话并跳转登录页，不出现循环刷新。
+- [ ] 后端提供正式契约与路由后，验证 Logout 和管理员重置密码；当前为 DRAFT，不计作前端缺陷。
+- [ ] 完成真实联调后重新运行 `npm.cmd run check:all`，记录 lint、typecheck、test、build 结果。
+
+每一项测试应记录：测试日期、前端提交号、后端提交号、使用角色与租户、请求结果、页面结果以及失败归属。后端未实现或偏离契约的情况单独登记，不在页面或 Store 中临时兼容。
+
+## Phase 3 前端完成记录（2026-07-21）
+
+当前状态：`UI_READY / MOCK_READY`。前端范围已实现并通过质量门禁；Companies、Stores、Rooms 契约仍为 `DRAFT`，后端状态仍为 `NOT_STARTED`，因此不得标记 `INTEGRATED` 或 `VERIFIED`。
+
+已完成：
+
+- Company、Store、Room 使用独立领域模型及独立后端适配器；
+- 后端路径、尾斜杠、`snake_case`、分页包裹和数字 ID 集中在适配层；
+- 公司列表、创建、详情、编辑和启停；公司详情通过 Store 公开入口组合所属门店；
+- 公司页面权限区分：超级管理员维护，公司管理员只读，启停必须二次确认；
+- 门店列表、创建、详情、编辑和启停；创建门店不再硬编码公司；
+- 门店详情通过 Room 公开入口展示、创建、编辑和启停场地；
+- `CompanySelect`、`StoreSelect`、`RoomSelect` 独立导出；
+- 创建用户支持门店联动：店长必选、教练可选、其他角色自动清除门店；
+- 契约型 Company/Store/Room MSW 数据改为数字 ID；
+- 选择组件和用户门店校验测试已补充。
+
+质量证据：
+
+- TypeScript：通过；
+- ESLint：通过；
+- Prettier：全部前端源文件通过；
+- 模块边界：202 个源文件通过；
+- Vitest：26 个测试文件、98 项测试通过；
+- Build：514 个模块转换成功。
+
+待后端后续提供并联调：具体请求/响应 Schema、正式权限矩阵、多租户隔离、启停端点与级联规则、正式业务错误码、Company/Store/Room `API_READY` 环境。详细要求见 `PHASE_3_CONTRACT_FREEZE_REQUEST.md`。
+
+合同日期和场地类型尚未进入冻结 Schema/枚举，因此前端未猜测实现；后端确认加入或明确排除后，仅更新领域模型、适配器、Schema 与对应表单文件。
+
+## Phase 4 契约审计记录（2026-07-22）
+
+当前状态：`BLOCKED`。课程模板已有 UI/MSW 原型，但契约仍为 `DRAFT / NOT_STARTED`，不能据此标记 `MOCK_READY` 或继续固化字段。
+
+已确认问题：
+
+- 端点请求和响应仍绑定通用 Draft Schema，无法安全生成正式请求/响应类型；
+- 原型使用字符串 ID，候选契约使用正整数 ID；
+- 原型课程分类与 `contracts/enums.json` 不一致；
+- 候选 Schema 包含 `all_levels` 难度，但枚举事实源尚无 `CourseDifficulty`；
+- 原型缺少 `company_id` 和封面资源；
+- 原型使用 PUT 和自定义状态 PATCH，OpenAPI 草案使用 PATCH 及 activate/deactivate POST；
+- 管理员维护、训练师只读的产品要求与 DRAFT 写接口角色声明不一致。
+
+本轮未修改课程模板业务代码，也未修改 `backend/**` 或 `contracts/**`。完整冻结要求见 `PHASE_4_CONTRACT_FREEZE_REQUEST.md`。
+
+### 新版 contracts.zip 审查
+
+- 新包版本为 `1.1.0-draft`，课程模板标记为 `CONTRACT_READY / IN_PROGRESS`；
+- 新 OpenAPI 已通过前端 `openapi-typescript 7.13.0` 隔离生成验证；
+- 正式 Git 仓库尚未同步新版契约，因此 `check:all` 仍会生成旧类型；
+- `CourseDifficulty` 未进入 `enums.json`，封面 URL 与资源标识验收冲突，`company_or_global` 与必填公司 ID 语义不一致；
+- 列表筛选、私教容量、删除关联和课程专用错误示例仍需补齐；
+- 详细审查回执见 `PHASE_4_CONTRACT_REVIEW_RESPONSE.md`。
+
+### Phase 5 契约审计
+
+- 新包中的 Students、Body Assessments 仍为 `DRAFT / NOT_STARTED`，端点继续使用通用 Draft 请求和响应；
+- 候选 Student/Membership/BodyAssessment Schema 尚未绑定端点，不能作为正式前端 DTO；
+- 学员创建与 User 关系、门店/教练归属、会员组合规则、训练师可见范围和敏感健康信息权限尚未冻结；
+- 身体评估字段可空性、单位、体脂/围度/备注/照片、趋势数据和媒体权限尚未冻结；
+- 当前前端相关代码继续只算 UI/MSW 原型，不提升完成状态；
+- Phase 4 与 Phase 5 的一次性反馈已合并到 `PHASE_4_5_CONTRACT_FEEDBACK.md`，后续只需向协作者发送这一份。
+
+### Phase 5 不依赖后端的前端修正
+
+- 新增集中式学员导航函数，管理员端和训练师端复用页面会保留当前角色路由前缀；
+- 修正训练师在学员列表、新建成功、详情选择和编辑成功后错误进入 `/admin` 的问题；
+- 学员列表错误状态的“重试”现在会重新执行加载；
+- 学员详情 Tabs 从页面中拆为独立 `StudentDetailTabs.vue`，包含横向窄屏滚动和 `aria-current`；
+- 新增路由导航和 Tabs 测试，共新增 2 个测试文件、3 项测试；
+- 完整 `check:all` 通过：206 个源文件边界检查、28 个测试文件、101 项测试、518 模块生产构建；
+- 本次完整门禁仍基于正式仓库中的旧契约生成，只证明当前前端没有回归，不代表新版 zip 或 Phase 5 真实接口已联调。

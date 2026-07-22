@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { RoomDto } from '@/features/rooms/model';
-defineProps<{ rooms: RoomDto[]; loading?: boolean }>();
+import type { Room } from '@/features/rooms/model';
+defineProps<{ rooms: Room[]; loading?: boolean; manageable?: boolean }>();
+defineEmits<{ toggle: [room: Room]; edit: [room: Room] }>();
 </script>
 <template>
   <div class="room-list">
@@ -8,7 +9,13 @@ defineProps<{ rooms: RoomDto[]; loading?: boolean }>();
     <div v-else-if="rooms.length === 0" class="room-list__msg">暂无场地</div>
     <div v-for="r in rooms" :key="r.id" class="room-list__item">
       <span>{{ r.name }}</span>
-      <span class="room-list__capacity">容量: {{ r.capacity || '-' }}人</span>
+      <span class="room-list__capacity"
+        >容量: {{ r.capacity || '-' }}人 · {{ r.status === 'active' ? '可用' : '停用' }}</span
+      >
+      <button v-if="manageable" type="button" @click="$emit('toggle', r)">
+        {{ r.status === 'active' ? '停用' : '启用' }}
+      </button>
+      <button v-if="manageable" type="button" @click="$emit('edit', r)">编辑</button>
     </div>
   </div>
 </template>

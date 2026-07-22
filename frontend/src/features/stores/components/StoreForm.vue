@@ -2,15 +2,13 @@
 import { reactive, ref } from 'vue';
 import { ApiError } from '@/shared/api';
 const props = defineProps<{
-  initial?: { name?: string; address?: string; phone?: string };
-  companyId?: string;
-  onSubmit: (data: { name: string; address: string; phone: string }) => Promise<void>;
+  initial?: { name?: string; address?: string };
+  onSubmit: (data: { name: string; address: string }) => Promise<void>;
 }>();
 const emit = defineEmits<{ success: [] }>();
 const form = reactive({
   name: props.initial?.name || '',
   address: props.initial?.address || '',
-  phone: props.initial?.phone || '',
 });
 const serverError = ref('');
 const submitting = ref(false);
@@ -49,14 +47,6 @@ async function handleSubmit() {
         class="store-form__input"
         :disabled="submitting"
         placeholder="请输入地址"
-    /></label>
-    <label
-      ><span>电话</span
-      ><input
-        v-model="form.phone"
-        class="store-form__input"
-        :disabled="submitting"
-        placeholder="请输入电话"
     /></label>
     <button class="store-form__submit" type="submit" :disabled="submitting">
       {{ submitting ? '保存中...' : '保存' }}

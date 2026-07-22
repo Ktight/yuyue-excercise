@@ -1,27 +1,21 @@
-import type { RoomDto } from '@/features/rooms/model';
-export const MOCK_ROOMS: RoomDto[] = [
+import type { components } from '@/generated/api-types';
+export const MOCK_ROOMS: components['schemas']['Room'][] = [
   {
-    id: 'r-001',
+    id: 1,
+    company_id: 1,
+    store_id: 1,
     name: '大教室A',
-    store_id: 's-001',
     capacity: 30,
+    description: null,
     status: 'active',
-    created_at: '2026-01-01T00:00:00Z',
   },
   {
-    id: 'r-002',
+    id: 2,
+    company_id: 1,
+    store_id: 1,
     name: '私教室1',
-    store_id: 's-001',
     capacity: 5,
+    description: null,
     status: 'active',
-    created_at: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: 'r-003',
-    name: '高温教室',
-    store_id: 's-002',
-    capacity: 20,
-    status: 'active',
-    created_at: '2026-02-01T00:00:00Z',
   },
 ];

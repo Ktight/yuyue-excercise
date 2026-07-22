@@ -1,22 +1,28 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { fetchCompany, updateCompany } from '@/features/companies/api';
-import { mapCompany } from '@/features/companies/model';
+import { fetchCompany, updateCompany, setCompanyActive } from '@/features/companies/api';
 import type { Company } from '@/features/companies/model';
 import { CompanyForm } from '@/features/companies/components';
 import { AppPage, AppLoading, AppError } from '@/app/components';
+import { fetchStores, StoreList, type Store } from '@/features/stores';
+import { useAuthStore } from '@/features/auth';
 
 const route = useRoute();
 const router = useRouter();
+const auth = useAuthStore();
+const canManage = auth.userRole === 'super_admin';
 const company = ref<Company | null>(null);
 const loading = ref(true);
 const error = ref('');
+const stores = ref<Store[]>([]);
 
 onMounted(async () => {
   try {
-    const r = await fetchCompany(route.params.id as string);
-    company.value = mapCompany(r.data);
+    const id = Number(route.params.id);
+    const [detail, list] = await Promise.all([fetchCompany(id), fetchStores({ companyId: id })]);
+    company.value = detail;
+    stores.value = list.items;
   } catch {
     error.value = '公司不存在';
   } finally {
@@ -24,9 +30,22 @@ onMounted(async () => {
   }
 });
 
-async function handleUpdate(data: { name: string; address: string; phone: string }) {
-  await updateCompany(route.params.id as string, data);
+async function handleUpdate(data: {
+  name: string;
+  address: string;
+  contactName: string;
+  contactPhone: string;
+}) {
+  await updateCompany(Number(route.params.id), data);
   router.back();
+}
+async function toggleStatus() {
+  if (
+    !company.value ||
+    !globalThis.confirm(`确认${company.value.status === 'active' ? '停用' : '启用'}该公司？`)
+  )
+    return;
+  company.value = await setCompanyActive(company.value.id, company.value.status !== 'active');
 }
 </script>
 
@@ -34,6 +53,19 @@ async function handleUpdate(data: { name: string; address: string; phone: string
   <AppPage :title="company?.name || '公司详情'">
     <AppLoading v-if="loading" />
     <AppError v-else-if="error" :message="error" />
-    <CompanyForm v-else-if="company" :initial="company" :on-submit="handleUpdate" />
+    <template v-else-if="company"
+      ><CompanyForm v-if="canManage" :initial="company" :on-submit="handleUpdate" />
+      <dl v-else>
+        <dt>地址</dt>
+        <dd>{{ company.address || '—' }}</dd>
+        <dt>联系人</dt>
+        <dd>{{ company.contactName || '—' }} {{ company.contactPhone }}</dd>
+      </dl>
+      <button v-if="canManage" type="button" @click="toggleStatus">
+        {{ company.status === 'active' ? '停用公司' : '启用公司' }}
+      </button>
+      <h2>所属门店</h2>
+      <StoreList :stores="stores" @select="(store) => router.push(`/admin/stores/${store.id}`)"
+    /></template>
   </AppPage>
 </template>

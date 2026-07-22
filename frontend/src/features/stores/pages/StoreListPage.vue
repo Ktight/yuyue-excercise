@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchStores } from '@/features/stores/api';
-import { mapStore } from '@/features/stores/model';
 import type { Store } from '@/features/stores/model';
 import { StoreList } from '@/features/stores/components';
 import { AppPage, AppLoading, AppEmpty, AppError } from '@/app/components';
@@ -13,7 +12,7 @@ const error = ref('');
 onMounted(async () => {
   try {
     const r = await fetchStores();
-    stores.value = r.data.items.map(mapStore);
+    stores.value = r.items;
   } catch {
     error.value = '加载失败';
   } finally {

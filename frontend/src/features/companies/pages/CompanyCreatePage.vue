@@ -5,7 +5,12 @@ import { CompanyForm } from '@/features/companies/components';
 import { AppPage } from '@/app/components';
 
 const router = useRouter();
-async function handleCreate(data: { name: string; address: string; phone: string }) {
+async function handleCreate(data: {
+  name: string;
+  address: string;
+  contactName: string;
+  contactPhone: string;
+}) {
   await createCompany(data);
   router.push('/admin/companies');
 }

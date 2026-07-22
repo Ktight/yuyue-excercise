@@ -1,3 +1,8 @@
-export type { StoreDto, StoreListRequestDto, StoreCreateRequestDto } from './stores.types';
-export { mapStore } from './stores.mapper';
-export type { Store } from './stores.mapper';
+export type {
+  Store,
+  StoreWriteInput,
+  StoreListQuery,
+  StoreListResult,
+  ResourceStatus,
+} from './stores.types';
+export { validateStore } from './store.schema';
