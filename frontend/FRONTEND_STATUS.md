@@ -1,5 +1,14 @@
 # 瑜悦练前端工作状态
 
+## Phase 7 前端实现记录（2026-07-22）
+
+- 当前状态：`INTEGRATED / UI_READY / MOCK_READY / NOT_VERIFIED`。
+- 已完成考勤领域模型、集中适配器、契约 Mock、员工与学员页面、三端路由导航及适配器测试。
+- 真实 API 已验证自动生成及幂等、批量签到、请假、本人列表、个人/排课统计和跨租户资源隔离。
+- `check:all` 通过：269 个源文件边界、36 个测试文件、121 项测试、612 个生产模块。
+- 临时联调数据已清理；本阶段未修改后端或契约。
+- 完整证据及尚未完成的最终验收见 `PHASE_7_FRONTEND_DELIVERY.md`。
+
 ## Phase 6 前端实现记录（2026-07-22）
 
 - 当前状态：`INTEGRATED / UI_READY / MOCK_READY / PARTIALLY_BLOCKED`。

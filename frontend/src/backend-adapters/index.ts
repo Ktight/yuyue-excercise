@@ -8,3 +8,4 @@ export * as studentsAdapter from './students.adapter';
 export * as bodyAssessmentsAdapter from './body-assessments.adapter';
 export * as schedulesAdapter from './schedules.adapter';
 export * as bookingsAdapter from './bookings.adapter';
+export * as attendanceAdapter from './attendance.adapter';

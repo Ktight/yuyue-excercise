@@ -6,7 +6,7 @@ const sidebarOpen = ref(false);
 const navItems = [
   { label: '首页', key: 'home', to: '/student' },
   { label: '我的课程', key: 'courses', to: '/student/bookings' },
-  { label: '我的日程', key: 'schedule' },
+  { label: '我的考勤', key: 'schedule', to: '/student/attendance' },
   { label: '我的档案', key: 'profile' },
   { label: '训练历史', key: 'history' },
   { label: '阶段报告', key: 'reports' },

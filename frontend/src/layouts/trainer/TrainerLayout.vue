@@ -8,7 +8,7 @@ const navItems = [
   { label: '学员管理', key: 'students', to: '/trainer/students' },
   { label: '课程安排', key: 'schedule', to: '/trainer/schedules' },
   { label: '预约管理', key: 'bookings', to: '/trainer/bookings' },
-  { label: '签到考勤', key: 'attendance' },
+  { label: '签到考勤', key: 'attendance', to: '/trainer/attendance' },
   { label: '课时档案', key: 'records' },
   { label: '训练规划', key: 'plans' },
 ];
