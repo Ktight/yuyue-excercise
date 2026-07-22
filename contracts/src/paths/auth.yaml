@@ -30,7 +30,7 @@
   post:
     operationId: authLogout
     tags: [Authentication]
-    x-status: DRAFT
+    x-status: API_READY
     x-roles: [super_admin, company_admin, store_manager, trainer, student]
     x-tenant-scope: self
     requestBody: {required: true, content: {application/json: {schema: {$ref: '../schemas/auth.yaml#/LogoutRequest'}}}}

@@ -26,6 +26,17 @@
     "small_group": "小班课",
     "group": "团体课"
   },
+  "CourseDifficulty": {
+    "beginner": "初级",
+    "intermediate": "中级",
+    "advanced": "高级"
+  },
+  "MembershipStatus": {
+    "active": "有效",
+    "expired": "已过期",
+    "suspended": "已暂停",
+    "exhausted": "已耗尽"
+  },
   "AttendanceStatus": {
     "present": "已到",
     "late": "迟到",

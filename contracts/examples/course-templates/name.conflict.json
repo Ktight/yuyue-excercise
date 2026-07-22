@@ -1,0 +1,1 @@
+{"code": "CONFLICT", "message": "Course template name already exists", "errors": {"name": ["A template with this name already exists in the company."]}, "request_id": "req_example"}

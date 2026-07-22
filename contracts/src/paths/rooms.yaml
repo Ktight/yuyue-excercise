@@ -1,238 +1,71 @@
 /api/rooms/:
   get:
-    operationId: getRooms
-    tags:
-    - rooms
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    operationId: listRooms
+    tags: [rooms]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager]
+    x-tenant-scope: role_based
+    parameters:
+      - {$ref: '../root.yaml#/components/parameters/PageParameter'}
+      - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: 场地列表, content: {application/json: {schema: {$ref: '../schemas/organization.yaml#/RoomListSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
   post:
-    operationId: postRooms
-    tags:
-    - rooms
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    operationId: createRoom
+    tags: [rooms]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager]
+    x-tenant-scope: role_based
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/organization.yaml#/RoomCreateRequest'}}}
     responses:
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-      '201':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '201': {description: 场地已创建, content: {application/json: {schema: {$ref: '../schemas/organization.yaml#/RoomSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
 /api/rooms/{room_id}/:
   parameters:
-  - name: room_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
+    - name: room_id
+      in: path
+      required: true
+      schema: {type: integer, format: int64, minimum: 1}
   get:
-    operationId: getRoomsRoomId
-    tags:
-    - rooms
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    operationId: retrieveRoom
+    tags: [rooms]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager]
+    x-tenant-scope: role_based
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: 场地详情, content: {application/json: {schema: {$ref: '../schemas/organization.yaml#/RoomSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
   patch:
-    operationId: patchRoomsRoomId
-    tags:
-    - rooms
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    operationId: updateRoom
+    tags: [rooms]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager]
+    x-tenant-scope: role_based
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/organization.yaml#/RoomUpdateRequest'}}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/rooms/{room_id}/activate/:
-  parameters:
-  - name: room_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  post:
-    operationId: postRoomsRoomIdActivate
-    tags:
-    - rooms
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      '200': {description: 场地已更新, content: {application/json: {schema: {$ref: '../schemas/organization.yaml#/RoomSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+  delete:
+    operationId: deleteRoom
+    tags: [rooms]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager]
+    x-tenant-scope: role_based
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/rooms/{room_id}/deactivate/:
-  parameters:
-  - name: room_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  post:
-    operationId: postRoomsRoomIdDeactivate
-    tags:
-    - rooms
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
-    responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '204': {description: 场地已删除}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}

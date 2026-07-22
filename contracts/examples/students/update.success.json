@@ -1,5 +1,29 @@
 {
   "code": "OK",
   "message": "",
-  "data": {}
+  "data": {
+    "id": 1,
+    "user": {"id": 5, "name": "Demo Student", "phone": "13910000004", "avatar": null, "is_active": true},
+    "company": 1,
+    "home_store": 1,
+    "primary_trainer": 4,
+    "gender": "female",
+    "birth_date": "2000-01-01",
+    "emergency_contact": "Family 13810000001",
+    "member_card_type": "count",
+    "member_card_start": "2026-07-22",
+    "member_card_expire": "2027-07-22",
+    "member_card_balance": 10,
+    "member_card_active": true,
+    "member_card_status": {"status": "active", "is_valid": true, "reason": ""},
+    "health_notes": "Avoid lumbar extension",
+    "injury_history": "",
+    "contraindications": "",
+    "training_goal": "Core strength",
+    "preferred_style": "Private",
+    "recent_assessment": null,
+    "status": "active",
+    "created_at": "2026-07-22T10:00:00+08:00",
+    "updated_at": "2026-07-22T10:10:00+08:00"
+  }
 }

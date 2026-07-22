@@ -3,11 +3,11 @@
     operationId: getHealth
     tags:
     - system
-    x-status: DRAFT
+    x-status: CONTRACT_READY
     x-roles:
     - public
     x-tenant-scope: none
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Public liveness check. It does not expose database or infrastructure details.
     security: []
     responses:
       '200':
@@ -15,7 +15,7 @@
         content:
           application/json:
             schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+              $ref: ../schemas/common.yaml#/HealthSuccessResponse
       '400':
         $ref: ../schemas/common.yaml#/BadRequest
       '401':

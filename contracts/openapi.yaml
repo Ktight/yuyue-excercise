@@ -1,8 +1,9 @@
 openapi: 3.0.3
 info:
   title: 瑜悦练 API
-  version: 1.0.0-draft
-  description: 全项目契约。DRAFT 接口仅用于设计和 Mock；真实实现状态见 status.json。
+  version: 1.2.0
+  description: Project API contract. CONTRACT_READY/API_READY modules may be integrated; DRAFT modules are design and Mock
+    only. See status.json.
 servers:
 - url: http://localhost:8000
   description: 本地开发
@@ -257,7 +258,7 @@ paths:
       operationId: authLogout
       tags:
       - Authentication
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
@@ -371,55 +372,71 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/body-assessments/:
     get:
-      operationId: getBodyAssessments
+      operationId: listBodyAssessments
       tags:
       - body-assessments
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - name: student_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: ordering
+        in: query
+        schema:
+          type: string
+          enum:
+          - assess_date
+          - -assess_date
+          default: -assess_date
       responses:
         '200':
-          description: 成功
+          description: Assessment list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/BodyAssessmentListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postBodyAssessments
+      operationId: createBodyAssessment
       tags:
       - body-assessments
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Trainers may create only for assigned students; managers for their store; admins for their company. Photos
+        are read-only and uploads are deferred.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/BodyAssessmentCreateRequest'
       responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BodyAssessmentSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -428,16 +445,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/body-assessments/{assessment_id}/:
     parameters:
     - name: assessment_id
@@ -448,61 +455,53 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getBodyAssessmentsAssessmentId
+      operationId: retrieveBodyAssessment
       tags:
       - body-assessments
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/BodyAssessmentSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchBodyAssessmentsAssessmentId
+      operationId: updateBodyAssessment
       tags:
       - body-assessments
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/BodyAssessmentUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: Updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/BodyAssessmentSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -511,41 +510,30 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     delete:
-      operationId: deleteBodyAssessmentsAssessmentId
+      operationId: deleteBodyAssessment
       tags:
       - body-assessments
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Physical delete is restricted to administrators. Phase 5 has no audit-log model; clients must confirm explicitly
+        and no sensitive content may enter logs. Audit retention is required before broadening this operation.
       responses:
         '200':
-          description: 成功
+          description: Deleted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmptySuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/students/{student_id}/body-assessment-trend/:
     parameters:
     - name: student_id
@@ -556,24 +544,44 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getStudentsStudentIdBodyAssessmentTrend
+      operationId: retrieveBodyAssessmentTrend
       tags:
       - body-assessments
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      parameters:
+      - name: metric
+        in: query
+        schema:
+          type: string
+          enum:
+          - height
+          - weight
+          - flexibility_score
+          - core_strength_score
+          default: weight
+      - name: date_from
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        schema:
+          type: string
+          format: date
       responses:
         '200':
-          description: 成功
+          description: Trend
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/BodyAssessmentTrendSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -582,10 +590,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/bookings/:
     get:
       operationId: getBookings
@@ -1318,73 +1322,55 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/companies/:
     get:
-      operationId: getCompanies
+      operationId: listCompanies
       tags:
       - companies
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: company_or_global
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
       responses:
         '200':
-          description: 成功
+          description: 公司列表
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/CompanyListSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postCompanies
+      operationId: createCompany
       tags:
       - companies
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: global
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/CompanyCreateRequest'
       responses:
+        '201':
+          description: 公司已创建
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanySuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/companies/{company_id}/:
     parameters:
     - name: company_id
@@ -1395,61 +1381,49 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getCompaniesCompanyId
+      operationId: retrieveCompany
       tags:
       - companies
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: company_or_global
       responses:
         '200':
-          description: 成功
+          description: 公司详情
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/CompanySuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchCompaniesCompanyId
+      operationId: updateCompany
       tags:
       - companies
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: company_or_global
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/CompanyUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: 公司已更新
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/CompanySuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1458,171 +1432,113 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/companies/{company_id}/activate/:
-    parameters:
-    - name: company_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postCompaniesCompanyIdActivate
+    delete:
+      operationId: deleteCompany
       tags:
       - companies
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+      x-tenant-scope: global
       responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        '204':
+          description: 公司已删除
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/companies/{company_id}/deactivate/:
-    parameters:
-    - name: company_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postCompaniesCompanyIdDeactivate
-      tags:
-      - companies
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/course-templates/:
     get:
-      operationId: getCourseTemplates
+      operationId: listCourseTemplates
       tags:
       - course-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Company-scoped templates only. Default ordering is category,name. Only active templates are eligible for
+        new scheduling.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - $ref: '#/components/parameters/SearchParameter'
+      - $ref: '#/components/parameters/OrderingParameter'
+      - name: category
+        in: query
+        schema:
+          type: string
+          enum:
+          - private
+          - small_group
+          - group
+      - name: difficulty
+        in: query
+        schema:
+          type: string
+          enum:
+          - beginner
+          - intermediate
+          - advanced
+      - name: status
+        in: query
+        schema:
+          $ref: '#/components/schemas/ResourceStatus'
+      - name: company_id
+        in: query
+        description: Super admin only; other roles receive 403 when requesting another tenant.
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
-          description: 成功
+          description: Course template list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/CourseTemplateListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postCourseTemplates
+      operationId: createCourseTemplate
       tags:
       - course-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Company is derived from the authenticated user. Private templates require max_capacity=1 and names are
+        unique per company.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/CourseTemplateCreateRequest'
       responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseTemplateSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/course-templates/{template_id}/:
     parameters:
     - name: template_id
@@ -1633,61 +1549,53 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getCourseTemplatesTemplateId
+      operationId: retrieveCourseTemplate
       tags:
       - course-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/CourseTemplateSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchCourseTemplatesTemplateId
+      operationId: updateCourseTemplate
       tags:
       - course-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: PATCH status is idempotent. Inactive templates remain visible in history but cannot be selected for new
+        schedules.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/CourseTemplateUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: Updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/CourseTemplateSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1698,44 +1606,24 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/course-templates/{template_id}/activate/:
-    parameters:
-    - name: template_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postCourseTemplatesTemplateIdActivate
+    delete:
+      operationId: deleteCourseTemplate
       tags:
       - course-templates
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+      description: Physical deletion is currently allowed because scheduling references are not implemented. Prefer PATCH
+        status=inactive; future references will return 409.
       responses:
         '200':
-          description: 成功
+          description: Deleted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/EmptySuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1744,54 +1632,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/course-templates/{template_id}/deactivate/:
-    parameters:
-    - name: template_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postCourseTemplatesTemplateIdDeactivate
-      tags:
-      - course-templates
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/dashboards/admin/:
     get:
       operationId: getDashboardsAdmin
@@ -2513,73 +2353,58 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/rooms/:
     get:
-      operationId: getRooms
+      operationId: listRooms
       tags:
       - rooms
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: role_based
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
       responses:
         '200':
-          description: 成功
+          description: 场地列表
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/RoomListSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postRooms
+      operationId: createRoom
       tags:
       - rooms
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: role_based
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/RoomCreateRequest'
       responses:
+        '201':
+          description: 场地已创建
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/rooms/{room_id}/:
     parameters:
     - name: room_id
@@ -2590,61 +2415,51 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getRoomsRoomId
+      operationId: retrieveRoom
       tags:
       - rooms
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: role_based
       responses:
         '200':
-          description: 成功
+          description: 场地详情
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/RoomSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchRoomsRoomId
+      operationId: updateRoom
       tags:
       - rooms
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: role_based
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/RoomUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: 场地已更新
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/RoomSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2653,102 +2468,25 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/rooms/{room_id}/activate/:
-    parameters:
-    - name: room_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postRoomsRoomIdActivate
+    delete:
+      operationId: deleteRoom
       tags:
       - rooms
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+      x-tenant-scope: role_based
       responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        '204':
+          description: 场地已删除
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/rooms/{room_id}/deactivate/:
-    parameters:
-    - name: room_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postRoomsRoomIdDeactivate
-      tags:
-      - rooms
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/schedules/:
     get:
       operationId: getSchedules
@@ -3027,73 +2765,58 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/stores/:
     get:
-      operationId: getStores
+      operationId: listStores
       tags:
       - stores
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
       responses:
         '200':
-          description: 成功
+          description: 门店列表
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/StoreListSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postStores
+      operationId: createStore
       tags:
       - stores
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/StoreCreateRequest'
       responses:
+        '201':
+          description: 门店已创建
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/stores/{store_id}/:
     parameters:
     - name: store_id
@@ -3104,61 +2827,49 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getStoresStoreId
+      operationId: retrieveStore
       tags:
       - stores
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: 门店详情
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/StoreSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchStoresStoreId
+      operationId: updateStore
       tags:
       - stores
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/StoreUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: 门店已更新
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/StoreSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3167,102 +2878,24 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/stores/{store_id}/activate/:
-    parameters:
-    - name: store_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postStoresStoreIdActivate
+    delete:
+      operationId: deleteStore
       tags:
       - stores
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
-      - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
       responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        '204':
+          description: 门店已删除
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/stores/{store_id}/deactivate/:
-    parameters:
-    - name: store_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postStoresStoreIdDeactivate
-      tags:
-      - stores
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/student/home/:
     get:
       operationId: getStudentHome
@@ -3609,73 +3242,97 @@ paths:
                 $ref: '#/components/schemas/DraftSuccessResponse'
   /api/students/:
     get:
-      operationId: getStudents
+      operationId: listStudents
       tags:
       - students
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Super admins see all tenants; company admins see their company; store managers see their store; trainers
+        see only students assigned as primary_trainer. Historical attendance expansion is deferred.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - $ref: '#/components/parameters/SearchParameter'
+      - $ref: '#/components/parameters/OrderingParameter'
+      - name: status
+        in: query
+        schema:
+          $ref: '#/components/schemas/ResourceStatus'
+      - name: membership_status
+        in: query
+        schema:
+          type: string
+          enum:
+          - valid
+          - expired
+          - insufficient
+      - name: store_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: trainer_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: expiring_days
+        in: query
+        schema:
+          type: integer
+          minimum: 0
       responses:
         '200':
-          description: 成功
+          description: Student list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/StudentListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postStudents
+      operationId: createStudent
       tags:
       - students
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Atomically creates a role=student User and StudentProfile. Company is derived from the token. Phone is
+        globally unique. Trainers are automatically assigned when primary_trainer is omitted.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/StudentCreateRequest'
       responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/students/{student_id}/:
     parameters:
     - name: student_id
@@ -3686,61 +3343,57 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getStudentsStudentId
+      operationId: retrieveStudent
       tags:
       - students
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Cross-tenant or out-of-role-scope access is hidden as 404. Sensitive fields are available only on this
+        staff-only endpoint and must never be logged in error payloads.
       responses:
         '200':
-          description: 成功
+          description: Detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/StudentSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchStudentsStudentId
+      operationId: updateStudent
       tags:
       - students
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Health/profile fields may be updated by visible staff. Only super/company admins may transfer stores or
+        reassign trainers. Membership fields use the membership endpoint.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/StudentUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: Updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/StudentSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3751,8 +3404,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/students/{student_id}/membership/:
     parameters:
     - name: student_id
@@ -3763,61 +3414,54 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getStudentsStudentIdMembership
+      operationId: retrieveStudentMembership
       tags:
       - students
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Membership
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/MembershipSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchStudentsStudentIdMembership
+      operationId: updateStudentMembership
       tags:
       - students
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Status is computed, not submitted. Count cards use remaining_count; stored cards use balance_minor. Renewal,
+        payment and consumption ledgers are outside Phase 5.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/MembershipUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: Updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/MembershipSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3826,10 +3470,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/students/{student_id}/eligibility/:
     parameters:
     - name: student_id
@@ -3840,46 +3480,40 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getStudentsStudentIdEligibility
+      operationId: retrieveStudentEligibility
       tags:
       - students
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Current general membership eligibility only; no schedule/store parameters are evaluated in Phase 5.
       responses:
         '200':
-          description: 成功
+          description: Eligibility
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/StudentEligibilitySuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/health/:
     get:
       operationId: getHealth
       tags:
       - system
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - public
       x-tenant-scope: none
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Public liveness check. It does not expose database or infrastructure details.
       security: []
       responses:
         '200':
@@ -3887,7 +3521,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/HealthSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -4374,7 +4008,7 @@ paths:
       operationId: usersResetPassword
       tags:
       - Users
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
@@ -4749,6 +4383,7 @@ components:
       - CONFLICT
       - RATE_LIMITED
       - INTERNAL_ERROR
+      - API_ERROR
       - INVALID_CREDENTIALS
       - ACCOUNT_DISABLED
       - REFRESH_TOKEN_INVALID
@@ -4759,6 +4394,15 @@ components:
       - STORE_REQUIRED_FOR_ROLE
       - STORE_NOT_ALLOWED_FOR_ROLE
       - CROSS_TENANT_ACCESS_DENIED
+      - COURSE_TEMPLATE_NAME_CONFLICT
+      - PRIVATE_CAPACITY_INVALID
+      - STUDENT_PHONE_ALREADY_EXISTS
+      - STUDENT_STORE_INVALID
+      - STUDENT_TRAINER_INVALID
+      - MEMBERSHIP_COMBINATION_INVALID
+      - ASSESSMENT_VALUE_INVALID
+      - ASSESSMENT_DATE_IN_FUTURE
+      - MEDIA_UPLOAD_DEFERRED
       - SCHEDULE_TIME_CONFLICT
       - ROOM_TIME_CONFLICT
       - TRAINER_TIME_CONFLICT
@@ -4796,6 +4440,32 @@ components:
           type: string
         data:
           nullable: true
+    Health:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - healthy
+    HealthSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Health'
     DraftResource:
       type: object
       description: DRAFT 模块的资源结构由对应领域 Schema 细化；冻结前禁止真实联调。
@@ -5010,22 +4680,24 @@ components:
       additionalProperties: false
       required:
       - id
-      - company_id
+      - company
       - name
       - category
-      - difficulty
       - duration_minutes
-      - capacity
+      - max_capacity
+      - difficulty
       - description
-      - cover
+      - cover_image
       - status
+      - created_at
+      - updated_at
       properties:
         id:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        company_id:
+        company:
           type: integer
           format: int64
           minimum: 1
@@ -5040,27 +4712,165 @@ components:
           - private
           - small_group
           - group
+        duration_minutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+          default: 60
+        max_capacity:
+          type: integer
+          minimum: 1
+          default: 1
         difficulty:
           type: string
           enum:
           - beginner
           - intermediate
           - advanced
-          - all_levels
+        description:
+          type: string
+          default: ''
+        cover_image:
+          type: string
+          format: uri
+          default: ''
+          readOnly: true
+          description: Upload is deferred; clients must not submit a server URL.
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    CourseTemplateCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - category
+      - difficulty
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        category:
+          type: string
+          enum:
+          - private
+          - small_group
+          - group
         duration_minutes:
           type: integer
           minimum: 1
           maximum: 1440
-        capacity:
+          default: 60
+        max_capacity:
           type: integer
           minimum: 1
+          default: 1
+        difficulty:
+          type: string
+          enum:
+          - beginner
+          - intermediate
+          - advanced
         description:
           type: string
-          nullable: true
-        cover:
-          $ref: '#/components/schemas/MediaResource'
+          default: ''
         status:
           $ref: '#/components/schemas/ResourceStatus'
+    CourseTemplateUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        category:
+          type: string
+          enum:
+          - private
+          - small_group
+          - group
+        duration_minutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+        max_capacity:
+          type: integer
+          minimum: 1
+        difficulty:
+          type: string
+          enum:
+          - beginner
+          - intermediate
+          - advanced
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+    CourseTemplateSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/CourseTemplate'
+    CourseTemplateListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseTemplate'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    CourseTemplateListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/CourseTemplateListData'
     ClassTemplate:
       type: object
       additionalProperties: false
@@ -5102,12 +4912,12 @@ components:
       required:
       - id
       - name
-      - address
-      - contact_name
+      - contact_person
       - contact_phone
+      - contract_start
+      - contract_end
       - status
       - created_at
-      - updated_at
       properties:
         id:
           type: integer
@@ -5118,73 +4928,145 @@ components:
           type: string
           minLength: 1
           maxLength: 100
-        address:
+        contact_person:
           type: string
-          maxLength: 255
-        contact_name:
-          type: string
-          maxLength: 100
+          minLength: 1
+          maxLength: 50
         contact_phone:
           type: string
-          pattern: ^1[3-9][0-9]{9}$
+          minLength: 1
+          maxLength: 20
+        contract_start:
+          type: string
+          format: date
+        contract_end:
+          type: string
+          format: date
         status:
           $ref: '#/components/schemas/ResourceStatus'
         created_at:
           type: string
           format: date-time
           readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-    Store:
+    CompanyCreateRequest:
       type: object
       additionalProperties: false
       required:
-      - id
-      - company_id
       - name
-      - address
-      - status
-      - created_at
-      - updated_at
+      - contact_person
+      - contact_phone
+      - contract_start
+      - contract_end
       properties:
-        id:
-          type: integer
-          format: int64
-          minimum: 1
-          readOnly: true
-        company_id:
-          type: integer
-          format: int64
-          minimum: 1
         name:
           type: string
           minLength: 1
           maxLength: 100
-        address:
+        contact_person:
           type: string
-          maxLength: 255
+          minLength: 1
+          maxLength: 50
+        contact_phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        contract_start:
+          type: string
+          format: date
+        contract_end:
+          type: string
+          format: date
         status:
           $ref: '#/components/schemas/ResourceStatus'
-        created_at:
+    CompanyUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
           type: string
-          format: date-time
-          readOnly: true
-        updated_at:
+          minLength: 1
+          maxLength: 100
+        contact_person:
           type: string
-          format: date-time
-          readOnly: true
+          minLength: 1
+          maxLength: 50
+        contact_phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        contract_start:
+          type: string
+          format: date
+        contract_end:
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+    CompanySuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Company'
+    CompanyListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Company'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    CompanyListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/CompanyListData'
     Room:
       type: object
       additionalProperties: false
       required:
       - id
-      - company_id
-      - store_id
+      - store
       - name
       - capacity
-      - description
+      - facilities
       - status
       properties:
         id:
@@ -5192,12 +5074,7 @@ components:
           format: int64
           minimum: 1
           readOnly: true
-        company_id:
-          type: integer
-          format: int64
-          minimum: 1
-          readOnly: true
-        store_id:
+        store:
           type: integer
           format: int64
           minimum: 1
@@ -5208,11 +5085,272 @@ components:
         capacity:
           type: integer
           minimum: 1
-        description:
-          type: string
+          default: 10
+        facilities:
+          type: array
           nullable: true
+          items:
+            type: string
         status:
           $ref: '#/components/schemas/ResourceStatus'
+    RoomCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - store
+      - name
+      properties:
+        store:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        capacity:
+          type: integer
+          minimum: 1
+          default: 10
+        facilities:
+          type: array
+          nullable: true
+          items:
+            type: string
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+    RoomUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        store:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        capacity:
+          type: integer
+          minimum: 1
+        facilities:
+          type: array
+          nullable: true
+          items:
+            type: string
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+    RoomSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Room'
+    RoomListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    RoomListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/RoomListData'
+    Store:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - company
+      - name
+      - address
+      - phone
+      - business_hours
+      - status
+      - created_at
+      - rooms
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        company:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        address:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        business_hours:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: 07:00-22:00
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        rooms:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Room'
+    StoreCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - address
+      - phone
+      - business_hours
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        address:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        business_hours:
+          type: string
+          minLength: 1
+          maxLength: 50
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+    StoreUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        address:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        business_hours:
+          type: string
+          minLength: 1
+          maxLength: 50
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+    StoreSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Store'
+    StoreListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Store'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    StoreListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/StoreListData'
     TrainingPlan:
       type: object
       additionalProperties: false
@@ -5703,15 +5841,80 @@ components:
         recurrence:
           type: object
           description: RFC 5545 风格重复规则；DRAFT 待冻结
+    StudentUser:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - phone
+      - avatar
+      - is_active
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        phone:
+          type: string
+          pattern: ^1[3-9][0-9]{9}$
+        avatar:
+          type: string
+          nullable: true
+          readOnly: true
+        is_active:
+          type: boolean
+    StudentAccountCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - phone
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        phone:
+          type: string
+          pattern: ^1[3-9][0-9]{9}$
+        password:
+          type: string
+          format: password
+          minLength: 8
+          writeOnly: true
+    MembershipStatusDetail:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      - is_valid
+      - reason
+      properties:
+        status:
+          type: string
+          enum:
+          - active
+          - expired
+          - suspended
+          - exhausted
+        is_valid:
+          type: boolean
+        reason:
+          type: string
     Membership:
       type: object
       additionalProperties: false
       required:
       - card_type
       - status
+      - starts_on
       - expires_on
       - remaining_count
-      - balance
+      - balance_minor
+      - active
       properties:
         card_type:
           type: string
@@ -5728,130 +5931,648 @@ components:
           - expired
           - suspended
           - exhausted
+          readOnly: true
+        starts_on:
+          type: string
+          format: date
         expires_on:
           type: string
           format: date
-          nullable: true
         remaining_count:
           type: integer
           minimum: 0
           nullable: true
-        balance:
-          $ref: '#/components/schemas/Money'
+          description: Non-null only for count cards.
+        balance_minor:
+          type: integer
+          minimum: 0
+          nullable: true
+          description: Non-null only for stored cards; integer minor currency units.
+        active:
+          type: boolean
+    MembershipUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        card_type:
+          type: string
+          enum:
+          - count
+          - month
+          - quarter
+          - year
+          - stored
+        starts_on:
+          type: string
+          format: date
+        expires_on:
+          type: string
+          format: date
+        remaining_count:
+          type: integer
+          minimum: 0
+        balance_minor:
+          type: integer
+          minimum: 0
+        active:
+          type: boolean
+    MembershipSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Membership'
     Student:
       type: object
       additionalProperties: false
       required:
       - id
-      - user_id
-      - company_id
-      - store_id
-      - trainer_id
-      - name
-      - phone
+      - user
+      - company
+      - home_store
+      - primary_trainer
       - gender
-      - birthday
-      - goals
+      - birth_date
+      - emergency_contact
+      - member_card_type
+      - member_card_start
+      - member_card_expire
+      - member_card_balance
+      - member_card_active
+      - member_card_status
       - health_notes
-      - membership
+      - injury_history
+      - contraindications
+      - training_goal
+      - preferred_style
+      - recent_assessment
       - status
+      - created_at
+      - updated_at
       properties:
         id:
-          type: integer
-          format: int64
-          minimum: 1
-          readOnly: true
-        user_id:
-          type: integer
-          format: int64
-          minimum: 1
-        company_id:
-          type: integer
-          format: int64
-          minimum: 1
-          readOnly: true
-        store_id:
+          $ref: '#/components/schemas/Id'
+        user:
+          $ref: '#/components/schemas/StudentUser'
+        company:
+          $ref: '#/components/schemas/Id'
+        home_store:
+          $ref: '#/components/schemas/Id'
+        primary_trainer:
           type: integer
           format: int64
           minimum: 1
           nullable: true
-        trainer_id:
-          type: integer
-          format: int64
-          minimum: 1
-          nullable: true
-        name:
-          type: string
-          minLength: 1
-        phone:
-          type: string
-          pattern: ^1[3-9][0-9]{9}$
         gender:
           type: string
           enum:
           - male
           - female
-        birthday:
+        birth_date:
           type: string
           format: date
           nullable: true
-        goals:
+        emergency_contact:
           type: string
-          nullable: true
+          maxLength: 100
+        member_card_type:
+          type: string
+          enum:
+          - count
+          - month
+          - quarter
+          - year
+          - stored
+        member_card_start:
+          type: string
+          format: date
+        member_card_expire:
+          type: string
+          format: date
+        member_card_balance:
+          type: integer
+          minimum: 0
+        member_card_active:
+          type: boolean
+        member_card_status:
+          $ref: '#/components/schemas/MembershipStatusDetail'
         health_notes:
           type: string
+          description: Sensitive; returned only because this endpoint is restricted to authorized staff.
+        injury_history:
+          type: string
+          description: Sensitive health data.
+        contraindications:
+          type: string
+          description: Sensitive health data.
+        training_goal:
+          type: string
+          maxLength: 255
+        preferred_style:
+          type: string
+          maxLength: 255
+        recent_assessment:
+          allOf:
+          - $ref: '#/components/schemas/BodyAssessment'
           nullable: true
-          description: 敏感字段，仅授权角色可见
-        membership:
-          $ref: '#/components/schemas/Membership'
         status:
           $ref: '#/components/schemas/ResourceStatus'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    StudentCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - user
+      - home_store
+      - gender
+      - emergency_contact
+      - member_card_type
+      - member_card_start
+      - member_card_expire
+      - health_notes
+      - injury_history
+      - contraindications
+      - training_goal
+      - preferred_style
+      properties:
+        user:
+          $ref: '#/components/schemas/StudentAccountCreateRequest'
+        home_store:
+          $ref: '#/components/schemas/Id'
+        primary_trainer:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        gender:
+          type: string
+          enum:
+          - male
+          - female
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        emergency_contact:
+          type: string
+          maxLength: 100
+        member_card_type:
+          type: string
+          enum:
+          - count
+          - month
+          - quarter
+          - year
+          - stored
+        member_card_start:
+          type: string
+          format: date
+        member_card_expire:
+          type: string
+          format: date
+        member_card_balance:
+          type: integer
+          minimum: 0
+          default: 0
+        member_card_active:
+          type: boolean
+          default: true
+        health_notes:
+          type: string
+        injury_history:
+          type: string
+        contraindications:
+          type: string
+        training_goal:
+          type: string
+          maxLength: 255
+        preferred_style:
+          type: string
+          maxLength: 255
+    StudentUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        home_store:
+          $ref: '#/components/schemas/Id'
+        primary_trainer:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        gender:
+          type: string
+          enum:
+          - male
+          - female
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        emergency_contact:
+          type: string
+          maxLength: 100
+        health_notes:
+          type: string
+        injury_history:
+          type: string
+        contraindications:
+          type: string
+        training_goal:
+          type: string
+          maxLength: 255
+        preferred_style:
+          type: string
+          maxLength: 255
+    StudentSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Student'
+    StudentListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    StudentListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/StudentListData'
+    StudentEligibility:
+      type: object
+      additionalProperties: false
+      required:
+      - is_eligible
+      - can_book
+      - can_check_in
+      - can_consume
+      - reason_code
+      - reason
+      properties:
+        is_eligible:
+          type: boolean
+        can_book:
+          type: boolean
+        can_check_in:
+          type: boolean
+        can_consume:
+          type: boolean
+        reason_code:
+          type: string
+          enum:
+          - ELIGIBLE
+          - MEMBERSHIP_EXPIRED
+          - MEMBERSHIP_SUSPENDED
+          - MEMBERSHIP_EXHAUSTED
+        reason:
+          type: string
+    StudentEligibilitySuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/StudentEligibility'
     BodyAssessment:
       type: object
       additionalProperties: false
       required:
       - id
-      - company_id
-      - student_id
-      - assessed_at
-      - height_cm
-      - weight_kg
-      - measurements_cm
-      - scores
+      - student
+      - assess_date
+      - height
+      - weight
+      - posture_spine
+      - posture_pelvis
+      - posture_shoulder
+      - flexibility_score
+      - core_strength_score
+      - photos
+      - notes
+      - created_at
       properties:
         id:
+          $ref: '#/components/schemas/Id'
+        student:
+          $ref: '#/components/schemas/Id'
+        assess_date:
+          type: string
+          format: date
+          description: Asia/Shanghai local calendar date; future dates are rejected.
+        height:
+          type: number
+          format: float
+          minimum: 1.0e-06
+          nullable: true
+          description: Centimetres.
+        weight:
+          type: number
+          format: float
+          minimum: 1.0e-06
+          nullable: true
+          description: Kilograms.
+        posture_spine:
+          type: string
+          maxLength: 100
+        posture_pelvis:
+          type: string
+          maxLength: 100
+        posture_shoulder:
+          type: string
+          maxLength: 100
+        flexibility_score:
           type: integer
-          format: int64
           minimum: 1
+          maximum: 10
+          nullable: true
+        core_strength_score:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        photos:
+          type: array
           readOnly: true
-        company_id:
-          type: integer
-          format: int64
-          minimum: 1
-          readOnly: true
-        student_id:
-          type: integer
-          format: int64
-          minimum: 1
-        assessed_at:
+          description: Always an empty/read-only URL array in Phase 5; upload is deferred until the media contract is frozen.
+          items:
+            type: string
+            format: uri
+        notes:
+          type: string
+        created_at:
           type: string
           format: date-time
-        height_cm:
+          readOnly: true
+    BodyAssessmentCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - student
+      - assess_date
+      properties:
+        student:
+          $ref: '#/components/schemas/Id'
+        assess_date:
           type: string
-          pattern: ^[0-9]+(\.[0-9]{1,2})?$
-        weight_kg:
+          format: date
+        height:
+          type: number
+          format: float
+          minimum: 1.0e-06
+          nullable: true
+        weight:
+          type: number
+          format: float
+          minimum: 1.0e-06
+          nullable: true
+        posture_spine:
           type: string
-          pattern: ^[0-9]+(\.[0-9]{1,2})?$
-        measurements_cm:
-          type: object
-          additionalProperties:
-            type: string
-        scores:
-          type: object
-          additionalProperties:
-            type: number
-            minimum: 0
-            maximum: 100
+          maxLength: 100
+        posture_pelvis:
+          type: string
+          maxLength: 100
+        posture_shoulder:
+          type: string
+          maxLength: 100
+        flexibility_score:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        core_strength_score:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        notes:
+          type: string
+    BodyAssessmentUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        assess_date:
+          type: string
+          format: date
+        height:
+          type: number
+          format: float
+          minimum: 1.0e-06
+          nullable: true
+        weight:
+          type: number
+          format: float
+          minimum: 1.0e-06
+          nullable: true
+        posture_spine:
+          type: string
+          maxLength: 100
+        posture_pelvis:
+          type: string
+          maxLength: 100
+        posture_shoulder:
+          type: string
+          maxLength: 100
+        flexibility_score:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        core_strength_score:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        notes:
+          type: string
+    BodyAssessmentSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/BodyAssessment'
+    BodyAssessmentListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BodyAssessment'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    BodyAssessmentListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/BodyAssessmentListData'
+    BodyAssessmentTrendPoint:
+      type: object
+      additionalProperties: false
+      required:
+      - assessment_id
+      - assess_date
+      - value
+      properties:
+        assessment_id:
+          $ref: '#/components/schemas/Id'
+        assess_date:
+          type: string
+          format: date
+        value:
+          type: number
+    BodyAssessmentTrend:
+      type: object
+      additionalProperties: false
+      required:
+      - student_id
+      - metric
+      - unit
+      - has_trend
+      - points
+      properties:
+        student_id:
+          $ref: '#/components/schemas/Id'
+        metric:
+          type: string
+          enum:
+          - height
+          - weight
+          - flexibility_score
+          - core_strength_score
+        unit:
+          type: string
+          enum:
+          - cm
+          - kg
+          - score_1_10
+        has_trend:
+          type: boolean
+          description: False when fewer than two non-null points exist.
+        points:
+          type: array
+          description: Ascending by assess_date then id; missing values are omitted and never replaced by zero.
+          items:
+            $ref: '#/components/schemas/BodyAssessmentTrendPoint'
+    BodyAssessmentTrendSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/BodyAssessmentTrend'
   parameters:
     PageParameter:
       name: page
@@ -5888,15 +6609,15 @@ components:
     BadRequest:
       description: 请求参数或业务校验失败
       content: *id001
-    Forbidden:
-      description: 权限不足
-      content: *id001
-    Unauthorized:
-      description: 未认证或令牌无效
-      content: *id001
     NotFound:
       description: 资源不存在或为避免跨租户枚举而隐藏
       content: *id001
     Conflict:
       description: 唯一性或资源状态冲突
+      content: *id001
+    Forbidden:
+      description: 权限不足
+      content: *id001
+    Unauthorized:
+      description: 未认证或令牌无效
       content: *id001

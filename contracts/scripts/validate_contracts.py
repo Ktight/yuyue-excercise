@@ -64,6 +64,11 @@ def json_schema_compatible_in_place(value):
             declared = value.get('type')
             if declared:
                 value['type'] = [declared, 'null']
+            else:
+                original = copy.deepcopy(value)
+                value.clear()
+                value['anyOf'] = [original, {'type': 'null'}]
+                return
         for child in value.values():
             json_schema_compatible_in_place(child)
     elif isinstance(value, list):
@@ -116,12 +121,56 @@ def main():
         'auth/login.success.json': 'LoginSuccessResponse',
         'auth/refresh.request.json': 'TokenRefreshRequest',
         'auth/refresh.success.json': 'TokenRefreshSuccessResponse',
+        'auth/logout.request.json': 'LogoutRequest',
+        'auth/logout.success.json': 'EmptySuccessResponse',
         'auth/me.success.json': 'UserSuccessResponse',
         'auth/change-password.success.json': 'EmptySuccessResponse',
         'users/list.success.json': 'UserListSuccessResponse',
         'users/detail.success.json': 'UserSuccessResponse',
         'users/create.request.json': 'UserCreateRequest',
         'users/create.success.json': 'UserSuccessResponse',
+        'users/reset-password.request.json': 'ResetPasswordRequest',
+        'users/reset-password.success.json': 'EmptySuccessResponse',
+        'companies/list.success.json': 'CompanyListSuccessResponse',
+        'companies/detail.success.json': 'CompanySuccessResponse',
+        'companies/create.request.json': 'CompanyCreateRequest',
+        'companies/create.success.json': 'CompanySuccessResponse',
+        'companies/update.request.json': 'CompanyUpdateRequest',
+        'companies/update.success.json': 'CompanySuccessResponse',
+        'stores/list.success.json': 'StoreListSuccessResponse',
+        'stores/detail.success.json': 'StoreSuccessResponse',
+        'stores/create.request.json': 'StoreCreateRequest',
+        'stores/create.success.json': 'StoreSuccessResponse',
+        'stores/update.request.json': 'StoreUpdateRequest',
+        'stores/update.success.json': 'StoreSuccessResponse',
+        'rooms/list.success.json': 'RoomListSuccessResponse',
+        'rooms/detail.success.json': 'RoomSuccessResponse',
+        'rooms/create.request.json': 'RoomCreateRequest',
+        'rooms/create.success.json': 'RoomSuccessResponse',
+        'rooms/update.request.json': 'RoomUpdateRequest',
+        'rooms/update.success.json': 'RoomSuccessResponse',
+        'course-templates/list.success.json': 'CourseTemplateListSuccessResponse',
+        'course-templates/detail.success.json': 'CourseTemplateSuccessResponse',
+        'course-templates/create.request.json': 'CourseTemplateCreateRequest',
+        'course-templates/create.success.json': 'CourseTemplateSuccessResponse',
+        'course-templates/update.request.json': 'CourseTemplateUpdateRequest',
+        'course-templates/update.success.json': 'CourseTemplateSuccessResponse',
+        'students/list.success.json': 'StudentListSuccessResponse',
+        'students/detail.success.json': 'StudentSuccessResponse',
+        'students/create.request.json': 'StudentCreateRequest',
+        'students/create.success.json': 'StudentSuccessResponse',
+        'students/update.request.json': 'StudentUpdateRequest',
+        'students/update.success.json': 'StudentSuccessResponse',
+        'students/membership.update.request.json': 'MembershipUpdateRequest',
+        'students/membership.success.json': 'MembershipSuccessResponse',
+        'students/eligibility.success.json': 'StudentEligibilitySuccessResponse',
+        'body-assessments/list.success.json': 'BodyAssessmentListSuccessResponse',
+        'body-assessments/detail.success.json': 'BodyAssessmentSuccessResponse',
+        'body-assessments/create.request.json': 'BodyAssessmentCreateRequest',
+        'body-assessments/create.success.json': 'BodyAssessmentSuccessResponse',
+        'body-assessments/update.request.json': 'BodyAssessmentUpdateRequest',
+        'body-assessments/update.success.json': 'BodyAssessmentSuccessResponse',
+        'body-assessments/trend.success.json': 'BodyAssessmentTrendSuccessResponse',
     }
     for example in examples:
         value = json.loads(example.read_text(encoding='utf-8'))
