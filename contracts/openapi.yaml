@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: 瑜悦练 API
-  version: 1.2.0
+  version: 1.4.0
   description: Project API contract. CONTRACT_READY/API_READY modules may be integrated; DRAFT modules are design and Mock
     only. See status.json.
 servers:
@@ -10,114 +10,48 @@ servers:
 security:
 - BearerAuth: []
 paths:
-  /api/attendance/:
+  /api/attendances/:
     get:
-      operationId: getAttendance
+      operationId: listAttendances
       tags:
       - attendance
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
+      - student
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Company-scoped attendance list. Students see only their own records.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - name: schedule_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: company_id
+        in: query
+        description: Super admin only.
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
-          description: 成功
+          description: Attendance list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/AttendanceListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-    post:
-      operationId: postAttendance
-      tags:
-      - attendance
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-  /api/attendance/bulk/:
-    post:
-      operationId: postAttendanceBulk
-      tags:
-      - attendance
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/attendance/{attendance_id}/:
+  /api/attendances/{attendance_id}/:
     parameters:
     - name: attendance_id
       in: path
@@ -126,31 +60,96 @@ paths:
         type: integer
         format: int64
         minimum: 1
-    patch:
-      operationId: patchAttendanceAttendanceId
+    get:
+      operationId: retrieveAttendance
       tags:
       - attendance
-      x-status: DRAFT
+      x-status: CONTRACT_READY
+      x-roles:
+      - super_admin
+      - company_admin
+      - store_manager
+      - trainer
+      - student
+      x-tenant-scope: company
+      description: Students may retrieve only their own attendance records.
+      responses:
+        '200':
+          description: Attendance detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceSuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/attendances/{attendance_id}/check-in/:
+    parameters:
+    - name: attendance_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    post:
+      operationId: checkInAttendance
+      tags:
+      - attendance
+      x-status: CONTRACT_READY
+      x-roles:
+      - super_admin
+      - company_admin
+      - store_manager
+      - trainer
+      - student
+      x-tenant-scope: company
+      description: Students may check in only themselves. Check-in at or before schedule start is present; later check-in
+        is late.
+      responses:
+        '200':
+          description: Checked in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/attendances/batch-check-in/:
+    post:
+      operationId: batchCheckInAttendances
+      tags:
+      - attendance
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Atomically checks in selected students for one schedule.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/AttendanceBatchCheckInRequest'
       responses:
         '200':
-          description: 成功
+          description: Batch checked in
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/AttendanceBatchSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -159,30 +158,33 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/attendance/statistics/:
-    get:
-      operationId: getAttendanceStatistics
+  /api/attendances/{attendance_id}/mark-leave/:
+    parameters:
+    - name: attendance_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    post:
+      operationId: markAttendanceLeave
       tags:
       - attendance
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Marked as leave
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/AttendanceSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -191,10 +193,79 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
+  /api/attendances/auto-create/:
+    post:
+      operationId: autoCreateAttendances
+      tags:
+      - attendance
+      x-status: CONTRACT_READY
+      x-roles:
+      - super_admin
+      - company_admin
+      - store_manager
+      - trainer
+      x-tenant-scope: company
+      description: Idempotently creates absent attendance rows for active bookings in one schedule.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceScheduleRequest'
+      responses:
+        '200':
+          description: Creation count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceAutoCreateSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/attendances/stats/:
+    get:
+      operationId: getAttendanceStats
+      tags:
+      - attendance
+      x-status: CONTRACT_READY
+      x-roles:
+      - super_admin
+      - company_admin
+      - store_manager
+      - trainer
+      - student
+      x-tenant-scope: company
+      description: At least one dimension is required. Students may request only their own student dimension and cannot request
+        course statistics.
+      parameters:
+      - name: student_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: schedule_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Student and/or course statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceStatsSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /api/auth/login/:
     post:
       operationId: authLogin
@@ -592,55 +663,58 @@ paths:
           $ref: '#/components/responses/NotFound'
   /api/bookings/:
     get:
-      operationId: getBookings
+      operationId: listBookings
       tags:
       - bookings
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
+      - student
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Students see their own bookings; trainers see bookings for their schedules; managers and company administrators
+        see company bookings.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
       responses:
         '200':
-          description: 成功
+          description: Booking list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/BookingListSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postBookings
+      operationId: createBooking
       tags:
       - bookings
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
-      - super_admin
       - company_admin
       - store_manager
       - trainer
+      - student
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Student self-booking or staff proxy booking using schedule_id and optional student_id.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/BookingCreateRequest'
       responses:
+        '201':
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -651,14 +725,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/bookings/{booking_id}/:
     parameters:
     - name: booking_id
@@ -669,82 +735,30 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getBookingsBookingId
+      operationId: retrieveBooking
       tags:
       - bookings
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
+      - student
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Booking detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/BookingSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/bookings/{booking_id}/confirm/:
-    parameters:
-    - name: booking_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postBookingsBookingIdConfirm
-      tags:
-      - bookings
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/bookings/{booking_id}/cancel/:
     parameters:
     - name: booking_id
@@ -754,31 +768,27 @@ paths:
         type: integer
         format: int64
         minimum: 1
-    post:
-      operationId: postBookingsBookingIdCancel
+    delete:
+      operationId: cancelBooking
       tags:
       - bookings
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
+      - student
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+      description: Cancels an active booking. Students may cancel only their own; trainers only bookings for their schedules.
+        Count-card use is restored once.
       responses:
         '200':
-          description: 成功
+          description: Booking cancelled
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/BookingSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -789,8 +799,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/uploads/presign/:
     post:
       operationId: postUploadsPresign
@@ -2489,73 +2497,108 @@ paths:
           $ref: '#/components/responses/NotFound'
   /api/schedules/:
     get:
-      operationId: getSchedules
+      operationId: listSchedules
       tags:
       - schedules
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Company-scoped schedules with annotated booking counts.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - name: date_from
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: store_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: trainer_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: course_type
+        in: query
+        schema:
+          type: string
+          enum:
+          - private
+          - small_group
+          - group
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - published
+          - cancelled
+          - completed
+      - name: company_id
+        in: query
+        description: Super admin only; other roles receive 403 for another tenant.
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
-          description: 成功
+          description: Schedule list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/ScheduleListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postSchedules
+      operationId: createSchedule
       tags:
       - schedules
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Creates one schedule, or all ISO weekdays across the requested number of weeks when schedule_mode=recurring.
+        The operation is atomic.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ScheduleCreateRequest'
       responses:
+        '201':
+          description: Single schedule or recurring creation count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleCreateSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/schedules/{schedule_id}/:
     parameters:
     - name: schedule_id
@@ -2566,61 +2609,53 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getSchedulesScheduleId
+      operationId: retrieveSchedule
       tags:
       - schedules
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       responses:
         '200':
-          description: 成功
+          description: Schedule detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/ScheduleSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchSchedulesScheduleId
+      operationId: updateSchedule
       tags:
       - schedules
-      x-status: DRAFT
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ScheduleUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: Updated schedule
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/ScheduleSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2631,9 +2666,31 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/schedules/{schedule_id}/publish/:
+    delete:
+      operationId: deleteSchedule
+      tags:
+      - schedules
+      x-status: CONTRACT_READY
+      x-roles:
+      - super_admin
+      - company_admin
+      - store_manager
+      - trainer
+      x-tenant-scope: company
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptySuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/schedules/{schedule_id}/book/:
     parameters:
     - name: schedule_id
       in: path
@@ -2643,30 +2700,32 @@ paths:
         format: int64
         minimum: 1
     post:
-      operationId: postSchedulesScheduleIdPublish
+      operationId: bookSchedule
       tags:
-      - schedules
-      x-status: DRAFT
+      - bookings
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
+      - student
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Student self-booking or staff proxy booking. Validates publication, deadline, capacity, student time conflicts,
+        and membership; count cards consume one use atomically.
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ScheduleBookingCreateRequest'
       responses:
-        '200':
-          description: 成功
+        '201':
+          description: Booking created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/BookingSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2677,9 +2736,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/schedules/{schedule_id}/cancel/:
+  /api/schedules/{schedule_id}/bookings/{booking_id}/:
     parameters:
     - name: schedule_id
       in: path
@@ -2688,31 +2745,33 @@ paths:
         type: integer
         format: int64
         minimum: 1
-    post:
-      operationId: postSchedulesScheduleIdCancel
+    - name: booking_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    delete:
+      operationId: cancelScheduleBooking
       tags:
-      - schedules
-      x-status: DRAFT
+      - bookings
+      x-status: CONTRACT_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
+      - student
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+      description: Cancels an active booking and restores one use when the current membership is a count card.
       responses:
         '200':
-          description: 成功
+          description: Booking cancelled
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/BookingSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2723,46 +2782,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/schedules/recurring/:
-    post:
-      operationId: postSchedulesRecurring
-      tags:
-      - schedules
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/stores/:
     get:
       operationId: listStores
@@ -5462,30 +5481,55 @@ components:
       additionalProperties: false
       required:
       - id
-      - company_id
-      - schedule_id
-      - student_id
+      - company
+      - booking
+      - schedule
+      - student
+      - student_name
+      - schedule_name
+      - check_in_time
       - status
-      - recorded_at
+      - checked_by
+      - checked_by_name
+      - created_at
+      - updated_at
       properties:
         id:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        company_id:
+        company:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        schedule_id:
+        booking:
           type: integer
           format: int64
           minimum: 1
-        student_id:
+          readOnly: true
+        schedule:
           type: integer
           format: int64
           minimum: 1
+          readOnly: true
+        student:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        student_name:
+          type: string
+          readOnly: true
+        schedule_name:
+          type: string
+          readOnly: true
+        check_in_time:
+          type: string
+          format: date-time
+          nullable: true
+          readOnly: true
         status:
           type: string
           enum:
@@ -5493,9 +5537,248 @@ components:
           - late
           - absent
           - leave
-        recorded_at:
+        checked_by:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+          readOnly: true
+        checked_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
           type: string
           format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    AttendanceSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Attendance'
+    AttendanceListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attendance'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    AttendanceListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/AttendanceListData'
+    AttendanceScheduleRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - schedule_id
+      properties:
+        schedule_id:
+          type: integer
+          format: int64
+          minimum: 1
+    AttendanceBatchCheckInRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - schedule_id
+      - student_ids
+      properties:
+        schedule_id:
+          type: integer
+          format: int64
+          minimum: 1
+        student_ids:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: integer
+            format: int64
+            minimum: 1
+    AttendanceBatchData:
+      type: object
+      additionalProperties: false
+      required:
+      - updated_count
+      - items
+      properties:
+        updated_count:
+          type: integer
+          minimum: 0
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attendance'
+    AttendanceBatchSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/AttendanceBatchData'
+    AttendanceAutoCreateData:
+      type: object
+      additionalProperties: false
+      required:
+      - created_count
+      properties:
+        created_count:
+          type: integer
+          minimum: 0
+    AttendanceAutoCreateSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/AttendanceAutoCreateData'
+    StudentAttendanceStats:
+      type: object
+      additionalProperties: false
+      required:
+      - student_id
+      - total_count
+      - attended_count
+      - attendance_rate
+      - late_count
+      - leave_count
+      - consecutive_attendance
+      properties:
+        student_id:
+          type: integer
+          format: int64
+          minimum: 1
+        total_count:
+          type: integer
+          minimum: 0
+        attended_count:
+          type: integer
+          minimum: 0
+        attendance_rate:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+        late_count:
+          type: integer
+          minimum: 0
+        leave_count:
+          type: integer
+          minimum: 0
+        consecutive_attendance:
+          type: integer
+          minimum: 0
+    CourseAttendanceStats:
+      type: object
+      additionalProperties: false
+      required:
+      - schedule_id
+      - booking_count
+      - arrived_count
+      - attendance_rate
+      properties:
+        schedule_id:
+          type: integer
+          format: int64
+          minimum: 1
+        booking_count:
+          type: integer
+          minimum: 0
+        arrived_count:
+          type: integer
+          minimum: 0
+        attendance_rate:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+    AttendanceStatsData:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        student_stats:
+          $ref: '#/components/schemas/StudentAttendanceStats'
+        course_stats:
+          $ref: '#/components/schemas/CourseAttendanceStats'
+    AttendanceStatsSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/AttendanceStatsData'
     ClassRecord:
       type: object
       additionalProperties: false
@@ -5714,89 +5997,434 @@ components:
         created_at:
           type: string
           format: date-time
+    RecurringRule:
+      type: object
+      additionalProperties: false
+      required:
+      - weekdays
+      - weeks
+      properties:
+        weekdays:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: integer
+            minimum: 1
+            maximum: 7
+          description: ISO weekday numbers where Monday is 1 and Sunday is 7.
+        weeks:
+          type: integer
+          minimum: 1
+          maximum: 52
     Schedule:
       type: object
       additionalProperties: false
       required:
       - id
-      - company_id
-      - store_id
-      - room_id
-      - trainer_id
-      - course_template_id
-      - starts_at
-      - ends_at
-      - timezone
+      - company
+      - store
+      - room
+      - course_template
+      - trainer
+      - course_date
+      - start_time
+      - end_time
       - capacity
+      - schedule_mode
       - status
+      - bookings_count
+      - course_template_name
+      - trainer_name
+      - room_name
+      - created_at
+      - updated_at
       properties:
         id:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        company_id:
+        company:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        store_id:
+        store:
           type: integer
           format: int64
           minimum: 1
-        room_id:
+        room:
           type: integer
           format: int64
           minimum: 1
-        trainer_id:
+        course_template:
           type: integer
           format: int64
           minimum: 1
-        course_template_id:
+        trainer:
           type: integer
           format: int64
           minimum: 1
-        starts_at:
+        course_date:
           type: string
-          format: date-time
-        ends_at:
+          format: date
+        start_time:
           type: string
-          format: date-time
-        timezone:
+          format: time
+        end_time:
           type: string
-          example: Asia/Shanghai
+          format: time
         capacity:
           type: integer
           minimum: 1
+        booking_deadline:
+          type: string
+          format: date-time
+          nullable: true
+        schedule_mode:
+          type: string
+          enum:
+          - single
+          - recurring
+          default: single
+        recurring_rule:
+          allOf:
+          - $ref: '#/components/schemas/RecurringRule'
+          nullable: true
         status:
           type: string
           enum:
-          - draft
           - published
-          - completed
           - cancelled
+          - completed
+        bookings_count:
+          type: integer
+          minimum: 0
+          readOnly: true
+        course_template_name:
+          type: string
+          readOnly: true
+        trainer_name:
+          type: string
+          readOnly: true
+        room_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    ScheduleCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - store
+      - room
+      - course_template
+      - trainer
+      - course_date
+      - start_time
+      - end_time
+      - capacity
+      - status
+      properties:
+        store:
+          type: integer
+          format: int64
+          minimum: 1
+        room:
+          type: integer
+          format: int64
+          minimum: 1
+        course_template:
+          type: integer
+          format: int64
+          minimum: 1
+        trainer:
+          type: integer
+          format: int64
+          minimum: 1
+        course_date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        capacity:
+          type: integer
+          minimum: 1
+        booking_deadline:
+          type: string
+          format: date-time
+          nullable: true
+        schedule_mode:
+          type: string
+          enum:
+          - single
+          - recurring
+          default: single
+        recurring_rule:
+          allOf:
+          - $ref: '#/components/schemas/RecurringRule'
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          description: Optional inclusive cap for recurring creation.
+        status:
+          type: string
+          enum:
+          - published
+          - cancelled
+          - completed
+    ScheduleUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        store:
+          type: integer
+          format: int64
+          minimum: 1
+        room:
+          type: integer
+          format: int64
+          minimum: 1
+        course_template:
+          type: integer
+          format: int64
+          minimum: 1
+        trainer:
+          type: integer
+          format: int64
+          minimum: 1
+        course_date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        capacity:
+          type: integer
+          minimum: 1
+        booking_deadline:
+          type: string
+          format: date-time
+          nullable: true
+        schedule_mode:
+          type: string
+          enum:
+          - single
+          - recurring
+        recurring_rule:
+          allOf:
+          - $ref: '#/components/schemas/RecurringRule'
+          nullable: true
+        status:
+          type: string
+          enum:
+          - published
+          - cancelled
+          - completed
+    ScheduleSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Schedule'
+    RecurringScheduleCreateData:
+      type: object
+      additionalProperties: false
+      required:
+      - created_count
+      properties:
+        created_count:
+          type: integer
+          minimum: 0
+    RecurringScheduleCreateSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/RecurringScheduleCreateData'
+    ScheduleCreateSuccessResponse:
+      oneOf:
+      - $ref: '#/components/schemas/ScheduleSuccessResponse'
+      - $ref: '#/components/schemas/RecurringScheduleCreateSuccessResponse'
+    ScheduleListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Schedule'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    ScheduleListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ScheduleListData'
+    BookingScheduleBrief:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - course_template_name
+      - trainer_name
+      - room_name
+      - course_date
+      - start_time
+      - end_time
+      - status
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        course_template_name:
+          type: string
+        trainer_name:
+          type: string
+        room_name:
+          type: string
+        course_date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        status:
+          type: string
+          enum:
+          - published
+          - cancelled
+          - completed
+    BookingStudentBrief:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - phone
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+        phone:
+          type: string
     Booking:
       type: object
       additionalProperties: false
       required:
       - id
-      - company_id
-      - schedule_id
-      - student_id
+      - company
+      - schedule
+      - student
+      - booking_time
       - status
-      - source
       - created_at
+      - updated_at
       properties:
         id:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        company_id:
+        company:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
+        schedule:
+          $ref: '#/components/schemas/BookingScheduleBrief'
+        student:
+          $ref: '#/components/schemas/BookingStudentBrief'
+        booking_time:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          enum:
+          - booked
+          - cancelled
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    BookingCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - schedule_id
+      properties:
         schedule_id:
           type: integer
           format: int64
@@ -5805,42 +6433,71 @@ components:
           type: integer
           format: int64
           minimum: 1
-        status:
-          type: string
-          enum:
-          - pending
-          - confirmed
-          - cancelled
-          - completed
-          - no_show
-        source:
-          type: string
-          enum:
-          - admin
-          - trainer
-          - student
-          - system
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-    RecurringScheduleRequest:
+          description: Required for trainer or manager proxy booking; omitted for student self-booking.
+    ScheduleBookingCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        student_id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Required for trainer or manager proxy booking; omitted for student self-booking.
+    BookingSuccessResponse:
       type: object
       additionalProperties: false
       required:
-      - idempotency_key
-      - schedule
-      - recurrence
+      - code
+      - message
+      - data
       properties:
-        idempotency_key:
+        code:
           type: string
-          minLength: 8
-          maxLength: 128
-        schedule:
-          $ref: '#/components/schemas/Schedule'
-        recurrence:
-          type: object
-          description: RFC 5545 风格重复规则；DRAFT 待冻结
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Booking'
+    BookingListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Booking'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    BookingListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/BookingListData'
     StudentUser:
       type: object
       additionalProperties: false
@@ -6600,24 +7257,24 @@ components:
       schema:
         type: string
   responses:
-    ServerError:
-      description: 内部错误，不泄露 traceback 或配置
+    Unauthorized:
+      description: 未认证或令牌无效
       content: &id001
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    BadRequest:
-      description: 请求参数或业务校验失败
-      content: *id001
     NotFound:
       description: 资源不存在或为避免跨租户枚举而隐藏
       content: *id001
-    Conflict:
-      description: 唯一性或资源状态冲突
+    ServerError:
+      description: 内部错误，不泄露 traceback 或配置
       content: *id001
     Forbidden:
       description: 权限不足
       content: *id001
-    Unauthorized:
-      description: 未认证或令牌无效
+    BadRequest:
+      description: 请求参数或业务校验失败
+      content: *id001
+    Conflict:
+      description: 唯一性或资源状态冲突
       content: *id001

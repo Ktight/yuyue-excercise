@@ -1,185 +1,120 @@
-/api/attendance/:
+/api/attendances/:
   get:
-    operationId: getAttendance
-    tags:
-    - attendance
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: listAttendances
+    tags: [attendance]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Company-scoped attendance list. Students see only their own records.
+    parameters:
+      - {$ref: '../root.yaml#/components/parameters/PageParameter'}
+      - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
+      - {name: schedule_id, in: query, schema: {type: integer, minimum: 1}}
+      - {name: company_id, in: query, description: Super admin only., schema: {type: integer, minimum: 1}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-  post:
-    operationId: postAttendance
-    tags:
-    - attendance
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
-    responses:
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-      '201':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-/api/attendance/bulk/:
-  post:
-    operationId: postAttendanceBulk
-    tags:
-    - attendance
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
-    responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/attendance/{attendance_id}/:
+      '200': {description: Attendance list, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceListSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+
+/api/attendances/{attendance_id}/:
   parameters:
-  - name: attendance_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  patch:
-    operationId: patchAttendanceAttendanceId
-    tags:
-    - attendance
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    - {name: attendance_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+  get:
+    operationId: retrieveAttendance
+    tags: [attendance]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Students may retrieve only their own attendance records.
+    responses:
+      '200': {description: Attendance detail, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+
+/api/attendances/{attendance_id}/check-in/:
+  parameters:
+    - {name: attendance_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+  post:
+    operationId: checkInAttendance
+    tags: [attendance]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
+    x-tenant-scope: company
+    description: Students may check in only themselves. Check-in at or before schedule start is present; later check-in is late.
+    responses:
+      '200': {description: Checked in, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+
+/api/attendances/batch-check-in/:
+  post:
+    operationId: batchCheckInAttendances
+    tags: [attendance]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
+    x-tenant-scope: company
+    description: Atomically checks in selected students for one schedule.
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceBatchCheckInRequest'}}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/attendance/statistics/:
-  get:
-    operationId: getAttendanceStatistics
-    tags:
-    - attendance
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+      '200': {description: Batch checked in, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceBatchSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+
+/api/attendances/{attendance_id}/mark-leave/:
+  parameters:
+    - {name: attendance_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+  post:
+    operationId: markAttendanceLeave
+    tags: [attendance]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Marked as leave, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+
+/api/attendances/auto-create/:
+  post:
+    operationId: autoCreateAttendances
+    tags: [attendance]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
+    x-tenant-scope: company
+    description: Idempotently creates absent attendance rows for active bookings in one schedule.
+    requestBody:
+      required: true
+      content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceScheduleRequest'}}}
+    responses:
+      '200': {description: Creation count, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceAutoCreateSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+
+/api/attendances/stats/:
+  get:
+    operationId: getAttendanceStats
+    tags: [attendance]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
+    x-tenant-scope: company
+    description: At least one dimension is required. Students may request only their own student dimension and cannot request course statistics.
+    parameters:
+      - {name: student_id, in: query, schema: {type: integer, minimum: 1}}
+      - {name: schedule_id, in: query, schema: {type: integer, minimum: 1}}
+    responses:
+      '200': {description: Student and/or course statistics, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/AttendanceStatsSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}

@@ -1,201 +1,65 @@
 /api/bookings/:
   get:
-    operationId: getBookings
-    tags:
-    - bookings
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: listBookings
+    tags: [bookings]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Students see their own bookings; trainers see bookings for their schedules; managers and company administrators see company bookings.
+    parameters:
+      - {$ref: '../root.yaml#/components/parameters/PageParameter'}
+      - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Booking list, content: {application/json: {schema: {$ref: '../schemas/scheduling.yaml#/BookingListSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
   post:
-    operationId: postBookings
-    tags:
-    - bookings
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: createBooking
+    tags: [bookings]
+    x-status: CONTRACT_READY
+    x-roles: [company_admin, store_manager, trainer, student]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Student self-booking or staff proxy booking using schedule_id and optional student_id.
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/scheduling.yaml#/BookingCreateRequest'}}}
     responses:
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-      '201':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '201': {description: Booking created, content: {application/json: {schema: {$ref: '../schemas/scheduling.yaml#/BookingSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}
+
 /api/bookings/{booking_id}/:
   parameters:
-  - name: booking_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
+    - {name: booking_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
   get:
-    operationId: getBookingsBookingId
-    tags:
-    - bookings
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: retrieveBooking
+    tags: [bookings]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/bookings/{booking_id}/confirm/:
-  parameters:
-  - name: booking_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  post:
-    operationId: postBookingsBookingIdConfirm
-    tags:
-    - bookings
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
-    responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Booking detail, content: {application/json: {schema: {$ref: '../schemas/scheduling.yaml#/BookingSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+
 /api/bookings/{booking_id}/cancel/:
   parameters:
-  - name: booking_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  post:
-    operationId: postBookingsBookingIdCancel
-    tags:
-    - bookings
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    - {name: booking_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+  delete:
+    operationId: cancelBooking
+    tags: [bookings]
+    x-status: CONTRACT_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+    description: Cancels an active booking. Students may cancel only their own; trainers only bookings for their schedules. Count-card use is restored once.
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Booking cancelled, content: {application/json: {schema: {$ref: '../schemas/scheduling.yaml#/BookingSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}

@@ -1,36 +1,209 @@
+RecurringRule:
+  type: object
+  additionalProperties: false
+  required: [weekdays, weeks]
+  properties:
+    weekdays:
+      type: array
+      minItems: 1
+      uniqueItems: true
+      items: {type: integer, minimum: 1, maximum: 7}
+      description: ISO weekday numbers where Monday is 1 and Sunday is 7.
+    weeks: {type: integer, minimum: 1, maximum: 52}
+
 Schedule:
   type: object
   additionalProperties: false
-  required: [id, company_id, store_id, room_id, trainer_id, course_template_id, starts_at, ends_at, timezone, capacity, status]
+  required: [id, company, store, room, course_template, trainer, course_date, start_time, end_time, capacity, schedule_mode, status, bookings_count, course_template_name, trainer_name, room_name, created_at, updated_at]
   properties:
     id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    store_id: {type: integer, format: int64, minimum: 1}
-    room_id: {type: integer, format: int64, minimum: 1}
-    trainer_id: {type: integer, format: int64, minimum: 1}
-    course_template_id: {type: integer, format: int64, minimum: 1}
-    starts_at: {type: string, format: date-time}
-    ends_at: {type: string, format: date-time}
-    timezone: {type: string, example: Asia/Shanghai}
+    company: {type: integer, format: int64, minimum: 1, readOnly: true}
+    store: {type: integer, format: int64, minimum: 1}
+    room: {type: integer, format: int64, minimum: 1}
+    course_template: {type: integer, format: int64, minimum: 1}
+    trainer: {type: integer, format: int64, minimum: 1}
+    course_date: {type: string, format: date}
+    start_time: {type: string, format: time}
+    end_time: {type: string, format: time}
     capacity: {type: integer, minimum: 1}
-    status: {type: string, enum: [draft, published, completed, cancelled]}
+    booking_deadline: {type: string, format: date-time, nullable: true}
+    schedule_mode: {type: string, enum: [single, recurring], default: single}
+    recurring_rule:
+      allOf: [{$ref: '#/RecurringRule'}]
+      nullable: true
+    status: {type: string, enum: [published, cancelled, completed]}
+    bookings_count: {type: integer, minimum: 0, readOnly: true}
+    course_template_name: {type: string, readOnly: true}
+    trainer_name: {type: string, readOnly: true}
+    room_name: {type: string, readOnly: true}
+    created_at: {type: string, format: date-time, readOnly: true}
+    updated_at: {type: string, format: date-time, readOnly: true}
+
+ScheduleCreateRequest:
+  type: object
+  additionalProperties: false
+  required: [store, room, course_template, trainer, course_date, start_time, end_time, capacity, status]
+  properties:
+    store: {type: integer, format: int64, minimum: 1}
+    room: {type: integer, format: int64, minimum: 1}
+    course_template: {type: integer, format: int64, minimum: 1}
+    trainer: {type: integer, format: int64, minimum: 1}
+    course_date: {type: string, format: date}
+    start_time: {type: string, format: time}
+    end_time: {type: string, format: time}
+    capacity: {type: integer, minimum: 1}
+    booking_deadline: {type: string, format: date-time, nullable: true}
+    schedule_mode: {type: string, enum: [single, recurring], default: single}
+    recurring_rule:
+      allOf: [{$ref: '#/RecurringRule'}]
+      nullable: true
+    end_date: {type: string, format: date, description: Optional inclusive cap for recurring creation.}
+    status: {type: string, enum: [published, cancelled, completed]}
+
+ScheduleUpdateRequest:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    store: {type: integer, format: int64, minimum: 1}
+    room: {type: integer, format: int64, minimum: 1}
+    course_template: {type: integer, format: int64, minimum: 1}
+    trainer: {type: integer, format: int64, minimum: 1}
+    course_date: {type: string, format: date}
+    start_time: {type: string, format: time}
+    end_time: {type: string, format: time}
+    capacity: {type: integer, minimum: 1}
+    booking_deadline: {type: string, format: date-time, nullable: true}
+    schedule_mode: {type: string, enum: [single, recurring]}
+    recurring_rule:
+      allOf: [{$ref: '#/RecurringRule'}]
+      nullable: true
+    status: {type: string, enum: [published, cancelled, completed]}
+
+ScheduleSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/Schedule'}
+
+RecurringScheduleCreateData:
+  type: object
+  additionalProperties: false
+  required: [created_count]
+  properties:
+    created_count: {type: integer, minimum: 0}
+
+RecurringScheduleCreateSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/RecurringScheduleCreateData'}
+
+ScheduleCreateSuccessResponse:
+  oneOf:
+    - {$ref: '#/ScheduleSuccessResponse'}
+    - {$ref: '#/RecurringScheduleCreateSuccessResponse'}
+
+ScheduleListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/Schedule'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+
+ScheduleListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/ScheduleListData'}
+
+BookingScheduleBrief:
+  type: object
+  additionalProperties: false
+  required: [id, course_template_name, trainer_name, room_name, course_date, start_time, end_time, status]
+  properties:
+    id: {type: integer, format: int64, minimum: 1}
+    course_template_name: {type: string}
+    trainer_name: {type: string}
+    room_name: {type: string}
+    course_date: {type: string, format: date}
+    start_time: {type: string, format: time}
+    end_time: {type: string, format: time}
+    status: {type: string, enum: [published, cancelled, completed]}
+
+BookingStudentBrief:
+  type: object
+  additionalProperties: false
+  required: [id, name, phone]
+  properties:
+    id: {type: integer, format: int64, minimum: 1}
+    name: {type: string}
+    phone: {type: string}
+
 Booking:
   type: object
   additionalProperties: false
-  required: [id, company_id, schedule_id, student_id, status, source, created_at]
+  required: [id, company, schedule, student, booking_time, status, created_at, updated_at]
   properties:
     id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    schedule_id: {type: integer, format: int64, minimum: 1}
-    student_id: {type: integer, format: int64, minimum: 1}
-    status: {type: string, enum: [pending, confirmed, cancelled, completed, no_show]}
-    source: {type: string, enum: [admin, trainer, student, system]}
+    company: {type: integer, format: int64, minimum: 1, readOnly: true}
+    schedule: {$ref: '#/BookingScheduleBrief'}
+    student: {$ref: '#/BookingStudentBrief'}
+    booking_time: {type: string, format: date-time, readOnly: true}
+    status: {type: string, enum: [booked, cancelled]}
     created_at: {type: string, format: date-time, readOnly: true}
-RecurringScheduleRequest:
+    updated_at: {type: string, format: date-time, readOnly: true}
+
+BookingCreateRequest:
   type: object
   additionalProperties: false
-  required: [idempotency_key, schedule, recurrence]
+  required: [schedule_id]
   properties:
-    idempotency_key: {type: string, minLength: 8, maxLength: 128}
-    schedule: {$ref: '#/Schedule'}
-    recurrence: {type: object, description: RFC 5545 风格重复规则；DRAFT 待冻结}
+    schedule_id: {type: integer, format: int64, minimum: 1}
+    student_id: {type: integer, format: int64, minimum: 1, description: Required for trainer or manager proxy booking; omitted for student self-booking.}
+
+ScheduleBookingCreateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    student_id: {type: integer, format: int64, minimum: 1, description: Required for trainer or manager proxy booking; omitted for student self-booking.}
+
+BookingSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/Booking'}
+
+BookingListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/Booking'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+
+BookingListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/BookingListData'}

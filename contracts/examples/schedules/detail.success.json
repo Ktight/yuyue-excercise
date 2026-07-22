@@ -1,5 +1,26 @@
 {
   "code": "OK",
   "message": "",
-  "data": {}
+  "data": {
+    "id": 1,
+    "company": 1,
+    "store": 1,
+    "room": 1,
+    "course_template": 1,
+    "trainer": 4,
+    "course_date": "2026-08-04",
+    "start_time": "10:00:00",
+    "end_time": "11:00:00",
+    "capacity": 20,
+    "booking_deadline": "2026-08-04T08:00:00+08:00",
+    "schedule_mode": "recurring",
+    "recurring_rule": {"weekdays": [2, 4], "weeks": 8},
+    "status": "published",
+    "bookings_count": 1,
+    "course_template_name": "Group Yoga",
+    "trainer_name": "Trainer",
+    "room_name": "Room A",
+    "created_at": "2026-07-22T10:00:00+08:00",
+    "updated_at": "2026-07-22T10:00:00+08:00"
+  }
 }
