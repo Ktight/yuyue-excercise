@@ -1,5 +1,12 @@
 # 瑜悦练前端工作状态
 
+## Phase 6 启动基线（2026-07-22）
+
+- 已将远端 `main` 的 Phase 6–7 正式提交合入当前前端分支，契约版本更新为 `1.4.0`。
+- 合并后重新生成类型和枚举，Phase 1–5 完整 `check:all` 通过：219 个源文件边界、33 个测试文件、113 项测试、548 个模块生产构建。
+- Schedules 与 Bookings 均为 `CONTRACT_READY / API_READY`，前端当前为 `FRONTEND_NOT_STARTED`。
+- 详细实施顺序和边界见 `PHASE_6_FRONTEND_BASELINE.md`。
+
 ## Phase 5 前端完成记录（2026-07-22）
 
 - 当前状态：`INTEGRATED / UI_READY / MOCK_READY / NOT_VERIFIED`。

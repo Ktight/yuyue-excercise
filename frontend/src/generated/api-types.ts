@@ -2,42 +2,43 @@
 // Source: contracts/openapi.yaml
 
 export interface paths {
-  '/api/attendance/': {
+  '/api/attendances/': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getAttendance'];
+    /** @description Company-scoped attendance list. Students see only their own records. */
+    get: operations['listAttendances'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postAttendance'];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/attendance/bulk/': {
+  '/api/attendances/{attendance_id}/': {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        attendance_id: number;
+      };
       cookie?: never;
     };
-    get?: never;
+    /** @description Students may retrieve only their own attendance records. */
+    get: operations['retrieveAttendance'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postAttendanceBulk'];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/attendance/{attendance_id}/': {
+  '/api/attendances/{attendance_id}/check-in/': {
     parameters: {
       query?: never;
       header?: never;
@@ -48,23 +49,75 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post?: never;
+    /** @description Students may check in only themselves. Check-in at or before schedule start is present; later check-in is late. */
+    post: operations['checkInAttendance'];
     delete?: never;
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchAttendanceAttendanceId'];
+    patch?: never;
     trace?: never;
   };
-  '/api/attendance/statistics/': {
+  '/api/attendances/batch-check-in/': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getAttendanceStatistics'];
+    get?: never;
+    put?: never;
+    /** @description Atomically checks in selected students for one schedule. */
+    post: operations['batchCheckInAttendances'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/attendances/{attendance_id}/mark-leave/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        attendance_id: number;
+      };
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['markAttendanceLeave'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/attendances/auto-create/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Idempotently creates absent attendance rows for active bookings in one schedule. */
+    post: operations['autoCreateAttendances'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/attendances/stats/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description At least one dimension is required. Students may request only their own student dimension and cannot request course statistics. */
+    get: operations['getAttendanceStats'];
     put?: never;
     post?: never;
     delete?: never;
@@ -214,11 +267,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getBookings'];
+    /** @description Students see their own bookings; trainers see bookings for their schedules; managers and company administrators see company bookings. */
+    get: operations['listBookings'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postBookings'];
+    /** @description Student self-booking or staff proxy booking using schedule_id and optional student_id. */
+    post: operations['createBooking'];
     delete?: never;
     options?: never;
     head?: never;
@@ -234,29 +287,9 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getBookingsBookingId'];
+    get: operations['retrieveBooking'];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/bookings/{booking_id}/confirm/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        booking_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postBookingsBookingIdConfirm'];
     delete?: never;
     options?: never;
     head?: never;
@@ -274,9 +307,9 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postBookingsBookingIdCancel'];
-    delete?: never;
+    post?: never;
+    /** @description Cancels an active booking. Students may cancel only their own; trainers only bookings for their schedules. Count-card use is restored once. */
+    delete: operations['cancelBooking'];
     options?: never;
     head?: never;
     patch?: never;
@@ -820,11 +853,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getSchedules'];
+    /** @description Company-scoped schedules with annotated booking counts. */
+    get: operations['listSchedules'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postSchedules'];
+    /** @description Creates one schedule, or all ISO weekdays across the requested number of weeks when schedule_mode=recurring. The operation is atomic. */
+    post: operations['createSchedule'];
     delete?: never;
     options?: never;
     head?: never;
@@ -840,18 +873,16 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getSchedulesScheduleId'];
+    get: operations['retrieveSchedule'];
     put?: never;
     post?: never;
-    delete?: never;
+    delete: operations['deleteSchedule'];
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchSchedulesScheduleId'];
+    patch: operations['updateSchedule'];
     trace?: never;
   };
-  '/api/schedules/{schedule_id}/publish/': {
+  '/api/schedules/{schedule_id}/book/': {
     parameters: {
       query?: never;
       header?: never;
@@ -862,45 +893,29 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postSchedulesScheduleIdPublish'];
+    /** @description Student self-booking or staff proxy booking. Validates publication, deadline, capacity, student time conflicts, and membership; count cards consume one use atomically. */
+    post: operations['bookSchedule'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/schedules/{schedule_id}/cancel/': {
+  '/api/schedules/{schedule_id}/bookings/{booking_id}/': {
     parameters: {
       query?: never;
       header?: never;
       path: {
         schedule_id: number;
+        booking_id: number;
       };
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postSchedulesScheduleIdCancel'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/schedules/recurring/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postSchedulesRecurring'];
-    delete?: never;
+    post?: never;
+    /** @description Cancels an active booking and restores one use when the current membership is a count card. */
+    delete: operations['cancelScheduleBooking'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1898,15 +1913,101 @@ export interface components {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      readonly company_id: number;
+      readonly company: number;
       /** Format: int64 */
-      schedule_id: number;
+      readonly booking: number;
       /** Format: int64 */
-      student_id: number;
+      readonly schedule: number;
+      /** Format: int64 */
+      readonly student: number;
+      readonly student_name: string;
+      readonly schedule_name: string;
+      /** Format: date-time */
+      readonly check_in_time: string | null;
       /** @enum {string} */
       status: 'present' | 'late' | 'absent' | 'leave';
+      /** Format: int64 */
+      readonly checked_by: number | null;
+      readonly checked_by_name: string | null;
       /** Format: date-time */
-      recorded_at: string;
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    AttendanceSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Attendance'];
+    };
+    AttendanceListData: {
+      items: components['schemas']['Attendance'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    AttendanceListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['AttendanceListData'];
+    };
+    AttendanceScheduleRequest: {
+      /** Format: int64 */
+      schedule_id: number;
+    };
+    AttendanceBatchCheckInRequest: {
+      /** Format: int64 */
+      schedule_id: number;
+      student_ids: number[];
+    };
+    AttendanceBatchData: {
+      updated_count: number;
+      items: components['schemas']['Attendance'][];
+    };
+    AttendanceBatchSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['AttendanceBatchData'];
+    };
+    AttendanceAutoCreateData: {
+      created_count: number;
+    };
+    AttendanceAutoCreateSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['AttendanceAutoCreateData'];
+    };
+    StudentAttendanceStats: {
+      /** Format: int64 */
+      student_id: number;
+      total_count: number;
+      attended_count: number;
+      /** Format: float */
+      attendance_rate: number;
+      late_count: number;
+      leave_count: number;
+      consecutive_attendance: number;
+    };
+    CourseAttendanceStats: {
+      /** Format: int64 */
+      schedule_id: number;
+      booking_count: number;
+      arrived_count: number;
+      /** Format: float */
+      attendance_rate: number;
+    };
+    AttendanceStatsData: {
+      student_stats?: components['schemas']['StudentAttendanceStats'];
+      course_stats?: components['schemas']['CourseAttendanceStats'];
+    };
+    AttendanceStatsSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['AttendanceStatsData'];
     };
     ClassRecord: {
       /** Format: int64 */
@@ -1986,50 +2087,206 @@ export interface components {
       /** Format: date-time */
       created_at: string;
     };
+    RecurringRule: {
+      /** @description ISO weekday numbers where Monday is 1 and Sunday is 7. */
+      weekdays: number[];
+      weeks: number;
+    };
     Schedule: {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      readonly company_id: number;
+      readonly company: number;
       /** Format: int64 */
-      store_id: number;
+      store: number;
       /** Format: int64 */
-      room_id: number;
+      room: number;
       /** Format: int64 */
-      trainer_id: number;
+      course_template: number;
       /** Format: int64 */
-      course_template_id: number;
-      /** Format: date-time */
-      starts_at: string;
-      /** Format: date-time */
-      ends_at: string;
-      /** @example Asia/Shanghai */
-      timezone: string;
+      trainer: number;
+      /** Format: date */
+      course_date: string;
+      /** Format: time */
+      start_time: string;
+      /** Format: time */
+      end_time: string;
       capacity: number;
+      /** Format: date-time */
+      booking_deadline?: string | null;
+      /**
+       * @default single
+       * @enum {string}
+       */
+      schedule_mode: 'single' | 'recurring';
+      recurring_rule?: components['schemas']['RecurringRule'] | null;
       /** @enum {string} */
-      status: 'draft' | 'published' | 'completed' | 'cancelled';
+      status: 'published' | 'cancelled' | 'completed';
+      readonly bookings_count: number;
+      readonly course_template_name: string;
+      readonly trainer_name: string;
+      readonly room_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ScheduleCreateRequest: {
+      /** Format: int64 */
+      store: number;
+      /** Format: int64 */
+      room: number;
+      /** Format: int64 */
+      course_template: number;
+      /** Format: int64 */
+      trainer: number;
+      /** Format: date */
+      course_date: string;
+      /** Format: time */
+      start_time: string;
+      /** Format: time */
+      end_time: string;
+      capacity: number;
+      /** Format: date-time */
+      booking_deadline?: string | null;
+      /**
+       * @default single
+       * @enum {string}
+       */
+      schedule_mode: 'single' | 'recurring';
+      recurring_rule?: components['schemas']['RecurringRule'] | null;
+      /**
+       * Format: date
+       * @description Optional inclusive cap for recurring creation.
+       */
+      end_date?: string;
+      /** @enum {string} */
+      status: 'published' | 'cancelled' | 'completed';
+    };
+    ScheduleUpdateRequest: {
+      /** Format: int64 */
+      store?: number;
+      /** Format: int64 */
+      room?: number;
+      /** Format: int64 */
+      course_template?: number;
+      /** Format: int64 */
+      trainer?: number;
+      /** Format: date */
+      course_date?: string;
+      /** Format: time */
+      start_time?: string;
+      /** Format: time */
+      end_time?: string;
+      capacity?: number;
+      /** Format: date-time */
+      booking_deadline?: string | null;
+      /** @enum {string} */
+      schedule_mode?: 'single' | 'recurring';
+      recurring_rule?: components['schemas']['RecurringRule'] | null;
+      /** @enum {string} */
+      status?: 'published' | 'cancelled' | 'completed';
+    };
+    ScheduleSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Schedule'];
+    };
+    RecurringScheduleCreateData: {
+      created_count: number;
+    };
+    RecurringScheduleCreateSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['RecurringScheduleCreateData'];
+    };
+    ScheduleCreateSuccessResponse:
+      | components['schemas']['ScheduleSuccessResponse']
+      | components['schemas']['RecurringScheduleCreateSuccessResponse'];
+    ScheduleListData: {
+      items: components['schemas']['Schedule'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    ScheduleListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ScheduleListData'];
+    };
+    BookingScheduleBrief: {
+      /** Format: int64 */
+      id: number;
+      course_template_name: string;
+      trainer_name: string;
+      room_name: string;
+      /** Format: date */
+      course_date: string;
+      /** Format: time */
+      start_time: string;
+      /** Format: time */
+      end_time: string;
+      /** @enum {string} */
+      status: 'published' | 'cancelled' | 'completed';
+    };
+    BookingStudentBrief: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      phone: string;
     };
     Booking: {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      readonly company_id: number;
-      /** Format: int64 */
-      schedule_id: number;
-      /** Format: int64 */
-      student_id: number;
+      readonly company: number;
+      schedule: components['schemas']['BookingScheduleBrief'];
+      student: components['schemas']['BookingStudentBrief'];
+      /** Format: date-time */
+      readonly booking_time: string;
       /** @enum {string} */
-      status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
-      /** @enum {string} */
-      source: 'admin' | 'trainer' | 'student' | 'system';
+      status: 'booked' | 'cancelled';
       /** Format: date-time */
       readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
     };
-    RecurringScheduleRequest: {
-      idempotency_key: string;
-      schedule: components['schemas']['Schedule'];
-      /** @description RFC 5545 风格重复规则；DRAFT 待冻结 */
-      recurrence: Record<string, never>;
+    BookingCreateRequest: {
+      /** Format: int64 */
+      schedule_id: number;
+      /**
+       * Format: int64
+       * @description Required for trainer or manager proxy booking; omitted for student self-booking.
+       */
+      student_id?: number;
+    };
+    ScheduleBookingCreateRequest: {
+      /**
+       * Format: int64
+       * @description Required for trainer or manager proxy booking; omitted for student self-booking.
+       */
+      student_id?: number;
+    };
+    BookingSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Booking'];
+    };
+    BookingListData: {
+      items: components['schemas']['Booking'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    BookingListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['BookingListData'];
     };
     StudentUser: {
       id: components['schemas']['Id'];
@@ -2294,17 +2551,8 @@ export interface components {
     };
   };
   responses: {
-    /** @description 内部错误，不泄露 traceback 或配置 */
-    ServerError: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
-    /** @description 请求参数或业务校验失败 */
-    BadRequest: {
+    /** @description 未认证或令牌无效 */
+    Unauthorized: {
       headers: {
         [name: string]: unknown;
       };
@@ -2321,8 +2569,8 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 唯一性或资源状态冲突 */
-    Conflict: {
+    /** @description 内部错误，不泄露 traceback 或配置 */
+    ServerError: {
       headers: {
         [name: string]: unknown;
       };
@@ -2339,8 +2587,17 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 未认证或令牌无效 */
-    Unauthorized: {
+    /** @description 请求参数或业务校验失败 */
+    BadRequest: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 唯一性或资源状态冲突 */
+    Conflict: {
       headers: {
         [name: string]: unknown;
       };
@@ -2361,93 +2618,36 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  getAttendance: {
+  listAttendances: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        schedule_id?: number;
+        /** @description Super admin only. */
+        company_id?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Attendance list */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['AttendanceListSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postAttendance: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postAttendanceBulk: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  patchAttendanceAttendanceId: {
+  retrieveAttendance: {
     parameters: {
       query?: never;
       header?: never;
@@ -2456,53 +2656,154 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Attendance detail */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['AttendanceSuccessResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  checkInAttendance: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        attendance_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Checked in */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AttendanceSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getAttendanceStatistics: {
+  batchCheckInAttendances: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AttendanceBatchCheckInRequest'];
+      };
+    };
     responses: {
-      /** @description 成功 */
+      /** @description Batch checked in */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['AttendanceBatchSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
+    };
+  };
+  markAttendanceLeave: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        attendance_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Marked as leave */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AttendanceSuccessResponse'];
+        };
+      };
+      400: components['responses']['BadRequest'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  autoCreateAttendances: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AttendanceScheduleRequest'];
+      };
+    };
+    responses: {
+      /** @description Creation count */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AttendanceAutoCreateSuccessResponse'];
+        };
+      };
+      400: components['responses']['BadRequest'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  getAttendanceStats: {
+    parameters: {
+      query?: {
+        student_id?: number;
+        schedule_id?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Student and/or course statistics */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AttendanceStatsSuccessResponse'];
+        };
+      };
+      400: components['responses']['BadRequest'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
     };
   };
   authLogin: {
@@ -2827,33 +3128,32 @@ export interface operations {
       404: components['responses']['NotFound'];
     };
   };
-  getBookings: {
+  listBookings: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Booking list */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['BookingListSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postBookings: {
+  createBooking: {
     parameters: {
       query?: never;
       header?: never;
@@ -2862,17 +3162,17 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['BookingCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Booking created */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BookingSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -2880,10 +3180,9 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getBookingsBookingId: {
+  retrieveBooking: {
     parameters: {
       query?: never;
       header?: never;
@@ -2894,24 +3193,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Booking detail */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BookingSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postBookingsBookingIdConfirm: {
+  cancelBooking: {
     parameters: {
       query?: never;
       header?: never;
@@ -2920,19 +3216,15 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Booking cancelled */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BookingSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -2940,39 +3232,6 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postBookingsBookingIdCancel: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        booking_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   postUploadsPresign: {
@@ -4344,33 +4603,41 @@ export interface operations {
       404: components['responses']['NotFound'];
     };
   };
-  getSchedules: {
+  listSchedules: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        date_from?: string;
+        date_to?: string;
+        store_id?: number;
+        trainer_id?: number;
+        course_type?: 'private' | 'small_group' | 'group';
+        status?: 'published' | 'cancelled' | 'completed';
+        /** @description Super admin only; other roles receive 403 for another tenant. */
+        company_id?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Schedule list */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['ScheduleListSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postSchedules: {
+  createSchedule: {
     parameters: {
       query?: never;
       header?: never;
@@ -4379,28 +4646,26 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ScheduleCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Single schedule or recurring creation count */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ScheduleCreateSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getSchedulesScheduleId: {
+  retrieveSchedule: {
     parameters: {
       query?: never;
       header?: never;
@@ -4411,24 +4676,46 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Schedule detail */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ScheduleSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchSchedulesScheduleId: {
+  deleteSchedule: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        schedule_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EmptySuccessResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  updateSchedule: {
     parameters: {
       query?: never;
       header?: never;
@@ -4439,17 +4726,17 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ScheduleUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Updated schedule */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ScheduleSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -4457,10 +4744,9 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postSchedulesScheduleIdPublish: {
+  bookSchedule: {
     parameters: {
       query?: never;
       header?: never;
@@ -4469,19 +4755,19 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody: {
+    requestBody?: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ScheduleBookingCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
-      200: {
+      /** @description Booking created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BookingSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -4489,31 +4775,27 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postSchedulesScheduleIdCancel: {
+  cancelScheduleBooking: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         schedule_id: number;
+        booking_id: number;
       };
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Booking cancelled */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BookingSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -4521,37 +4803,6 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postSchedulesRecurring: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   listStores: {
