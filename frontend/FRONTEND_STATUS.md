@@ -1,5 +1,12 @@
 # 瑜悦练前端工作状态
 
+## Phase 9 契约准入审计（2026-07-23）
+
+- Training Plans 当前为 `DRAFT / NOT_STARTED`。
+- 端点仍绑定通用 Draft 请求/响应，`stages` 未定义结构，无法安全生成正式领域映射与契约 Mock。
+- 当前状态：`BLOCKED_BY_DRAFT_CONTRACT / FRONTEND_NOT_STARTED`。
+- 一次性冻结要求见 `PHASE_9_CONTRACT_FREEZE_REQUEST.md`；本轮没有猜测字段或修改后端/契约。
+
 ## Phase 8 前端实现（2026-07-23）
 
 - 已完成课堂记录模板、动作序列编辑、课堂记录单个/批量创建、草稿编辑、完成状态和课堂媒体上传/挂载/移除。
