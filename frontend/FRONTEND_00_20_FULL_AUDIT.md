@@ -31,8 +31,8 @@
 | 14 训练规划 | `CONTRACT_READY / API_READY / UI_READY / MOCK_READY` | CRUD、状态、进度、关联课时和学员详情接入完成；真实 Phase 9 联调未执行 |
 | 15 学员反馈 | `CONTRACT_READY / API_READY / UI_READY / MOCK_READY` | 已按 1.8.0 修正为正式 GET/POST `/feedback/`、不可变、无照片；真实联调未执行 |
 | 16 阶段报告 | `CONTRACT_READY / API_READY / UI_READY / MOCK_READY` | 已按 1.8.0 使用 GET 实时预览、User ID、正式统计结构；保存、发布、后端导出和分享由契约明确延期 |
-| 17 数据看板 | `NOT_STARTED / CONTRACT_DRAFT` | 无独立 dashboard 功能模块；契约仍 DRAFT |
-| 18 智能提醒 | `NOT_STARTED / CONTRACT_DRAFT` | 无 reminders/alerts 功能模块；契约仍 DRAFT |
+| 17 数据看板 | `PROVISIONAL_UI_READY / MOCK_READY / CONTRACT_DRAFT` | 独立 dashboard 模块、指标卡、七日趋势、今日课程、适配器与 Mock 已完成；统计口径仍待冻结 |
+| 18 智能提醒 | `PROVISIONAL_UI_READY / MOCK_READY / CONTRACT_DRAFT` | 独立 reminders 模块、未读筛选、已读/忽略操作、适配器与 Mock 已完成；枚举、角色和动作语义待冻结 |
 | 19 学员端 | `PARTIAL_UI` | 首页、课程发现、预约、考勤、资料和底部导航存在；训练历史、计划、反馈入口、报告入口仍未形成完整学员闭环 |
 | 20 测试打包部署 | `PARTIAL` | 单测、少量 E2E 骨架和生产构建存在；五角色 E2E、性能、Capacitor、Android/iOS、Docker/Nginx 未完成 |
 

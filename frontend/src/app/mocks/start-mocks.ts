@@ -16,6 +16,8 @@ import { classRecordsHandlers } from '@/features/class-records';
 import { trainingPlansHandlers } from '@/features/training-plans';
 import { feedbackHandlers } from '@/features/feedback';
 import { reportsHandlers } from '@/features/reports';
+import { dashboardHandlers } from '@/features/dashboard';
+import { remindersHandlers } from '@/features/reminders';
 
 const worker = setupWorker(
   ...healthHandlers,
@@ -35,6 +37,8 @@ const worker = setupWorker(
   ...trainingPlansHandlers,
   ...feedbackHandlers,
   ...reportsHandlers,
+  ...dashboardHandlers,
+  ...remindersHandlers,
 );
 
 export async function startMocks(): Promise<void> {

@@ -28,7 +28,8 @@ const allNavItems = [
   { label: '课时档案', key: 'class-records', to: '/admin/class-records' },
   { label: '训练计划', key: 'training-plans', to: '/admin/training-plans' },
   { label: '阶段报告', key: 'reports', to: '/admin/reports' },
-  { label: '数据看板', key: 'analytics' },
+  { label: '数据看板', key: 'analytics', to: '/admin/analytics' },
+  { label: '提醒中心', key: 'reminders', to: '/admin/reminders' },
 ];
 const navItems = computed(() =>
   allNavItems.filter(

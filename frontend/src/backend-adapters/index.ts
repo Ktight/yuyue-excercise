@@ -12,3 +12,5 @@ export * as bodyAssessmentsAdapter from './body-assessments.adapter';
 export * as schedulesAdapter from './schedules.adapter';
 export * as bookingsAdapter from './bookings.adapter';
 export * as attendanceAdapter from './attendance.adapter';
+export * as dashboardAdapter from './dashboard.adapter';
+export * as remindersAdapter from './reminders.adapter';
