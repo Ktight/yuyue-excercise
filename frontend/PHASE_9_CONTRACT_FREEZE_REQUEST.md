@@ -1,7 +1,7 @@
 # Phase 9 训练计划契约冻结请求
 
-更新日期：2026-07-23  
-前端基线分支：`frontend/phase-8-training-records`  
+更新日期：2026-07-23
+前端基线分支：`frontend/phase-8-training-records`
 当前结论：`BLOCKED_BY_DRAFT_CONTRACT`
 
 ## 当前可核实状态

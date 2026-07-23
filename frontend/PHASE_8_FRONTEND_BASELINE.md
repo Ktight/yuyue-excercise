@@ -1,7 +1,7 @@
 # Phase 8 前端实施基线
 
-更新日期：2026-07-23  
-契约版本：`1.6.0`  
+更新日期：2026-07-23
+契约版本：`1.6.0`
 分支：`frontend/phase-8-training-records`
 
 ## 准入结论
@@ -23,4 +23,3 @@
 - completed 记录不可编辑；Pose Sequence 固定为 warmup、main、cooldown。
 - 上传最大 10MB；前端预校验不替代后端校验。
 - 不实现 Phase 9 Training Plans，不修改 `backend/**` 或 `contracts/**`。
-
