@@ -197,6 +197,7 @@ def main():
         'class-records/update.request.json': 'ClassRecordUpdateRequest',
         'class-records/update.success.json': 'ClassRecordSuccessResponse',
         'class-records/complete.success.json': 'ClassRecordSuccessResponse',
+        'class-records/unlink.success.json': 'ClassRecordSuccessResponse',
         'class-records/batch-create.request.json': 'BatchClassRecordRequest',
         'class-records/batch-create.success.json': 'BatchClassRecordSuccessResponse',
         'class-media/list.success.json': 'ClassMediaListSuccessResponse',
@@ -212,6 +213,15 @@ def main():
         'class-templates/create.success.json': 'ClassTemplateSuccessResponse',
         'class-templates/update.request.json': 'ClassTemplateUpdateRequest',
         'class-templates/update.success.json': 'ClassTemplateSuccessResponse',
+        'training-plans/list.success.json': 'TrainingPlanListSuccessResponse',
+        'training-plans/detail.success.json': 'TrainingPlanDetailSuccessResponse',
+        'training-plans/create.request.json': 'TrainingPlanCreateRequest',
+        'training-plans/create.success.json': 'TrainingPlanSuccessResponse',
+        'training-plans/update.request.json': 'TrainingPlanUpdateRequest',
+        'training-plans/update.success.json': 'TrainingPlanSuccessResponse',
+        'training-plans/complete.success.json': 'TrainingPlanSuccessResponse',
+        'training-plans/pause.success.json': 'TrainingPlanSuccessResponse',
+        'training-plans/delete.success.json': 'EmptySuccessResponse',
     }
     for example in examples:
         value = json.loads(example.read_text(encoding='utf-8'))

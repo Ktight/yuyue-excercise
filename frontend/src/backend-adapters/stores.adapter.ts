@@ -67,3 +67,6 @@ export async function updateStore(id: number, value: Partial<StoreWriteInput>): 
 export function setStoreActive(id: number, active: boolean): Promise<Store> {
   return updateStore(id, { status: active ? 'active' : 'inactive' });
 }
+export async function deleteStore(id: number): Promise<void> {
+  await httpClient.delete(`/stores/${id}/`);
+}

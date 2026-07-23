@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.6.0",
+  "contract_version": "1.7.0",
   "modules": {
     "system": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "auth": {"contract": "CONTRACT_READY", "api": "API_READY"},
@@ -16,7 +16,7 @@
     "class_records": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "class_media": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "class_templates": {"contract": "CONTRACT_READY", "api": "API_READY"},
-    "training_plans": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "training_plans": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "feedback": {"contract": "DRAFT", "api": "NOT_STARTED"},
     "reports": {"contract": "DRAFT", "api": "NOT_STARTED"},
     "dashboards": {"contract": "DRAFT", "api": "NOT_STARTED"},

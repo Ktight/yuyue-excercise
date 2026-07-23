@@ -39,7 +39,29 @@ const ok = <T>(data: T, status = 200) =>
     HttpResponse.json({ code: 'OK', message: '', data }, { status }),
   miss = () => HttpResponse.json({ code: 'NOT_FOUND', message: '课堂记录不存在' }, { status: 404 });
 export const classRecordsHandlers = [
-  http.get('/api/class-records/', () => ok({ items, page: 1, page_size: 20, total: items.length })),
+  http.get('/api/class-records/', ({ request }) => {
+    const query = new URL(request.url).searchParams;
+    const page = Number(query.get('page') || 1);
+    const pageSize = Number(query.get('page_size') || 20);
+    const studentId = Number(query.get('student_id') || 0);
+    const trainerId = Number(query.get('trainer_id') || 0);
+    const dateFrom = query.get('date_from');
+    const dateTo = query.get('date_to');
+    const filtered = items.filter(
+      (item) =>
+        (!studentId || item.student === studentId) &&
+        (!trainerId || item.trainer === trainerId) &&
+        (!dateFrom || item.class_date >= dateFrom) &&
+        (!dateTo || item.class_date <= dateTo),
+    );
+    const start = (page - 1) * pageSize;
+    return ok({
+      items: filtered.slice(start, start + pageSize),
+      page,
+      page_size: pageSize,
+      total: filtered.length,
+    });
+  }),
   http.get('/api/class-records/:id/', ({ params }) => {
     const x = items.find((v) => v.id === Number(params.id));
     return x ? ok(x) : miss();
@@ -52,6 +74,12 @@ export const classRecordsHandlers = [
       ...base,
       id: items.length + 1,
       attendance: b.attendance_id,
+      plan:
+        b.plan === null
+          ? null
+          : b.plan
+            ? { id: b.plan, title: '演示训练计划', progress: 25 }
+            : base.plan,
       theme: b.theme,
       pose_sequence: b.pose_sequence,
       trainer_notes: b.trainer_notes ?? '',
@@ -79,6 +107,20 @@ export const classRecordsHandlers = [
     const completed: S['ClassRecord'] = { ...current, status: 'completed' };
     items.splice(index, 1, completed);
     return ok(completed);
+  }),
+  http.post('/api/class-records/:id/unlink/', ({ params }) => {
+    const index = items.findIndex((v) => v.id === Number(params.id));
+    if (index < 0) return miss();
+    const x = items[index];
+    if (!x) return miss();
+    if (!x.plan)
+      return HttpResponse.json(
+        { code: 'CONFLICT', message: '课堂记录尚未关联训练计划' },
+        { status: 409 },
+      );
+    const unlinked: S['ClassRecord'] = { ...x, plan: null };
+    items.splice(index, 1, unlinked);
+    return ok(unlinked);
   }),
   http.post('/api/training/batch-records/', () => ok({ created_count: 1, items: [items[0]] }, 201)),
   http.post('/api/upload/', () =>
@@ -112,6 +154,16 @@ export const classRecordsHandlers = [
     };
     (record.media as S['ClassMedia'][]).push(media);
     return ok(media, 201);
+  }),
+  http.patch('/api/class-records/:recordId/media/:mediaId/', async ({ params, request }) => {
+    const record = items.find((value) => value.id === Number(params.recordId));
+    if (!record) return miss();
+    const media = record.media.find((value) => value.id === Number(params.mediaId));
+    if (!media) return miss();
+    const body = (await request.json()) as S['ClassMediaUpdateRequest'];
+    if (body.caption !== undefined) media.caption = body.caption;
+    if (body.sort_order !== undefined) media.sort_order = body.sort_order;
+    return ok(media);
   }),
   http.delete('/api/class-records/:recordId/media/:mediaId/', ({ params }) => {
     const record = items.find((value) => value.id === Number(params.recordId));

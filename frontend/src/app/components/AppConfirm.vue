@@ -1,5 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+import { nextTick, ref, watch } from 'vue';
+
+const props = defineProps<{
   /** 是否显示弹窗 */
   visible: boolean;
   /** 标题 */
@@ -18,19 +20,44 @@ const emit = defineEmits<{
   confirm: [];
   cancel: [];
 }>();
+
+const dialog = ref<{ focus: () => void } | null>(null);
+
+watch(
+  () => props.visible,
+  async (visible) => {
+    if (!visible) return;
+    await nextTick();
+    dialog.value?.focus();
+  },
+);
 </script>
 
 <template>
   <Teleport to="body">
     <div v-if="visible" class="app-confirm-overlay" @click.self="emit('cancel')">
-      <div class="app-confirm" role="dialog" aria-modal="true">
-        <h3 v-if="title" class="app-confirm__title">{{ title }}</h3>
+      <div
+        ref="dialog"
+        class="app-confirm"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="title ? 'app-confirm-title' : undefined"
+        :aria-label="title ? undefined : '确认操作'"
+        tabindex="-1"
+        @keydown.esc="emit('cancel')"
+      >
+        <h3 v-if="title" id="app-confirm-title" class="app-confirm__title">{{ title }}</h3>
         <p v-if="message" class="app-confirm__message">{{ message }}</p>
         <div class="app-confirm__actions">
-          <button class="app-confirm__btn app-confirm__btn--cancel" @click="emit('cancel')">
+          <button
+            type="button"
+            class="app-confirm__btn app-confirm__btn--cancel"
+            @click="emit('cancel')"
+          >
             {{ cancelText || '取消' }}
           </button>
           <button
+            type="button"
             class="app-confirm__btn app-confirm__btn--confirm"
             :class="{ 'app-confirm__btn--danger': danger }"
             @click="emit('confirm')"

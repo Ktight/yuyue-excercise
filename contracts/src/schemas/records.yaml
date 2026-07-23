@@ -223,6 +223,21 @@ ClassMediaListSuccessResponse:
     message: {type: string}
     data: {$ref: '#/ClassMediaListData'}
 
+ClassRecordPlanSummary:
+  type: object
+  additionalProperties: false
+  required: [id, title, progress]
+  properties:
+    id: {type: integer, format: int64, minimum: 1, readOnly: true}
+    title: {type: string, readOnly: true}
+    progress:
+      type: number
+      format: float
+      minimum: 0
+      maximum: 100
+      readOnly: true
+      description: Current plan progress percentage.
+
 ClassRecord:
   type: object
   additionalProperties: false
@@ -238,7 +253,11 @@ ClassRecord:
     trainer: {type: integer, format: int64, minimum: 1, readOnly: true}
     trainer_name: {type: string, readOnly: true}
     store: {type: integer, format: int64, minimum: 1, readOnly: true}
-    plan: {type: integer, format: int64, minimum: 1, nullable: true}
+    plan:
+      nullable: true
+      readOnly: true
+      allOf:
+        - {$ref: '#/ClassRecordPlanSummary'}
     class_date: {type: string, format: date, readOnly: true}
     theme: {type: string, minLength: 1, maxLength: 200}
     session_number: {type: integer, minimum: 1, readOnly: true}
@@ -259,7 +278,12 @@ ClassRecordCreateRequest:
   required: [attendance_id, theme, pose_sequence]
   properties:
     attendance_id: {type: integer, format: int64, minimum: 1}
-    plan: {type: integer, format: int64, minimum: 1, nullable: true}
+    plan:
+      type: integer
+      format: int64
+      minimum: 1
+      nullable: true
+      description: Optional TrainingPlan ID. When omitted, the active plan is linked automatically; explicit null suppresses automatic linking.
     theme: {type: string, minLength: 1, maxLength: 200}
     pose_sequence: {$ref: '#/PoseSequence'}
     trainer_notes: {type: string, default: ''}
@@ -273,7 +297,6 @@ ClassRecordUpdateRequest:
   additionalProperties: false
   minProperties: 1
   properties:
-    plan: {type: integer, format: int64, minimum: 1, nullable: true}
     theme: {type: string, minLength: 1, maxLength: 200}
     pose_sequence: {$ref: '#/PoseSequence'}
     trainer_notes: {type: string}

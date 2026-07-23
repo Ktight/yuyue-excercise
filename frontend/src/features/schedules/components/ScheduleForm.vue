@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { toLocalDateInputValue } from '@/shared/date';
+import { getErrorMessage } from '@/shared/api';
 import type { Schedule, ScheduleWriteInput } from '@/features/schedules/model';
 import ScheduleResourceSelects from './ScheduleResourceSelects.vue';
 const props = defineProps<{
@@ -9,11 +11,11 @@ const props = defineProps<{
 const saving = ref(false),
   error = ref('');
 const form = reactive({
-  storeId: props.initial?.storeId ?? 1,
-  roomId: props.initial?.roomId ?? 1,
-  courseTemplateId: props.initial?.courseTemplateId ?? 1,
-  trainerId: props.initial?.trainerId ?? 1,
-  courseDate: props.initial?.courseDate ?? new Date().toISOString().slice(0, 10),
+  storeId: props.initial?.storeId ?? 0,
+  roomId: props.initial?.roomId ?? 0,
+  courseTemplateId: props.initial?.courseTemplateId ?? 0,
+  trainerId: props.initial?.trainerId ?? 0,
+  courseDate: props.initial?.courseDate ?? toLocalDateInputValue(),
   startTime: props.initial?.startTime.slice(0, 5) ?? '10:00',
   endTime: props.initial?.endTime.slice(0, 5) ?? '11:00',
   capacity: props.initial?.capacity ?? 8,
@@ -24,6 +26,22 @@ const form = reactive({
   status: props.initial?.status ?? 'published',
 });
 async function submit() {
+  if (!form.storeId || !form.roomId || !form.courseTemplateId || !form.trainerId) {
+    error.value = '请选择完整的门店、教室、课程和教练';
+    return;
+  }
+  if (form.endTime <= form.startTime) {
+    error.value = '结束时间必须晚于开始时间';
+    return;
+  }
+  if (
+    form.scheduleMode === 'recurring' &&
+    (!form.weekdays.length ||
+      form.weekdays.some((day) => !Number.isInteger(day) || day < 1 || day > 7))
+  ) {
+    error.value = '周期排课星期必须填写 1 至 7 的整数';
+    return;
+  }
   saving.value = true;
   error.value = '';
   try {
@@ -44,8 +62,8 @@ async function submit() {
           : null,
       status: form.status,
     });
-  } catch {
-    error.value = '保存失败，请检查冲突、时间和容量';
+  } catch (cause) {
+    error.value = getErrorMessage(cause, '保存失败，请检查冲突、时间和容量');
   } finally {
     saving.value = false;
   }
@@ -93,7 +111,7 @@ async function submit() {
         <option value="completed">已完成</option>
       </select></label
     >
-    <p v-if="error" class="error">{{ error }}</p>
+    <p v-if="error" class="error" role="alert">{{ error }}</p>
     <button :disabled="saving">{{ saving ? '保存中…' : '保存排课' }}</button>
   </form>
 </template>

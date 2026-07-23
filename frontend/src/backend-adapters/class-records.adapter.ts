@@ -22,7 +22,7 @@ export const mapClassRecord = (v: W): ClassRecord => ({
   trainerId: v.trainer,
   trainerName: v.trainer_name,
   storeId: v.store,
-  planId: v.plan ?? null,
+  plan: v.plan ? { id: v.plan.id, title: v.plan.title, progress: v.plan.progress } : null,
   classDate: v.class_date,
   theme: v.theme,
   sessionNumber: v.session_number,
@@ -67,7 +67,7 @@ export const mapClassRecord = (v: W): ClassRecord => ({
 });
 const body = (v: ClassRecordWriteInput): S['ClassRecordCreateRequest'] => ({
   attendance_id: v.attendanceId,
-  plan: v.planId,
+  ...(v.planId !== undefined ? { plan: v.planId } : {}),
   theme: v.theme,
   pose_sequence: v.poseSequence,
   trainer_notes: v.trainerNotes,
@@ -108,7 +108,6 @@ export async function createClassRecord(v: ClassRecordWriteInput) {
 }
 export async function updateClassRecord(id: number, v: ClassRecordUpdateInput) {
   const b: S['ClassRecordUpdateRequest'] = {
-    plan: v.planId,
     theme: v.theme,
     pose_sequence: v.poseSequence,
     trainer_notes: v.trainerNotes,
@@ -120,6 +119,12 @@ export async function updateClassRecord(id: number, v: ClassRecordUpdateInput) {
   const { data } = await httpClient.patch<S['ClassRecordSuccessResponse']>(
     `/class-records/${id}/`,
     b,
+  );
+  return mapClassRecord(data.data);
+}
+export async function unlinkClassRecordPlan(id: number) {
+  const { data } = await httpClient.post<S['ClassRecordSuccessResponse']>(
+    `/class-records/${id}/unlink/`,
   );
   return mapClassRecord(data.data);
 }

@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { getErrorMessage } from '@/shared/api';
 import { PoseSequenceEditor } from '@/features/class-templates';
 import type { ClassRecord, ClassRecordWriteInput } from '@/features/class-records/model';
+import ClassRecordAttendanceSelect from './ClassRecordAttendanceSelect.vue';
+import ClassRecordPlanSelect from './ClassRecordPlanSelect.vue';
+import type { Attendance } from '@/features/attendance';
 const p = defineProps<{
   initial?: ClassRecord;
   attendanceId?: number;
@@ -10,7 +14,7 @@ const p = defineProps<{
 }>();
 const form = reactive<ClassRecordWriteInput>({
     attendanceId: p.initial?.attendanceId ?? p.attendanceId ?? 0,
-    planId: p.initial?.planId ?? null,
+    planId: p.initial?.plan?.id,
     theme: p.initial?.theme ?? '',
     poseSequence: p.initial?.poseSequence ?? { warmup: [], main: [], cooldown: [] },
     trainerNotes: p.initial?.trainerNotes ?? '',
@@ -22,9 +26,10 @@ const form = reactive<ClassRecordWriteInput>({
   tags = ref(form.improvementTags.join('、')),
   busy = ref(false),
   error = ref('');
+const selectedStudentUserId = ref<number>();
 async function submit() {
   if (!form.attendanceId || !form.theme.trim()) {
-    error.value = '请填写考勤编号和课堂主题';
+    error.value = '请选择到课学员并填写课堂主题';
     return;
   }
   busy.value = true;
@@ -36,8 +41,8 @@ async function submit() {
         .map((x) => x.trim())
         .filter(Boolean),
     });
-  } catch {
-    error.value = '课堂记录保存失败';
+  } catch (cause) {
+    error.value = getErrorMessage(cause, '课堂记录保存失败');
   } finally {
     busy.value = false;
   }
@@ -47,14 +52,16 @@ async function submit() {
   <form @submit.prevent="submit">
     <p v-if="error" role="alert">{{ error }}</p>
     <div class="grid">
-      <label
-        >考勤编号<input
-          v-model.number="form.attendanceId"
-          type="number"
-          min="1"
-          required
-          :disabled="readonly || Boolean(initial)" /></label
-      ><label
+      <ClassRecordAttendanceSelect
+        v-model="form.attendanceId"
+        :disabled="readonly || Boolean(initial)"
+        @select="(attendance: Attendance | null) => (selectedStudentUserId = attendance?.studentId)"
+      /><ClassRecordPlanSelect
+        v-if="!initial"
+        v-model="form.planId"
+        :student-user-id="selectedStudentUserId"
+        :disabled="readonly"
+      /><label
         >课堂主题<input v-model="form.theme" required maxlength="200" :disabled="readonly" /></label
       ><label
         >完成评分<input

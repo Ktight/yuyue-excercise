@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { getErrorMessage } from '@/shared/api';
 import type { ClassTemplate, ClassTemplateWriteInput } from '@/features/class-templates/model';
 import PoseSequenceEditor from './PoseSequenceEditor.vue';
+import ClassTemplateResourceSelects from './ClassTemplateResourceSelects.vue';
 const props = defineProps<{
   initial?: ClassTemplate;
   readonly?: boolean;
@@ -22,7 +24,7 @@ const saving = ref(false),
   notice = ref('');
 async function submit() {
   if (!form.trainerId || !form.name.trim()) {
-    error.value = '请填写教练编号和模板名称';
+    error.value = '请选择教练并填写模板名称';
     return;
   }
   if (
@@ -39,8 +41,8 @@ async function submit() {
   try {
     await props.onSubmit({ ...form, name: form.name.trim() });
     notice.value = '模板已保存';
-  } catch {
-    error.value = '模板保存失败，请检查字段或权限';
+  } catch (cause) {
+    error.value = getErrorMessage(cause, '模板保存失败，请检查字段或权限');
   } finally {
     saving.value = false;
   }
@@ -54,27 +56,17 @@ async function submit() {
       <label
         >模板名称<input v-model="form.name" required maxlength="200" :disabled="readonly"
       /></label>
-      <label
-        >教练编号<input
-          v-model.number="form.trainerId"
-          type="number"
-          min="1"
-          required
-          :disabled="readonly"
-      /></label>
+      <ClassTemplateResourceSelects
+        v-model:trainer-id="form.trainerId"
+        v-model:course-template-id="form.courseTemplateId"
+        :disabled="readonly"
+      />
       <label
         >共享范围<select v-model="form.scope" :disabled="readonly">
           <option value="personal">个人模板</option>
           <option value="company_shared">公司共享</option>
         </select></label
       >
-      <label
-        >关联课程模板编号（可选）<input
-          v-model.number="form.courseTemplateId"
-          type="number"
-          min="1"
-          :disabled="readonly"
-      /></label>
     </div>
     <PoseSequenceEditor v-model="form.poseSequence" :disabled="readonly" />
     <label

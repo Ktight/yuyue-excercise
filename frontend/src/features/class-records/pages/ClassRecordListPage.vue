@@ -5,6 +5,8 @@ import { AppEmpty, AppError, AppLoading, AppPage, AppPagination } from '@/app/co
 import { useAuthStore } from '@/features/auth';
 import { fetchClassRecords } from '@/features/class-records/api';
 import type { ClassRecord } from '@/features/class-records/model';
+import type { ClassRecordQuery } from '@/features/class-records/model';
+import { ClassRecordFilters } from '@/features/class-records/components';
 const router = useRouter(),
   auth = useAuthStore(),
   items = ref<ClassRecord[]>([]),
@@ -12,11 +14,13 @@ const router = useRouter(),
   error = ref(''),
   page = ref(1),
   total = ref(0),
+  filters = ref<ClassRecordQuery>({}),
   prefix = computed(() => (auth.userRole === 'trainer' ? '/trainer' : '/admin'));
 async function load() {
   loading.value = true;
   try {
-    const r = await fetchClassRecords({ page: page.value, pageSize: 20 });
+    error.value = '';
+    const r = await fetchClassRecords({ ...filters.value, page: page.value, pageSize: 20 });
     items.value = r.items;
     total.value = r.total;
   } catch {
@@ -26,13 +30,22 @@ async function load() {
   }
 }
 onMounted(load);
+function search() {
+  page.value = 1;
+  void load();
+}
+function reset() {
+  filters.value = {};
+  search();
+}
 </script>
 <template>
   <AppPage title="课时档案"
     ><template v-if="auth.userRole === 'trainer'" #header-extra
       ><button @click="router.push('/trainer/class-records/new')">新建记录</button>
       <button @click="router.push('/trainer/class-records/batch')">批量建档</button></template
-    ><AppLoading v-if="loading" /><AppError
+    ><ClassRecordFilters v-model="filters" @submit="search" @reset="reset" /><AppLoading
+      v-if="loading" /><AppError
       v-else-if="error"
       :message="error"
       show-retry

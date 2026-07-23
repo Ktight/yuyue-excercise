@@ -54,3 +54,6 @@ export async function updateRoom(id: number, value: Partial<RoomWriteInput>): Pr
 export function setRoomActive(id: number, active: boolean): Promise<Room> {
   return updateRoom(id, { status: active ? 'active' : 'inactive' });
 }
+export async function deleteRoom(id: number): Promise<void> {
+  await httpClient.delete(`/rooms/${id}/`);
+}

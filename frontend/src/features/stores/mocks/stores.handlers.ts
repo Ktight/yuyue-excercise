@@ -46,4 +46,10 @@ export const storesHandlers = [
     Object.assign(item, (await request.json()) as Update);
     return HttpResponse.json({ code: 'OK', message: '', data: item });
   }),
+  http.delete('/api/stores/:id/', ({ params }) => {
+    const index = MOCK_STORES.findIndex((v) => v.id === Number(params.id));
+    if (index < 0) return missing();
+    MOCK_STORES.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];

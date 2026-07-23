@@ -2,13 +2,17 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { AppPage } from '@/app/components';
+import { getErrorMessage } from '@/shared/api';
 import { batchCreateClassRecords } from '@/features/class-records/api';
+import { BatchStudentOverrides } from '@/features/class-records/components';
+import type { BatchStudentOverride } from '@/features/class-records/model';
 import { PoseSequenceEditor } from '@/features/class-templates';
 import { ScheduleSelect } from '@/features/schedules';
 const router = useRouter(),
   scheduleId = ref<number>(),
   busy = ref(false),
   error = ref(''),
+  studentOverrides = ref<Record<string, BatchStudentOverride>>({}),
   form = reactive({
     theme: '',
     poseSequence: { warmup: [], main: [], cooldown: [] },
@@ -25,11 +29,11 @@ async function submit() {
     await batchCreateClassRecords({
       scheduleId: scheduleId.value,
       commonData: form,
-      studentOverrides: {},
+      studentOverrides: studentOverrides.value,
     });
     await router.push('/trainer/class-records');
-  } catch {
-    error.value = '批量创建失败；请确认考勤状态及是否已建档';
+  } catch (cause) {
+    error.value = getErrorMessage(cause, '批量创建失败；请确认考勤状态及是否已建档');
   } finally {
     busy.value = false;
   }
@@ -40,11 +44,15 @@ async function submit() {
     ><form @submit.prevent="submit">
       <p v-if="error" role="alert">{{ error }}</p>
       <ScheduleSelect v-model="scheduleId" /><label
-        >课堂主题<input v-model="form.theme" required /></label
+        >课堂主题<input v-model="form.theme" required maxlength="200" /></label
       ><PoseSequenceEditor v-model="form.poseSequence" /><label
         >共同教练记录<textarea v-model="form.trainerNotes" rows="3" /></label
       ><label>共同课后作业<textarea v-model="form.homework" rows="3" /></label
-      ><button :disabled="busy">{{ busy ? '创建中…' : '为已到课学员批量创建' }}</button>
+      ><BatchStudentOverrides v-model="studentOverrides" :schedule-id="scheduleId" /><button
+        :disabled="busy"
+      >
+        {{ busy ? '创建中…' : '为已到课学员批量创建' }}
+      </button>
     </form></AppPage
   >
 </template>

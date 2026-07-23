@@ -11,7 +11,7 @@ import {
 import type { CourseTemplate } from '@/features/course-templates/model';
 import { STATUS_LABELS } from '@/features/course-templates/model';
 import { CourseTemplateForm } from '@/features/course-templates/components';
-import { AppPage, AppLoading, AppError } from '@/app/components';
+import { AppPage, AppLoading, AppError, confirmAction } from '@/app/components';
 
 const route = useRoute();
 const router = useRouter();
@@ -55,7 +55,12 @@ async function handleDelete() {
   if (
     !canManage.value ||
     deleting.value ||
-    !globalThis.confirm('确认永久删除该课程模板？有关联排课时后端可能拒绝删除。')
+    !(await confirmAction({
+      title: '永久删除课程模板',
+      message: '删除后无法恢复；存在关联排课时系统会拒绝删除。',
+      confirmText: '永久删除',
+      danger: true,
+    }))
   )
     return;
   deleting.value = true;

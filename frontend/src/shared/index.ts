@@ -14,3 +14,4 @@ export { httpClient, ApiError, NetworkError, tokenManager } from './api';
 export { worker } from './mocks/browser';
 export { server } from './mocks/server';
 export { healthHandlers } from './mocks/handlers';
+export { toLocalDateInputValue } from './date';

@@ -10,6 +10,11 @@ export interface ClassRecordMedia {
   annotations: Record<string, unknown> | null;
   sortOrder: number;
 }
+export interface ClassRecordPlanSummary {
+  id: number;
+  title: string;
+  progress: number;
+}
 export interface ClassRecord {
   id: number;
   companyId: number;
@@ -21,7 +26,7 @@ export interface ClassRecord {
   trainerId: number;
   trainerName: string;
   storeId: number;
-  planId: number | null;
+  plan: ClassRecordPlanSummary | null;
   classDate: string;
   theme: string;
   sessionNumber: number;
@@ -53,7 +58,7 @@ export interface ClassRecordListResult {
 }
 export interface ClassRecordWriteInput {
   attendanceId: number;
-  planId: number | null;
+  planId?: number | null;
   theme: string;
   poseSequence: PoseSequence;
   trainerNotes: string;
@@ -62,19 +67,19 @@ export interface ClassRecordWriteInput {
   improvementTags: string[];
   nextFocus: string;
 }
-export type ClassRecordUpdateInput = Partial<Omit<ClassRecordWriteInput, 'attendanceId'>>;
+export type ClassRecordUpdateInput = Partial<
+  Omit<ClassRecordWriteInput, 'attendanceId' | 'planId'>
+>;
+export interface BatchStudentOverride {
+  completionRating?: number;
+  trainerNotes?: string;
+  improvementTags?: string[];
+  homework?: string;
+}
 export interface BatchClassRecordInput {
   scheduleId: number;
   commonData: { theme: string; poseSequence: PoseSequence; trainerNotes: string; homework: string };
-  studentOverrides: Record<
-    string,
-    {
-      completionRating?: number;
-      trainerNotes?: string;
-      improvementTags?: string[];
-      homework?: string;
-    }
-  >;
+  studentOverrides: Record<string, BatchStudentOverride>;
 }
 export interface BatchClassRecordResult {
   createdCount: number;

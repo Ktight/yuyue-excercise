@@ -1,6 +1,6 @@
 import type { components } from '@/generated/api-types';
 import { httpClient } from '@/shared/api';
-import type { ClassMedia, UploadResult } from '@/features/class-media/model';
+import type { ClassMedia, ClassMediaUpdateInput, UploadResult } from '@/features/class-media/model';
 type S = components['schemas'];
 const map = (v: S['ClassMedia']): ClassMedia => ({
   id: v.id,
@@ -51,4 +51,15 @@ export async function attachClassMedia(
 }
 export async function deleteClassMedia(recordId: number, id: number) {
   await httpClient.delete(`/class-records/${recordId}/media/${id}/`);
+}
+export async function updateClassMedia(recordId: number, id: number, v: ClassMediaUpdateInput) {
+  const body: S['ClassMediaUpdateRequest'] = {
+    caption: v.caption,
+    sort_order: v.sortOrder,
+  };
+  const { data } = await httpClient.patch<S['ClassMediaSuccessResponse']>(
+    `/class-records/${recordId}/media/${id}/`,
+    body,
+  );
+  return map(data.data);
 }

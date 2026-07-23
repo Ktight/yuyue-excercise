@@ -381,7 +381,7 @@ export interface paths {
     /** @description Company-scoped history ordered by newest class date. Only super admins may select company_id. */
     get: operations['listClassRecords'];
     put?: never;
-    /** @description Creates one draft record from a present/late attendance owned by the authenticated trainer. */
+    /** @description Creates one draft record from a present/late attendance owned by the authenticated trainer. If plan is omitted, the student's active plan is linked and session_number becomes the existing linked-record count plus one. */
     post: operations['createClassRecord'];
     delete?: never;
     options?: never;
@@ -421,6 +421,25 @@ export interface paths {
     put?: never;
     /** @description The owning trainer transitions a draft record to completed. Repeating the action returns conflict. */
     post: operations['completeClassRecord'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/class-records/{record_id}/unlink/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        record_id: number;
+      };
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description The owning trainer removes the TrainingPlan link while retaining the ClassRecord. This relationship-only operation is permitted for draft and completed records; an already-unlinked record returns conflict. */
+    post: operations['unlinkClassRecordPlan'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1226,11 +1245,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getTrainingPlans'];
+    /** @description Company-scoped plans ordered by newest creation time. Trainers see only plans they created; only super admins may select company_id. */
+    get: operations['listTrainingPlans'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postTrainingPlans'];
+    /** @description Creates a trainer-owned plan. Company and trainer are inferred from the authenticated user. A student may have at most one active plan. */
+    post: operations['createTrainingPlan'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1246,34 +1265,16 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getTrainingPlansPlanId'];
+    /** @description Returns plan progress and a paginated linked-record collection. Trainers can retrieve only their own plans. */
+    get: operations['retrieveTrainingPlan'];
     put?: never;
     post?: never;
-    delete?: never;
+    /** @description Deletes a trainer-owned plan. Existing ClassRecords are retained and unlinked through the nullable foreign key. */
+    delete: operations['deleteTrainingPlan'];
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchTrainingPlansPlanId'];
-    trace?: never;
-  };
-  '/api/training-plans/{plan_id}/activate/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        plan_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postTrainingPlansPlanIdActivate'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
+    /** @description Only the trainer who created the plan may update it. */
+    patch: operations['updateTrainingPlan'];
     trace?: never;
   };
   '/api/training-plans/{plan_id}/complete/': {
@@ -1287,15 +1288,15 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postTrainingPlansPlanIdComplete'];
+    /** @description The owning trainer changes an active or paused plan to completed. Repeating the action returns conflict. */
+    post: operations['completeTrainingPlan'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/training-plans/{plan_id}/progress/': {
+  '/api/training-plans/{plan_id}/pause/': {
     parameters: {
       query?: never;
       header?: never;
@@ -1304,10 +1305,10 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getTrainingPlansPlanIdProgress'];
+    get?: never;
     put?: never;
-    post?: never;
+    /** @description The owning trainer changes an active plan to paused. Completed or already-paused plans return conflict. */
+    post: operations['pauseTrainingPlan'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1915,36 +1916,139 @@ export interface components {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      readonly company_id: number;
+      readonly company: number;
+      /**
+       * Format: int64
+       * @description StudentProfile primary key, not accounts.User ID.
+       */
+      student: number;
+      readonly student_name: string;
       /** Format: int64 */
-      student_id: number;
-      /** Format: int64 */
-      trainer_id: number;
-      name: string;
-      /** Format: date */
-      starts_on: string;
-      /** Format: date */
-      ends_on: string;
+      readonly trainer: number;
+      readonly trainer_name: string;
+      title: string;
+      /**
+       * Format: date
+       * @description Inclusive first date used by progress calculations.
+       */
+      start_date: string;
+      /**
+       * Format: date
+       * @description Inclusive last date; must not precede start_date.
+       */
+      end_date: string;
+      /** @default 2 */
+      target_frequency_per_week: number;
+      goal_description: string;
+      /** @default [] */
+      focus_tags: string[];
       /** @enum {string} */
-      status: 'draft' | 'active' | 'completed' | 'cancelled';
-      stages: Record<string, never>[];
+      status: 'active' | 'completed' | 'paused';
+      /** @description Number of linked ClassRecords whose status is completed. */
+      readonly completed_sessions_count: number;
+      /**
+       * Format: float
+       * @description Completed sessions divided by ceil(inclusive days / 7) times weekly frequency, capped at 100 and rounded to two decimals.
+       */
+      readonly progress_percentage: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
     };
-    Feedback: {
+    TrainingPlanDetail: {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      readonly company_id: number;
+      readonly company: number;
+      /**
+       * Format: int64
+       * @description StudentProfile primary key, not accounts.User ID.
+       */
+      student: number;
+      readonly student_name: string;
       /** Format: int64 */
-      class_record_id: number;
-      /** Format: int64 */
-      student_id: number;
+      readonly trainer: number;
+      readonly trainer_name: string;
+      title: string;
+      /** Format: date */
+      start_date: string;
+      /** Format: date */
+      end_date: string;
+      /** @default 2 */
+      target_frequency_per_week: number;
+      goal_description: string;
+      focus_tags: string[];
       /** @enum {string} */
-      feeling: 'great' | 'good' | 'normal' | 'tired' | 'uncomfortable';
-      rating: number;
-      comment: string | null;
-      media: components['schemas']['MediaResource'][];
+      status: 'active' | 'completed' | 'paused';
+      readonly completed_sessions_count: number;
+      /** Format: float */
+      readonly progress_percentage: number;
+      linked_records: components['schemas']['ClassRecordListData'];
       /** Format: date-time */
       readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    TrainingPlanCreateRequest: {
+      /**
+       * Format: int64
+       * @description StudentProfile primary key in the authenticated trainer's company.
+       */
+      student: number;
+      title: string;
+      /** Format: date */
+      start_date: string;
+      /** Format: date */
+      end_date: string;
+      /** @default 2 */
+      target_frequency_per_week: number;
+      goal_description: string;
+      /** @default [] */
+      focus_tags: string[];
+      /** @enum {string} */
+      status: 'active' | 'completed' | 'paused';
+    };
+    TrainingPlanUpdateRequest: {
+      /**
+       * Format: int64
+       * @description StudentProfile primary key in the authenticated trainer's company.
+       */
+      student?: number;
+      title?: string;
+      /** Format: date */
+      start_date?: string;
+      /** Format: date */
+      end_date?: string;
+      target_frequency_per_week?: number;
+      goal_description?: string;
+      focus_tags?: string[];
+      /** @enum {string} */
+      status?: 'active' | 'completed' | 'paused';
+    };
+    TrainingPlanSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['TrainingPlan'];
+    };
+    TrainingPlanDetailSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['TrainingPlanDetail'];
+    };
+    TrainingPlanListData: {
+      items: components['schemas']['TrainingPlan'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    TrainingPlanListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['TrainingPlanListData'];
     };
     Attendance: {
       /** Format: int64 */
@@ -2140,6 +2244,16 @@ export interface components {
       message: string;
       data: components['schemas']['ClassMediaListData'];
     };
+    ClassRecordPlanSummary: {
+      /** Format: int64 */
+      readonly id: number;
+      readonly title: string;
+      /**
+       * Format: float
+       * @description Current plan progress percentage.
+       */
+      readonly progress: number;
+    };
     ClassRecord: {
       /** Format: int64 */
       readonly id: number;
@@ -2159,8 +2273,7 @@ export interface components {
       readonly trainer_name: string;
       /** Format: int64 */
       readonly store: number;
-      /** Format: int64 */
-      plan: number | null;
+      readonly plan: components['schemas']['ClassRecordPlanSummary'] | null;
       /** Format: date */
       readonly class_date: string;
       theme: string;
@@ -2185,7 +2298,10 @@ export interface components {
     ClassRecordCreateRequest: {
       /** Format: int64 */
       attendance_id: number;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description Optional TrainingPlan ID. When omitted, the active plan is linked automatically; explicit null suppresses automatic linking.
+       */
       plan?: number | null;
       theme: string;
       pose_sequence: components['schemas']['PoseSequence'];
@@ -2200,8 +2316,6 @@ export interface components {
       next_focus: string;
     };
     ClassRecordUpdateRequest: {
-      /** Format: int64 */
-      plan?: number | null;
       theme?: string;
       pose_sequence?: components['schemas']['PoseSequence'];
       trainer_notes?: string;
@@ -2804,15 +2918,6 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 内部错误，不泄露 traceback 或配置 */
-    ServerError: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
     /** @description 未认证或令牌无效 */
     Unauthorized: {
       headers: {
@@ -2822,8 +2927,8 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 资源不存在或为避免跨租户枚举而隐藏 */
-    NotFound: {
+    /** @description 唯一性或资源状态冲突 */
+    Conflict: {
       headers: {
         [name: string]: unknown;
       };
@@ -2831,8 +2936,17 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 唯一性或资源状态冲突 */
-    Conflict: {
+    /** @description 内部错误，不泄露 traceback 或配置 */
+    ServerError: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 资源不存在或为避免跨租户枚举而隐藏 */
+    NotFound: {
       headers: {
         [name: string]: unknown;
       };
@@ -3777,6 +3891,32 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Class record completed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ClassRecordSuccessResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+      409: components['responses']['Conflict'];
+    };
+  };
+  unlinkClassRecordPlan: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        record_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Class record unlinked. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -5769,33 +5909,39 @@ export interface operations {
       500: components['responses']['ServerError'];
     };
   };
-  getTrainingPlans: {
+  listTrainingPlans: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        /** @description StudentProfile primary key. */
+        student_id?: number;
+        trainer_id?: number;
+        status?: 'active' | 'completed' | 'paused';
+        /** @description Super admin only. */
+        company_id?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Training-plan list. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['TrainingPlanListSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postTrainingPlans: {
+  createTrainingPlan: {
     parameters: {
       query?: never;
       header?: never;
@@ -5804,28 +5950,54 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['TrainingPlanCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Training plan created. */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['TrainingPlanSuccessResponse'];
+        };
+      };
+      400: components['responses']['BadRequest'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  retrieveTrainingPlan: {
+    parameters: {
+      query?: {
+        linked_records_page?: number;
+        linked_records_page_size?: number;
+      };
+      header?: never;
+      path: {
+        plan_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Training-plan detail. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TrainingPlanDetailSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getTrainingPlansPlanId: {
+  deleteTrainingPlan: {
     parameters: {
       query?: never;
       header?: never;
@@ -5836,24 +6008,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Training plan deleted. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['EmptySuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchTrainingPlansPlanId: {
+  updateTrainingPlan: {
     parameters: {
       query?: never;
       header?: never;
@@ -5864,92 +6033,26 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['TrainingPlanUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Training plan updated. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['TrainingPlanSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postTrainingPlansPlanIdActivate: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        plan_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postTrainingPlansPlanIdComplete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        plan_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getTrainingPlansPlanIdProgress: {
+  completeTrainingPlan: {
     parameters: {
       query?: never;
       header?: never;
@@ -5960,21 +6063,45 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Training plan completed. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['TrainingPlanSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
+    };
+  };
+  pauseTrainingPlan: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        plan_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Training plan paused. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TrainingPlanSuccessResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+      409: components['responses']['Conflict'];
     };
   };
   usersList: {

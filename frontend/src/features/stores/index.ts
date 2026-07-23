@@ -1,4 +1,11 @@
-export { fetchStores, fetchStore, createStore, updateStore, setStoreActive } from './api';
+export {
+  fetchStores,
+  fetchStore,
+  createStore,
+  updateStore,
+  setStoreActive,
+  deleteStore,
+} from './api';
 export { StoreList, StoreForm, StoreSelect } from './components';
 export { storesRoutes } from './routes';
 export type { Store, StoreWriteInput, StoreListQuery, StoreListResult } from './model';

@@ -1,28 +1,178 @@
 TrainingPlan:
   type: object
   additionalProperties: false
-  required: [id, company_id, student_id, trainer_id, name, starts_on, ends_on, status, stages]
+  required:
+    - id
+    - company
+    - student
+    - student_name
+    - trainer
+    - trainer_name
+    - title
+    - start_date
+    - end_date
+    - target_frequency_per_week
+    - goal_description
+    - focus_tags
+    - status
+    - completed_sessions_count
+    - progress_percentage
+    - created_at
+    - updated_at
   properties:
     id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    student_id: {type: integer, format: int64, minimum: 1}
-    trainer_id: {type: integer, format: int64, minimum: 1}
-    name: {type: string}
-    starts_on: {type: string, format: date}
-    ends_on: {type: string, format: date}
-    status: {type: string, enum: [draft, active, completed, cancelled]}
-    stages: {type: array, items: {type: object}}
-Feedback:
+    company: {type: integer, format: int64, minimum: 1, readOnly: true}
+    student:
+      type: integer
+      format: int64
+      minimum: 1
+      description: StudentProfile primary key, not accounts.User ID.
+    student_name: {type: string, readOnly: true}
+    trainer: {type: integer, format: int64, minimum: 1, readOnly: true}
+    trainer_name: {type: string, readOnly: true}
+    title: {type: string, minLength: 1, maxLength: 200}
+    start_date:
+      type: string
+      format: date
+      description: Inclusive first date used by progress calculations.
+    end_date:
+      type: string
+      format: date
+      description: Inclusive last date; must not precede start_date.
+    target_frequency_per_week: {type: integer, minimum: 1, default: 2}
+    goal_description: {type: string}
+    focus_tags: {type: array, items: {type: string}, default: []}
+    status: {type: string, enum: [active, completed, paused]}
+    completed_sessions_count:
+      type: integer
+      minimum: 0
+      readOnly: true
+      description: Number of linked ClassRecords whose status is completed.
+    progress_percentage:
+      type: number
+      format: float
+      minimum: 0
+      maximum: 100
+      readOnly: true
+      description: Completed sessions divided by ceil(inclusive days / 7) times weekly frequency, capped at 100 and rounded to two decimals.
+    created_at: {type: string, format: date-time, readOnly: true}
+    updated_at: {type: string, format: date-time, readOnly: true}
+
+TrainingPlanDetail:
   type: object
   additionalProperties: false
-  required: [id, company_id, class_record_id, student_id, feeling, rating, comment, media, created_at]
+  required:
+    - id
+    - company
+    - student
+    - student_name
+    - trainer
+    - trainer_name
+    - title
+    - start_date
+    - end_date
+    - target_frequency_per_week
+    - goal_description
+    - focus_tags
+    - status
+    - completed_sessions_count
+    - progress_percentage
+    - linked_records
+    - created_at
+    - updated_at
   properties:
     id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    class_record_id: {type: integer, format: int64, minimum: 1}
-    student_id: {type: integer, format: int64, minimum: 1}
-    feeling: {type: string, enum: [great, good, normal, tired, uncomfortable]}
-    rating: {type: integer, minimum: 1, maximum: 5}
-    comment: {type: string, nullable: true}
-    media: {type: array, items: {$ref: './common.yaml#/MediaResource'}}
+    company: {type: integer, format: int64, minimum: 1, readOnly: true}
+    student:
+      type: integer
+      format: int64
+      minimum: 1
+      description: StudentProfile primary key, not accounts.User ID.
+    student_name: {type: string, readOnly: true}
+    trainer: {type: integer, format: int64, minimum: 1, readOnly: true}
+    trainer_name: {type: string, readOnly: true}
+    title: {type: string, minLength: 1, maxLength: 200}
+    start_date: {type: string, format: date}
+    end_date: {type: string, format: date}
+    target_frequency_per_week: {type: integer, minimum: 1, default: 2}
+    goal_description: {type: string}
+    focus_tags: {type: array, items: {type: string}}
+    status: {type: string, enum: [active, completed, paused]}
+    completed_sessions_count: {type: integer, minimum: 0, readOnly: true}
+    progress_percentage: {type: number, format: float, minimum: 0, maximum: 100, readOnly: true}
+    linked_records: {$ref: './records.yaml#/ClassRecordListData'}
     created_at: {type: string, format: date-time, readOnly: true}
+    updated_at: {type: string, format: date-time, readOnly: true}
+
+TrainingPlanCreateRequest:
+  type: object
+  additionalProperties: false
+  required: [student, title, start_date, end_date, goal_description, status]
+  properties:
+    student:
+      type: integer
+      format: int64
+      minimum: 1
+      description: StudentProfile primary key in the authenticated trainer's company.
+    title: {type: string, minLength: 1, maxLength: 200}
+    start_date: {type: string, format: date}
+    end_date: {type: string, format: date}
+    target_frequency_per_week: {type: integer, minimum: 1, default: 2}
+    goal_description: {type: string}
+    focus_tags: {type: array, items: {type: string}, default: []}
+    status: {type: string, enum: [active, completed, paused]}
+
+TrainingPlanUpdateRequest:
+  type: object
+  additionalProperties: false
+  minProperties: 1
+  properties:
+    student:
+      type: integer
+      format: int64
+      minimum: 1
+      description: StudentProfile primary key in the authenticated trainer's company.
+    title: {type: string, minLength: 1, maxLength: 200}
+    start_date: {type: string, format: date}
+    end_date: {type: string, format: date}
+    target_frequency_per_week: {type: integer, minimum: 1}
+    goal_description: {type: string}
+    focus_tags: {type: array, items: {type: string}}
+    status: {type: string, enum: [active, completed, paused]}
+
+TrainingPlanSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/TrainingPlan'}
+
+TrainingPlanDetailSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/TrainingPlanDetail'}
+
+TrainingPlanListData:
+  type: object
+  additionalProperties: false
+  required: [items, page, page_size, total]
+  properties:
+    items: {type: array, items: {$ref: '#/TrainingPlan'}}
+    page: {type: integer, minimum: 1}
+    page_size: {type: integer, minimum: 1, maximum: 100}
+    total: {type: integer, minimum: 0}
+
+TrainingPlanListSuccessResponse:
+  type: object
+  additionalProperties: false
+  required: [code, message, data]
+  properties:
+    code: {type: string, enum: [OK]}
+    message: {type: string}
+    data: {$ref: '#/TrainingPlanListData'}

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-export type StudentDetailTab = 'info' | 'membership' | 'assessment';
+export type StudentDetailTab = 'info' | 'membership' | 'assessment' | 'training-plans';
 defineProps<{ modelValue: StudentDetailTab }>();
 defineEmits<{ 'update:modelValue': [StudentDetailTab] }>();
 const tabs = [
   { value: 'info', label: '档案信息' },
   { value: 'membership', label: '会员资格' },
   { value: 'assessment', label: '身体评估' },
+  { value: 'training-plans', label: '训练规划' },
 ] as const;
 </script>
 <template>
@@ -23,10 +24,12 @@ const tabs = [
 <style scoped>
 .tabs {
   display: flex;
+  overflow-x: auto;
   margin-bottom: var(--space-6);
   border-bottom: 2px solid var(--color-border);
 }
 button {
+  flex: 0 0 auto;
   padding: var(--space-3) var(--space-4);
   background: none;
   border: 0;

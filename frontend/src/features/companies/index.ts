@@ -4,6 +4,7 @@ export {
   createCompany,
   updateCompany,
   setCompanyActive,
+  deleteCompany,
 } from './api';
 export { CompanyList, CompanyForm, CompanySelect } from './components';
 export { companiesRoutes } from './routes';

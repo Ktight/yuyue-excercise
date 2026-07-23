@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { getErrorMessage } from '@/shared/api';
+import { toLocalDateInputValue } from '@/shared/date';
 import type { BodyAssessment, BodyAssessmentWriteInput } from '@/features/body-assessments/model';
 const props = defineProps<{
   studentId: number;
@@ -9,7 +11,7 @@ const props = defineProps<{
 const saving = ref(false),
   error = ref('');
 const form = reactive({
-  assessDate: props.initial?.assessDate ?? new Date().toISOString().slice(0, 10),
+  assessDate: props.initial?.assessDate ?? toLocalDateInputValue(),
   height: props.initial?.height ?? null,
   weight: props.initial?.weight ?? null,
   flexibilityScore: props.initial?.flexibilityScore ?? null,
@@ -24,8 +26,8 @@ async function save() {
   error.value = '';
   try {
     await props.onSubmit({ studentId: props.studentId, ...form });
-  } catch {
-    error.value = '评估保存失败';
+  } catch (cause) {
+    error.value = getErrorMessage(cause, '评估保存失败');
   } finally {
     saving.value = false;
   }
@@ -52,7 +54,7 @@ async function save() {
     ><label>骨盆体态<input v-model.trim="form.posturePelvis" /></label
     ><label>肩部体态<input v-model.trim="form.postureShoulder" /></label
     ><label>备注<textarea v-model="form.notes" /></label>
-    <p v-if="error">{{ error }}</p>
+    <p v-if="error" role="alert">{{ error }}</p>
     <button :disabled="saving">{{ saving ? '保存中…' : '保存评估' }}</button>
   </form>
 </template>

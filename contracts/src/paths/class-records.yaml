@@ -26,7 +26,7 @@
     x-status: CONTRACT_READY
     x-roles: [trainer]
     x-tenant-scope: company
-    description: Creates one draft record from a present/late attendance owned by the authenticated trainer.
+    description: Creates one draft record from a present/late attendance owned by the authenticated trainer. If plan is omitted, the student's active plan is linked and session_number becomes the existing linked-record count plus one.
     requestBody:
       required: true
       content: {application/json: {schema: {$ref: '../schemas/records.yaml#/ClassRecordCreateRequest'}}}
@@ -82,6 +82,23 @@
     description: The owning trainer transitions a draft record to completed. Repeating the action returns conflict.
     responses:
       '200': {description: Class record completed, content: {application/json: {schema: {$ref: '../schemas/records.yaml#/ClassRecordSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}
+
+/api/class-records/{record_id}/unlink/:
+  parameters:
+    - {name: record_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+  post:
+    operationId: unlinkClassRecordPlan
+    tags: [class-records]
+    x-status: API_READY
+    x-roles: [trainer]
+    x-tenant-scope: company
+    description: The owning trainer removes the TrainingPlan link while retaining the ClassRecord. This relationship-only operation is permitted for draft and completed records; an already-unlinked record returns conflict.
+    responses:
+      '200': {description: Class record unlinked., content: {application/json: {schema: {$ref: '../schemas/records.yaml#/ClassRecordSuccessResponse'}}}}
       '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
       '403': {$ref: '../schemas/common.yaml#/Forbidden'}
       '404': {$ref: '../schemas/common.yaml#/NotFound'}

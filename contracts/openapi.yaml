@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: 瑜悦练 API
-  version: 1.6.0
+  version: 1.7.0
   description: Project API contract. CONTRACT_READY/API_READY modules may be integrated; DRAFT modules are design and Mock
     only. See status.json.
 servers:
@@ -1071,7 +1071,8 @@ paths:
       x-roles:
       - trainer
       x-tenant-scope: company
-      description: Creates one draft record from a present/late attendance owned by the authenticated trainer.
+      description: Creates one draft record from a present/late attendance owned by the authenticated trainer. If plan is
+        omitted, the student's active plan is linked and session_number becomes the existing linked-record count plus one.
       requestBody:
         required: true
         content:
@@ -1181,6 +1182,40 @@ paths:
       responses:
         '200':
           description: Class record completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassRecordSuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/class-records/{record_id}/unlink/:
+    parameters:
+    - name: record_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    post:
+      operationId: unlinkClassRecordPlan
+      tags:
+      - class-records
+      x-status: API_READY
+      x-roles:
+      - trainer
+      x-tenant-scope: company
+      description: The owning trainer removes the TrainingPlan link while retaining the ClassRecord. This relationship-only
+        operation is permitted for draft and completed records; an already-unlinked record returns conflict.
+      responses:
+        '200':
+          description: Class record unlinked.
           content:
             application/json:
               schema:
@@ -3618,73 +3653,88 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/training-plans/:
     get:
-      operationId: getTrainingPlans
+      operationId: listTrainingPlans
       tags:
       - training-plans
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Company-scoped plans ordered by newest creation time. Trainers see only plans they created; only super
+        admins may select company_id.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - name: student_id
+        in: query
+        description: StudentProfile primary key.
+        schema:
+          type: integer
+          minimum: 1
+      - name: trainer_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - completed
+          - paused
+      - name: company_id
+        in: query
+        description: Super admin only.
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
-          description: 成功
+          description: Training-plan list.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/TrainingPlanListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postTrainingPlans
+      operationId: createTrainingPlan
       tags:
       - training-plans
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Creates a trainer-owned plan. Company and trainer are inferred from the authenticated user. A student may
+        have at most one active plan.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/TrainingPlanCreateRequest'
       responses:
+        '201':
+          description: Training plan created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingPlanSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/training-plans/{plan_id}/:
     parameters:
     - name: plan_id
@@ -3695,24 +3745,38 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getTrainingPlansPlanId
+      operationId: retrieveTrainingPlan
       tags:
       - training-plans
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Returns plan progress and a paginated linked-record collection. Trainers can retrieve only their own plans.
+      parameters:
+      - name: linked_records_page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: linked_records_page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
       responses:
         '200':
-          description: 成功
+          description: Training-plan detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/TrainingPlanDetailSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3721,35 +3785,28 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     patch:
-      operationId: patchTrainingPlansPlanId
+      operationId: updateTrainingPlan
       tags:
       - training-plans
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: Only the trainer who created the plan may update it.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/TrainingPlanUpdateRequest'
       responses:
         '200':
-          description: 成功
+          description: Training plan updated.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/TrainingPlanSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3758,56 +3815,29 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/training-plans/{plan_id}/activate/:
-    parameters:
-    - name: plan_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postTrainingPlansPlanIdActivate
+    delete:
+      operationId: deleteTrainingPlan
       tags:
       - training-plans
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+      description: Deletes a trainer-owned plan. Existing ClassRecords are retained and unlinked through the nullable foreign
+        key.
       responses:
         '200':
-          description: 成功
+          description: Training plan deleted.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/EmptySuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/training-plans/{plan_id}/complete/:
     parameters:
     - name: plan_id
@@ -3818,32 +3848,21 @@ paths:
         format: int64
         minimum: 1
     post:
-      operationId: postTrainingPlansPlanIdComplete
+      operationId: completeTrainingPlan
       tags:
       - training-plans
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+      description: The owning trainer changes an active or paused plan to completed. Repeating the action returns conflict.
       responses:
         '200':
-          description: 成功
+          description: Training plan completed.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/TrainingPlanSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -3852,9 +3871,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/training-plans/{plan_id}/progress/:
+  /api/training-plans/{plan_id}/pause/:
     parameters:
     - name: plan_id
       in: path
@@ -3863,27 +3880,22 @@ paths:
         type: integer
         format: int64
         minimum: 1
-    get:
-      operationId: getTrainingPlansPlanIdProgress
+    post:
+      operationId: pauseTrainingPlan
       tags:
       - training-plans
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
       - trainer
       x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      description: The owning trainer changes an active plan to paused. Completed or already-paused plans return conflict.
       responses:
         '200':
-          description: 成功
+          description: Training plan paused.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/TrainingPlanSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -3892,8 +3904,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/users/:
     get:
       operationId: usersList
@@ -5561,107 +5571,343 @@ components:
       additionalProperties: false
       required:
       - id
-      - company_id
-      - student_id
-      - trainer_id
-      - name
-      - starts_on
-      - ends_on
+      - company
+      - student
+      - student_name
+      - trainer
+      - trainer_name
+      - title
+      - start_date
+      - end_date
+      - target_frequency_per_week
+      - goal_description
+      - focus_tags
       - status
-      - stages
+      - completed_sessions_count
+      - progress_percentage
+      - created_at
+      - updated_at
       properties:
         id:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        company_id:
+        company:
           type: integer
           format: int64
           minimum: 1
           readOnly: true
-        student_id:
+        student:
           type: integer
           format: int64
           minimum: 1
-        trainer_id:
+          description: StudentProfile primary key, not accounts.User ID.
+        student_name:
+          type: string
+          readOnly: true
+        trainer:
           type: integer
           format: int64
           minimum: 1
-        name:
+          readOnly: true
+        trainer_name:
           type: string
-        starts_on:
+          readOnly: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        start_date:
           type: string
           format: date
-        ends_on:
+          description: Inclusive first date used by progress calculations.
+        end_date:
           type: string
           format: date
+          description: Inclusive last date; must not precede start_date.
+        target_frequency_per_week:
+          type: integer
+          minimum: 1
+          default: 2
+        goal_description:
+          type: string
+        focus_tags:
+          type: array
+          items:
+            type: string
+          default: []
         status:
           type: string
           enum:
-          - draft
           - active
           - completed
-          - cancelled
-        stages:
-          type: array
-          items:
-            type: object
-    Feedback:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - company_id
-      - class_record_id
-      - student_id
-      - feeling
-      - rating
-      - comment
-      - media
-      - created_at
-      properties:
-        id:
+          - paused
+        completed_sessions_count:
           type: integer
-          format: int64
-          minimum: 1
+          minimum: 0
           readOnly: true
-        company_id:
-          type: integer
-          format: int64
-          minimum: 1
+          description: Number of linked ClassRecords whose status is completed.
+        progress_percentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
           readOnly: true
-        class_record_id:
-          type: integer
-          format: int64
-          minimum: 1
-        student_id:
-          type: integer
-          format: int64
-          minimum: 1
-        feeling:
-          type: string
-          enum:
-          - great
-          - good
-          - normal
-          - tired
-          - uncomfortable
-        rating:
-          type: integer
-          minimum: 1
-          maximum: 5
-        comment:
-          type: string
-          nullable: true
-        media:
-          type: array
-          items:
-            $ref: '#/components/schemas/MediaResource'
+          description: Completed sessions divided by ceil(inclusive days / 7) times weekly frequency, capped at 100 and rounded
+            to two decimals.
         created_at:
           type: string
           format: date-time
           readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    TrainingPlanDetail:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - company
+      - student
+      - student_name
+      - trainer
+      - trainer_name
+      - title
+      - start_date
+      - end_date
+      - target_frequency_per_week
+      - goal_description
+      - focus_tags
+      - status
+      - completed_sessions_count
+      - progress_percentage
+      - linked_records
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        company:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        student:
+          type: integer
+          format: int64
+          minimum: 1
+          description: StudentProfile primary key, not accounts.User ID.
+        student_name:
+          type: string
+          readOnly: true
+        trainer:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        trainer_name:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        target_frequency_per_week:
+          type: integer
+          minimum: 1
+          default: 2
+        goal_description:
+          type: string
+        focus_tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+          - active
+          - completed
+          - paused
+        completed_sessions_count:
+          type: integer
+          minimum: 0
+          readOnly: true
+        progress_percentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          readOnly: true
+        linked_records:
+          $ref: '#/components/schemas/ClassRecordListData'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    TrainingPlanCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - student
+      - title
+      - start_date
+      - end_date
+      - goal_description
+      - status
+      properties:
+        student:
+          type: integer
+          format: int64
+          minimum: 1
+          description: StudentProfile primary key in the authenticated trainer's company.
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        target_frequency_per_week:
+          type: integer
+          minimum: 1
+          default: 2
+        goal_description:
+          type: string
+        focus_tags:
+          type: array
+          items:
+            type: string
+          default: []
+        status:
+          type: string
+          enum:
+          - active
+          - completed
+          - paused
+    TrainingPlanUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        student:
+          type: integer
+          format: int64
+          minimum: 1
+          description: StudentProfile primary key in the authenticated trainer's company.
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        target_frequency_per_week:
+          type: integer
+          minimum: 1
+        goal_description:
+          type: string
+        focus_tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+          - active
+          - completed
+          - paused
+    TrainingPlanSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/TrainingPlan'
+    TrainingPlanDetailSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/TrainingPlanDetail'
+    TrainingPlanListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingPlan'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    TrainingPlanListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/TrainingPlanListData'
     Attendance:
       type: object
       additionalProperties: false
@@ -6170,6 +6416,29 @@ components:
           type: string
         data:
           $ref: '#/components/schemas/ClassMediaListData'
+    ClassRecordPlanSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - title
+      - progress
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        progress:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          readOnly: true
+          description: Current plan progress percentage.
     ClassRecord:
       type: object
       additionalProperties: false
@@ -6252,10 +6521,10 @@ components:
           minimum: 1
           readOnly: true
         plan:
-          type: integer
-          format: int64
-          minimum: 1
           nullable: true
+          readOnly: true
+          allOf:
+          - $ref: '#/components/schemas/ClassRecordPlanSummary'
         class_date:
           type: string
           format: date
@@ -6325,6 +6594,8 @@ components:
           format: int64
           minimum: 1
           nullable: true
+          description: Optional TrainingPlan ID. When omitted, the active plan is linked automatically; explicit null suppresses
+            automatic linking.
         theme:
           type: string
           minLength: 1
@@ -6356,11 +6627,6 @@ components:
       additionalProperties: false
       minProperties: 1
       properties:
-        plan:
-          type: integer
-          format: int64
-          minimum: 1
-          nullable: true
         theme:
           type: string
           minLength: 1
@@ -7945,15 +8211,15 @@ components:
     Forbidden:
       description: 权限不足
       content: *id001
-    ServerError:
-      description: 内部错误，不泄露 traceback 或配置
-      content: *id001
     Unauthorized:
       description: 未认证或令牌无效
       content: *id001
-    NotFound:
-      description: 资源不存在或为避免跨租户枚举而隐藏
-      content: *id001
     Conflict:
       description: 唯一性或资源状态冲突
+      content: *id001
+    ServerError:
+      description: 内部错误，不泄露 traceback 或配置
+      content: *id001
+    NotFound:
+      description: 资源不存在或为避免跨租户枚举而隐藏
       content: *id001

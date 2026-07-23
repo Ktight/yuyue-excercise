@@ -9,7 +9,7 @@ export const storesRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/stores/new',
     component: () => import('@/features/stores/pages/StoreCreatePage.vue'),
-    meta: { roles: MANAGEMENT_ROLES },
+    meta: { roles: ['super_admin', 'company_admin'] },
   },
   {
     path: '/admin/stores/:id',

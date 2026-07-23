@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { AppError, AppLoading, AppPage } from '@/app/components';
+import { AppError, AppLoading, AppPage, confirmAction } from '@/app/components';
 import { useAuthStore } from '@/features/auth';
 import {
   deleteClassTemplate,
@@ -32,7 +32,16 @@ async function save(v: Parameters<typeof updateClassTemplate>[1]) {
   item.value = await updateClassTemplate(id.value, v);
 }
 async function remove() {
-  if (!canManage.value || !globalThis.confirm('确认删除该课堂记录模板？')) return;
+  if (
+    !canManage.value ||
+    !(await confirmAction({
+      title: '删除课堂记录模板',
+      message: '删除后无法恢复，请确认该模板不再使用。',
+      confirmText: '确认删除',
+      danger: true,
+    }))
+  )
+    return;
   await deleteClassTemplate(id.value);
   await router.push('/admin/class-templates');
 }

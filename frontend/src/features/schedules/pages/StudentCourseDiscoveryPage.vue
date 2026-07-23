@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { AppEmpty, AppError, AppLoading, AppPage } from '@/app/components';
+import { AppEmpty, AppError, AppLoading, AppPage, confirmAction } from '@/app/components';
 import { bookSchedule } from '@/features/bookings';
 import { fetchSchedules } from '@/features/schedules/api';
 import type { Schedule } from '@/features/schedules/model';
 import { getErrorMessage } from '@/shared/api';
+import { toLocalDateInputValue } from '@/shared/date';
 const items = ref<Schedule[]>([]),
   loading = ref(true),
   error = ref(''),
@@ -18,7 +19,7 @@ async function load() {
       await fetchSchedules({
         status: 'published',
         pageSize: 100,
-        dateFrom: new Date().toISOString().slice(0, 10),
+        dateFrom: toLocalDateInputValue(),
       })
     ).items;
   } catch {
@@ -28,7 +29,14 @@ async function load() {
   }
 }
 async function book(item: Schedule) {
-  if (bookingId.value !== null || !globalThis.confirm(`确认预约“${item.courseTemplateName}”？`))
+  if (
+    bookingId.value !== null ||
+    !(await confirmAction({
+      title: '确认预约',
+      message: `确认预约“${item.courseTemplateName}”？预约后将占用课程名额。`,
+      confirmText: '确认预约',
+    }))
+  )
     return;
   bookingId.value = item.id;
   error.value = '';

@@ -7,6 +7,10 @@ export interface ClassMedia {
   caption: string;
   sortOrder: number;
 }
+export interface ClassMediaUpdateInput {
+  caption?: string;
+  sortOrder?: number;
+}
 export interface UploadResult {
   fileUrl: string;
   thumbnailUrl: string;

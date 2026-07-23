@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { fetchCompany, updateCompany, setCompanyActive } from '@/features/companies/api';
+import {
+  deleteCompany,
+  fetchCompany,
+  updateCompany,
+  setCompanyActive,
+} from '@/features/companies/api';
 import type { Company, CompanyWriteInput } from '@/features/companies/model';
 import { CompanyForm } from '@/features/companies/components';
-import { AppPage, AppLoading, AppError } from '@/app/components';
+import { AppPage, AppLoading, AppError, confirmAction } from '@/app/components';
 import { fetchStores, StoreList, type Store } from '@/features/stores';
 import { useAuthStore } from '@/features/auth';
 
@@ -31,16 +36,37 @@ onMounted(async () => {
 });
 
 async function handleUpdate(data: CompanyWriteInput) {
-  await updateCompany(Number(route.params.id), data);
-  router.back();
+  company.value = await updateCompany(Number(route.params.id), data);
 }
 async function toggleStatus() {
+  if (!company.value) return;
+  const enabling = company.value.status !== 'active';
   if (
-    !company.value ||
-    !globalThis.confirm(`确认${company.value.status === 'active' ? '停用' : '启用'}该公司？`)
+    !(await confirmAction({
+      title: enabling ? '启用公司' : '停用公司',
+      message: enabling
+        ? '启用后公司及其业务资源将恢复使用。'
+        : '停用公司可能影响其全部门店、用户、排课和预约。',
+      confirmText: enabling ? '确认启用' : '确认停用',
+      danger: !enabling,
+    }))
   )
     return;
   company.value = await setCompanyActive(company.value.id, company.value.status !== 'active');
+}
+async function removeCompany() {
+  if (
+    !company.value ||
+    !(await confirmAction({
+      title: '删除公司',
+      message: '删除后公司将无法恢复，并可能影响所属门店及历史业务数据。',
+      confirmText: '确认删除',
+      danger: true,
+    }))
+  )
+    return;
+  await deleteCompany(company.value.id);
+  await router.push('/admin/companies');
 }
 </script>
 
@@ -59,6 +85,7 @@ async function toggleStatus() {
       <button v-if="canManage" type="button" @click="toggleStatus">
         {{ company.status === 'active' ? '停用公司' : '启用公司' }}
       </button>
+      <button v-if="canManage" class="danger" type="button" @click="removeCompany">删除公司</button>
       <h2>所属门店</h2>
       <StoreList :stores="stores" @select="(store) => router.push(`/admin/stores/${store.id}`)"
     /></template>

@@ -1,278 +1,117 @@
 /api/training-plans/:
   get:
-    operationId: getTrainingPlans
-    tags:
-    - training-plans
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: listTrainingPlans
+    tags: [training-plans]
+    x-status: API_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Company-scoped plans ordered by newest creation time. Trainers see only plans they created; only super admins may select company_id.
+    parameters:
+      - {$ref: '../root.yaml#/components/parameters/PageParameter'}
+      - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
+      - {name: student_id, in: query, description: StudentProfile primary key., schema: {type: integer, minimum: 1}}
+      - {name: trainer_id, in: query, schema: {type: integer, minimum: 1}}
+      - {name: status, in: query, schema: {type: string, enum: [active, completed, paused]}}
+      - {name: company_id, in: query, description: Super admin only., schema: {type: integer, minimum: 1}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Training-plan list., content: {application/json: {schema: {$ref: '../schemas/planning.yaml#/TrainingPlanListSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
   post:
-    operationId: postTrainingPlans
-    tags:
-    - training-plans
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: createTrainingPlan
+    tags: [training-plans]
+    x-status: API_READY
+    x-roles: [trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Creates a trainer-owned plan. Company and trainer are inferred from the authenticated user. A student may have at most one active plan.
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/planning.yaml#/TrainingPlanCreateRequest'}}}
     responses:
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-      '201':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '201': {description: Training plan created., content: {application/json: {schema: {$ref: '../schemas/planning.yaml#/TrainingPlanSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+
 /api/training-plans/{plan_id}/:
   parameters:
-  - name: plan_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
+    - {name: plan_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
   get:
-    operationId: getTrainingPlansPlanId
-    tags:
-    - training-plans
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: retrieveTrainingPlan
+    tags: [training-plans]
+    x-status: API_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Returns plan progress and a paginated linked-record collection. Trainers can retrieve only their own plans.
+    parameters:
+      - {name: linked_records_page, in: query, schema: {type: integer, minimum: 1, default: 1}}
+      - {name: linked_records_page_size, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Training-plan detail., content: {application/json: {schema: {$ref: '../schemas/planning.yaml#/TrainingPlanDetailSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
   patch:
-    operationId: patchTrainingPlansPlanId
-    tags:
-    - training-plans
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: updateTrainingPlan
+    tags: [training-plans]
+    x-status: API_READY
+    x-roles: [trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: Only the trainer who created the plan may update it.
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/planning.yaml#/TrainingPlanUpdateRequest'}}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/training-plans/{plan_id}/activate/:
-  parameters:
-  - name: plan_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  post:
-    operationId: postTrainingPlansPlanIdActivate
-    tags:
-    - training-plans
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+      '200': {description: Training plan updated., content: {application/json: {schema: {$ref: '../schemas/planning.yaml#/TrainingPlanSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+  delete:
+    operationId: deleteTrainingPlan
+    tags: [training-plans]
+    x-status: API_READY
+    x-roles: [trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+    description: Deletes a trainer-owned plan. Existing ClassRecords are retained and unlinked through the nullable foreign key.
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Training plan deleted., content: {application/json: {schema: {$ref: '../schemas/common.yaml#/EmptySuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+
 /api/training-plans/{plan_id}/complete/:
   parameters:
-  - name: plan_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
+    - {name: plan_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
   post:
-    operationId: postTrainingPlansPlanIdComplete
-    tags:
-    - training-plans
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    operationId: completeTrainingPlan
+    tags: [training-plans]
+    x-status: API_READY
+    x-roles: [trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+    description: The owning trainer changes an active or paused plan to completed. Repeating the action returns conflict.
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-/api/training-plans/{plan_id}/progress/:
+      '200': {description: Training plan completed., content: {application/json: {schema: {$ref: '../schemas/planning.yaml#/TrainingPlanSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}
+
+/api/training-plans/{plan_id}/pause/:
   parameters:
-  - name: plan_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
-  get:
-    operationId: getTrainingPlansPlanIdProgress
-    tags:
-    - training-plans
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
+    - {name: plan_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
+  post:
+    operationId: pauseTrainingPlan
+    tags: [training-plans]
+    x-status: API_READY
+    x-roles: [trainer]
     x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    description: The owning trainer changes an active plan to paused. Completed or already-paused plans return conflict.
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Training plan paused., content: {application/json: {schema: {$ref: '../schemas/planning.yaml#/TrainingPlanSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}

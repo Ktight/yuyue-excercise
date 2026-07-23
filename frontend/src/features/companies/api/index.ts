@@ -4,4 +4,5 @@ export {
   createCompany,
   updateCompany,
   setCompanyActive,
+  deleteCompany,
 } from './companies.api';

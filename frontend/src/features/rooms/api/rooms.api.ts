@@ -4,4 +4,5 @@ export {
   createRoom,
   updateRoom,
   setRoomActive,
+  deleteRoom,
 } from '@/backend-adapters/rooms.adapter';

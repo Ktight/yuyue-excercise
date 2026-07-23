@@ -1,1 +1,10 @@
-{}
+{
+  "student": 601,
+  "title": "12 周核心强化计划",
+  "start_date": "2026-07-01",
+  "end_date": "2026-09-22",
+  "target_frequency_per_week": 2,
+  "goal_description": "提升核心稳定性与肩部灵活度",
+  "focus_tags": ["核心强化", "肩部灵活"],
+  "status": "active"
+}

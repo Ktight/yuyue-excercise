@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Room } from '@/features/rooms/model';
 defineProps<{ rooms: Room[]; loading?: boolean; manageable?: boolean }>();
-defineEmits<{ toggle: [room: Room]; edit: [room: Room] }>();
+defineEmits<{ toggle: [room: Room]; edit: [room: Room]; remove: [room: Room] }>();
 </script>
 <template>
   <div class="room-list">
@@ -14,6 +14,9 @@ defineEmits<{ toggle: [room: Room]; edit: [room: Room] }>();
       >
       <button v-if="manageable" type="button" @click="$emit('toggle', r)">
         {{ r.status === 'active' ? '停用' : '启用' }}
+      </button>
+      <button v-if="manageable" class="danger" type="button" @click="$emit('remove', r)">
+        删除
       </button>
       <button v-if="manageable" type="button" @click="$emit('edit', r)">编辑</button>
     </div>

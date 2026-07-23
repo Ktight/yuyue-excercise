@@ -3,6 +3,7 @@ import {
   MOCK_LOGIN_RESPONSE,
   MOCK_REFRESH_RESPONSE,
   MOCK_REFRESH_TOKEN,
+  MOCK_USER_ADMIN,
   MOCK_USER_TRAINER,
 } from './auth.fixtures';
 
@@ -20,7 +21,12 @@ export const authHandlers = [
       body.password === '12345678' &&
       (body.phone === '13800000002' || body.phone === '13800000001')
     ) {
-      return HttpResponse.json({ code: 'OK', message: '登录成功', data: MOCK_LOGIN_RESPONSE });
+      const user = body.phone === MOCK_USER_ADMIN.phone ? MOCK_USER_ADMIN : MOCK_USER_TRAINER;
+      return HttpResponse.json({
+        code: 'OK',
+        message: '登录成功',
+        data: { ...MOCK_LOGIN_RESPONSE, user },
+      });
     }
     return HttpResponse.json(errorBody('INVALID_CREDENTIALS', '手机号或密码错误'), {
       status: 401,

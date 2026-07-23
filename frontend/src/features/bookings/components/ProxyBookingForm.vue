@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { getErrorMessage } from '@/shared/api';
 import { fetchStudents, type Student } from '@/features/students';
 const props = defineProps<{
   scheduleId: number;
@@ -23,8 +24,8 @@ async function submit() {
   try {
     await props.onSubmit(studentUserId.value);
     studentUserId.value = undefined;
-  } catch {
-    error.value = '预约失败，请检查资格、容量或时间冲突';
+  } catch (cause) {
+    error.value = getErrorMessage(cause, '预约失败，请检查资格、容量或时间冲突');
   } finally {
     saving.value = false;
   }
@@ -40,7 +41,7 @@ async function submit() {
         </option>
       </select></label
     ><button :disabled="saving">{{ saving ? '预约中…' : '确认代预约' }}</button>
-    <p v-if="error">{{ error }}</p>
+    <p v-if="error" role="alert">{{ error }}</p>
   </form>
 </template>
 <style scoped>

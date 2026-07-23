@@ -5,7 +5,7 @@ import { deleteSchedule, fetchSchedule, updateSchedule } from '@/features/schedu
 import type { Schedule, ScheduleWriteInput } from '@/features/schedules/model';
 import { ScheduleForm } from '@/features/schedules/components';
 import { bookSchedule, ProxyBookingForm } from '@/features/bookings';
-import { AppPage, AppLoading, AppError } from '@/app/components';
+import { AppPage, AppLoading, AppError, confirmAction } from '@/app/components';
 import { getErrorMessage } from '@/shared/api';
 const route = useRoute(),
   router = useRouter();
@@ -35,7 +35,16 @@ async function book(studentId: number) {
   await load();
 }
 async function remove() {
-  if (deleting.value || !globalThis.confirm('确认删除该排课？')) return;
+  if (
+    deleting.value ||
+    !(await confirmAction({
+      title: '删除排课',
+      message: '删除可能影响已有预约和考勤，请确认已处理相关学员。',
+      confirmText: '确认删除',
+      danger: true,
+    }))
+  )
+    return;
   deleting.value = true;
   actionError.value = '';
   try {

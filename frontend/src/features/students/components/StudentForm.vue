@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { getErrorMessage } from '@/shared/api';
+import { toLocalDateInputValue } from '@/shared/date';
 import type { Student, StudentCreateInput, StudentUpdateInput } from '@/features/students/model';
+import StudentAssignmentSelects from './StudentAssignmentSelects.vue';
 const props = withDefaults(
   defineProps<{
     initial?: Student;
@@ -11,20 +14,22 @@ const props = withDefaults(
 );
 const saving = ref(false);
 const error = ref('');
-const today = new Date().toISOString().slice(0, 10);
+const today = toLocalDateInputValue();
 const form = reactive({
   name: props.initial?.user.name ?? '',
   phone: props.initial?.user.phone ?? '',
   password: '',
-  homeStoreId: props.initial?.homeStoreId ?? 1,
-  primaryTrainerId: props.initial?.primaryTrainerId?.toString() ?? '',
+  homeStoreId: props.initial?.homeStoreId ?? null,
+  primaryTrainerId: props.initial?.primaryTrainerId ?? null,
   gender: props.initial?.gender ?? 'female',
   birthDate: props.initial?.birthDate ?? '',
   emergencyContact: props.initial?.emergencyContact ?? '',
   membershipType: props.initial?.membershipType ?? 'count',
   membershipStartsOn: props.initial?.membershipStartsOn ?? today,
   membershipExpiresOn: props.initial?.membershipExpiresOn ?? today,
-  membershipBalance: props.initial?.membershipBalance ?? 0,
+  remainingCount: props.initial?.membershipType === 'count' ? props.initial.membershipBalance : 0,
+  balanceYuan:
+    props.initial?.membershipType === 'stored' ? props.initial.membershipBalance / 100 : 0,
   membershipActive: props.initial?.membershipActive ?? true,
   healthNotes: props.initial?.healthNotes ?? '',
   injuryHistory: props.initial?.injuryHistory ?? '',
@@ -33,12 +38,20 @@ const form = reactive({
   preferredStyle: props.initial?.preferredStyle ?? '',
 });
 async function submit() {
+  if (!form.homeStoreId) {
+    error.value = '请选择所属门店';
+    return;
+  }
+  if (form.membershipStartsOn > form.membershipExpiresOn) {
+    error.value = '会员卡到期日期不能早于开始日期';
+    return;
+  }
   saving.value = true;
   error.value = '';
   try {
     const profile: StudentUpdateInput = {
-      homeStoreId: Number(form.homeStoreId),
-      primaryTrainerId: form.primaryTrainerId ? Number(form.primaryTrainerId) : null,
+      homeStoreId: form.homeStoreId,
+      primaryTrainerId: form.primaryTrainerId,
       gender: form.gender,
       birthDate: form.birthDate || null,
       emergencyContact: form.emergencyContact,
@@ -59,12 +72,17 @@ async function submit() {
             membershipType: form.membershipType,
             membershipStartsOn: form.membershipStartsOn,
             membershipExpiresOn: form.membershipExpiresOn,
-            membershipBalance: Number(form.membershipBalance),
+            membershipBalance:
+              form.membershipType === 'count'
+                ? Number(form.remainingCount)
+                : form.membershipType === 'stored'
+                  ? Math.round(Number(form.balanceYuan) * 100)
+                  : 0,
             membershipActive: form.membershipActive,
           } as StudentCreateInput),
     );
-  } catch {
-    error.value = '保存失败，请检查表单或稍后重试';
+  } catch (cause) {
+    error.value = getErrorMessage(cause, '保存失败，请检查表单或稍后重试');
   } finally {
     saving.value = false;
   }
@@ -86,20 +104,11 @@ async function submit() {
         type="password"
         minlength="8"
         placeholder="留空由后端采用默认策略" /></label
-    ><label
-      >所属门店 ID<input
-        v-model.number="form.homeStoreId"
-        type="number"
-        min="1"
-        required
-        :disabled="!!initial && !allowAssignment" /></label
-    ><label
-      >主教练 ID<input
-        v-model="form.primaryTrainerId"
-        type="number"
-        min="1"
-        :disabled="!!initial && !allowAssignment" /></label
-    ><label
+    ><StudentAssignmentSelects
+      v-model:store-id="form.homeStoreId"
+      v-model:trainer-id="form.primaryTrainerId"
+      :disabled="!!initial && !allowAssignment"
+    /><label
       >性别<select v-model="form.gender">
         <option value="female">女</option>
         <option value="male">男</option>
@@ -118,11 +127,18 @@ async function submit() {
         </select></label
       ><label>开始日期<input v-model="form.membershipStartsOn" type="date" required /></label
       ><label>到期日期<input v-model="form.membershipExpiresOn" type="date" required /></label
-      ><label
-        >次数/余额<input
-          v-model.number="form.membershipBalance"
+      ><label v-if="form.membershipType === 'count'"
+        >初始次数<input
+          v-model.number="form.remainingCount"
           type="number"
           min="0"
+          required /></label
+      ><label v-if="form.membershipType === 'stored'"
+        >初始储值余额（元）<input
+          v-model.number="form.balanceYuan"
+          type="number"
+          min="0"
+          step="0.01"
           required /></label
     ></template>
     <h3>健康与训练档案</h3>
@@ -131,7 +147,7 @@ async function submit() {
     ><label>禁忌事项<textarea v-model="form.contraindications" /></label
     ><label>训练目标<textarea v-model="form.trainingGoal" /></label
     ><label>偏好流派<input v-model.trim="form.preferredStyle" /></label>
-    <p v-if="error" class="error">{{ error }}</p>
+    <p v-if="error" class="error" role="alert">{{ error }}</p>
     <button class="primary" :disabled="saving">{{ saving ? '保存中…' : '保存' }}</button>
   </form>
 </template>
