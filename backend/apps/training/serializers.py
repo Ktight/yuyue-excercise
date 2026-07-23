@@ -4,8 +4,11 @@ from apps.attendance.models import Attendance
 from apps.courses.models import CourseSchedule
 from core.constants import UserRole
 
-from .models import ClassMedia, ClassRecord, ClassTemplate
-from .services import create_class_record_from_attendance
+from .models import ClassMedia, ClassRecord, ClassTemplate, TrainingPlan
+from .services import (
+    calculate_plan_progress,
+    create_class_record_from_attendance,
+)
 
 
 def validate_pose_sequence(value):
@@ -75,8 +78,23 @@ class ClassMediaSerializer(serializers.ModelSerializer):
         return value
 
 
+class ClassRecordPlanSerializer(serializers.ModelSerializer):
+    progress = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TrainingPlan
+        fields = ['id', 'title', 'progress']
+
+    def get_progress(self, instance):
+        cache = self.context.setdefault('_plan_progress_cache', {})
+        if instance.pk not in cache:
+            cache[instance.pk] = calculate_plan_progress(instance)
+        return cache[instance.pk]['percentage']
+
+
 class ClassRecordSerializer(serializers.ModelSerializer):
     media = ClassMediaSerializer(many=True, read_only=True)
+    plan = ClassRecordPlanSerializer(read_only=True)
     attendance_status = serializers.CharField(
         source='attendance.status',
         read_only=True,
@@ -345,3 +363,166 @@ class ClassTemplateSerializer(serializers.ModelSerializer):
 
     def validate_pose_sequence(self, value):
         return validate_pose_sequence(value)
+
+
+class TrainingPlanSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(
+        source='student.user.name',
+        read_only=True,
+    )
+    trainer_name = serializers.CharField(source='trainer.name', read_only=True)
+    completed_sessions_count = serializers.SerializerMethodField()
+    progress_percentage = serializers.SerializerMethodField()
+    linked_records = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TrainingPlan
+        fields = [
+            'id',
+            'company',
+            'student',
+            'student_name',
+            'trainer',
+            'trainer_name',
+            'title',
+            'start_date',
+            'end_date',
+            'target_frequency_per_week',
+            'goal_description',
+            'focus_tags',
+            'status',
+            'completed_sessions_count',
+            'progress_percentage',
+            'linked_records',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = [
+            'id',
+            'company',
+            'trainer',
+            'completed_sessions_count',
+            'progress_percentage',
+            'linked_records',
+            'created_at',
+            'updated_at',
+        ]
+
+    def _progress(self, instance):
+        cache = getattr(self, '_progress_cache', None)
+        if cache is None:
+            cache = self._progress_cache = {}
+        if instance.pk not in cache:
+            cache[instance.pk] = calculate_plan_progress(instance)
+        return cache[instance.pk]
+
+    def get_completed_sessions_count(self, instance):
+        return self._progress(instance)['completed']
+
+    def get_progress_percentage(self, instance):
+        return self._progress(instance)['percentage']
+
+    def get_fields(self):
+        fields = super().get_fields()
+        view = self.context.get('view')
+        if getattr(view, 'action', None) != 'retrieve':
+            fields.pop('linked_records', None)
+        return fields
+
+    def get_linked_records(self, instance):
+        request = self.context.get('request')
+        query_params = getattr(request, 'query_params', {})
+        page = self._positive_page_value(
+            query_params.get('linked_records_page', query_params.get('page', 1)),
+            'linked_records_page',
+        )
+        page_size = self._positive_page_value(
+            query_params.get(
+                'linked_records_page_size',
+                query_params.get('page_size', 20),
+            ),
+            'linked_records_page_size',
+        )
+        if page_size > 100:
+            raise serializers.ValidationError(
+                {'linked_records_page_size': ['不得大于 100。']}
+            )
+
+        records = instance.class_records.select_related(
+            'attendance',
+            'schedule',
+            'student',
+            'trainer',
+            'store',
+            'plan',
+        ).prefetch_related('media')
+        total = records.count()
+        offset = (page - 1) * page_size
+        items = records[offset:offset + page_size]
+        return {
+            'items': ClassRecordSerializer(
+                items,
+                many=True,
+                context=self.context,
+            ).data,
+            'page': page,
+            'page_size': page_size,
+            'total': total,
+        }
+
+    @staticmethod
+    def _positive_page_value(value, field_name):
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            raise serializers.ValidationError(
+                {field_name: ['必须为整数。']}
+            ) from None
+        if parsed < 1:
+            raise serializers.ValidationError(
+                {field_name: ['必须大于或等于 1。']}
+            )
+        return parsed
+
+    def validate_focus_tags(self, value):
+        return validate_string_list(value, 'focus_tags')
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        instance = self.instance
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+        student = attrs.get('student', getattr(instance, 'student', None))
+        start_date = attrs.get(
+            'start_date',
+            getattr(instance, 'start_date', None),
+        )
+        end_date = attrs.get('end_date', getattr(instance, 'end_date', None))
+        status_value = attrs.get('status', getattr(instance, 'status', None))
+
+        if user is not None and student is not None:
+            if student.company_id != user.company_id:
+                raise serializers.ValidationError(
+                    {'student': ['学员必须属于当前公司。']}
+                )
+        if start_date and end_date and end_date < start_date:
+            raise serializers.ValidationError(
+                {'end_date': ['结束日期不能早于开始日期。']}
+            )
+        if student is not None and status_value == 'active':
+            active_plans = TrainingPlan.objects.filter(
+                student=student,
+                status='active',
+            )
+            if instance is not None:
+                active_plans = active_plans.exclude(pk=instance.pk)
+            if active_plans.exists():
+                raise serializers.ValidationError(
+                    {'status': ['该学员已有进行中的训练规划。']}
+                )
+        return attrs
+
+
+class TrainingPlanCreateSerializer(TrainingPlanSerializer):
+    def validate(self, attrs):
+        return super().validate(attrs)

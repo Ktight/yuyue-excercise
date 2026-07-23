@@ -1,6 +1,27 @@
 from django.contrib import admin
 
-from .models import ClassMedia, ClassRecord, ClassTemplate
+from .models import ClassMedia, ClassRecord, ClassTemplate, TrainingPlan
+
+
+@admin.register(TrainingPlan)
+class TrainingPlanAdmin(admin.ModelAdmin):
+    list_display = [
+        'title',
+        'student',
+        'trainer',
+        'start_date',
+        'end_date',
+        'target_frequency_per_week',
+        'status',
+    ]
+    list_filter = ['status', 'start_date', 'end_date']
+    search_fields = [
+        'title',
+        'student__user__name',
+        'trainer__name',
+        'goal_description',
+    ]
+    list_select_related = ['student', 'student__user', 'trainer']
 
 
 @admin.register(ClassRecord)

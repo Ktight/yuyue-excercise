@@ -7,6 +7,7 @@ from .views import (
     ClassRecordViewSet,
     ClassTemplateViewSet,
     FileUploadView,
+    TrainingPlanViewSet,
 )
 
 
@@ -15,6 +16,7 @@ app_name = 'training'
 router = DefaultRouter()
 router.register('class-records', ClassRecordViewSet, basename='class-record')
 router.register('class-templates', ClassTemplateViewSet, basename='class-template')
+router.register('training-plans', TrainingPlanViewSet, basename='training-plan')
 
 class_media_list = ClassMediaViewSet.as_view({'get': 'list', 'post': 'create'})
 class_media_detail = ClassMediaViewSet.as_view(

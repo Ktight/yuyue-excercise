@@ -4,7 +4,7 @@
   "data": {
     "id": 801, "company": 1, "attendance": 501, "attendance_status": "present", "schedule": 301,
     "student": 201, "student_name": "测试学员", "trainer": 101, "trainer_name": "测试教练", "store": 11,
-    "plan": null, "class_date": "2026-07-22", "theme": "核心稳定与髋部灵活", "session_number": 1,
+    "plan": {"id": 901, "title": "12 周核心强化计划", "progress": 8.33}, "class_date": "2026-07-22", "theme": "核心稳定与髋部灵活", "session_number": 1,
     "pose_sequence": {"warmup": [], "main": [], "cooldown": []}, "trainer_notes": "动作控制良好",
     "homework": "每日练习猫牛式", "completion_rating": 5, "improvement_tags": ["核心稳定"],
     "next_focus": "呼吸与动作同步", "status": "completed", "media": [],

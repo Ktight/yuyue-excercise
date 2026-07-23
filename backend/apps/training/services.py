@@ -1,5 +1,7 @@
 """Business operations for training records."""
 
+from math import ceil
+
 from django.db import transaction
 from rest_framework import serializers
 
@@ -8,7 +10,43 @@ from apps.courses.models import CourseSchedule
 from core.constants import AttendanceStatus
 from core.exceptions import ConflictError, ResourceNotFound
 
-from .models import ClassRecord
+from .models import ClassRecord, TrainingPlan
+
+
+def calculate_plan_progress(plan):
+    """Calculate completed-session progress and rating direction for a plan."""
+    completed_records = plan.class_records.filter(
+        status='completed'
+    ).order_by('class_date', 'created_at', 'id')
+    completed = completed_records.count()
+    inclusive_days = max((plan.end_date - plan.start_date).days + 1, 0)
+    weeks = ceil(inclusive_days / 7) if inclusive_days else 0
+    total_sessions = weeks * plan.target_frequency_per_week
+    percentage = (
+        round(min(completed / total_sessions * 100, 100), 2)
+        if total_sessions
+        else 0
+    )
+
+    ratings = list(
+        completed_records.exclude(completion_rating__isnull=True)
+        .values_list('completion_rating', flat=True)
+    )
+    avg_rating = round(sum(ratings) / len(ratings), 2) if ratings else None
+    rating_trend = 'stable'
+    if len(ratings) >= 2:
+        if ratings[-1] > ratings[0]:
+            rating_trend = 'up'
+        elif ratings[-1] < ratings[0]:
+            rating_trend = 'down'
+
+    return {
+        'total_sessions': total_sessions,
+        'completed': completed,
+        'percentage': percentage,
+        'avg_rating': avg_rating,
+        'rating_trend': rating_trend,
+    }
 
 
 def calculate_session_number(student_id, plan_id):
@@ -18,6 +56,19 @@ def calculate_session_number(student_id, plan_id):
     return (
         ClassRecord.objects.filter(student_id=student_id, plan_id=plan_id).count()
         + 1
+    )
+
+
+def auto_link_plan(student_id):
+    """Return the active plan id for a ClassRecord student User id."""
+    return (
+        TrainingPlan.objects.filter(
+            student__user_id=student_id,
+            status='active',
+        )
+        .order_by('-created_at', '-id')
+        .values_list('id', flat=True)
+        .first()
     )
 
 
@@ -48,9 +99,18 @@ def create_class_record_from_attendance(attendance_id, data):
 
     record_data = dict(data)
     plan = record_data.get('plan')
+    if 'plan' not in record_data:
+        plan_id = auto_link_plan(attendance.student_id)
+        if plan_id is not None:
+            plan = TrainingPlan.objects.select_for_update().get(pk=plan_id)
+            record_data['plan'] = plan
+    elif plan is not None:
+        plan = TrainingPlan.objects.select_for_update().get(pk=plan.pk)
+        record_data['plan'] = plan
+
     if plan is not None and (
         plan.company_id != attendance.company_id
-        or plan.student_id != attendance.student_id
+        or plan.student.user_id != attendance.student_id
     ):
         raise serializers.ValidationError(
             {'plan': ['训练规划必须属于该学员和公司。']}

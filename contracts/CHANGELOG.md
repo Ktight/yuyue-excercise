@@ -1,5 +1,17 @@
 # Contract Changelog
 
+## CONTRACT-20260723-10
+
+- Released contract version `1.7.0` for Phase 9 training plans and class-record linking.
+- Replaced the obsolete `name / starts_on / ends_on / stages` candidate with the implemented StudentProfile-based plan, inclusive dates, weekly frequency, goals, focus tags and `active / completed / paused` status model.
+- Froze trainer-owned CRUD, company-scoped staff reads, student/status/trainer filters, completion and pause actions, duplicate-active validation and detail-only paginated linked records.
+- Froze progress as completed linked records divided by inclusive weeks times weekly frequency, capped at 100 and rounded to two decimals.
+- Froze automatic active-plan association when a ClassRecord create request omits `plan`, explicit-null opt-out, plan-relative session numbering and the trainer-owned unlink action.
+- Changed ClassRecord response `plan` from a nullable integer to nullable `{id, title, progress}` while retaining the nullable integer as the create-request input.
+- Removed unimplemented activate, standalone progress and stage endpoints from the published contract instead of freezing aspirational behavior.
+- Promoted training plans to `CONTRACT_READY / API_READY` after migration, API, permission, tenant, progress, contract and regression verification.
+- Rebundled `openapi.yaml` exclusively from `contracts/src/**`.
+
 ## CONTRACT-20260722-09
 
 - Released contract version `1.6.0` to close frontend/backend Phase 6 discovery and resource-ID alignment items.
