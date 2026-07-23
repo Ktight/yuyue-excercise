@@ -1,5 +1,13 @@
 # 瑜悦练前端工作状态
 
+## Phase 8 前端实现（2026-07-23）
+
+- 已完成课堂记录模板、动作序列编辑、课堂记录单个/批量创建、草稿编辑、完成状态和课堂媒体上传/挂载/移除。
+- Class Templates、Class Records、Class Media 均使用独立领域模型、后端适配器、Mock、页面、路由、公开索引和适配器测试。
+- 管理端提供公司范围只读查询与模板管理；训练师端提供模板查看、课堂记录创建/编辑/完成和媒体管理入口。
+- Training Plans 明确保留到 Phase 9，本阶段没有猜测实现。
+- 当前状态：`UI_READY / MOCK_READY / CONTRACT_INTEGRATED / REAL_API_NOT_VERIFIED`。
+
 ## 契约 1.6.0 同步与 Phase 1–7 回归（2026-07-23）
 
 - 当前前端分支已通过 fast-forward 同步最新 `origin/main`，包含 PR #3、Phase 8 后端/契约和学员课程发现对齐提交。

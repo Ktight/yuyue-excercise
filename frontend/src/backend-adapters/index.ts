@@ -5,6 +5,8 @@ export * as storesAdapter from './stores.adapter';
 export * as roomsAdapter from './rooms.adapter';
 export * as courseTemplatesAdapter from './course-templates.adapter';
 export * as classTemplatesAdapter from './class-templates.adapter';
+export * as classRecordsAdapter from './class-records.adapter';
+export * as classMediaAdapter from './class-media.adapter';
 export * as studentsAdapter from './students.adapter';
 export * as bodyAssessmentsAdapter from './body-assessments.adapter';
 export * as schedulesAdapter from './schedules.adapter';
