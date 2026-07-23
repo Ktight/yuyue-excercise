@@ -114,3 +114,15 @@ export const CLASS_RECORD_STATUS_LABELS: Readonly<Record<ClassRecordStatus, stri
   draft: '草稿',
   completed: '已完成',
 };
+
+export const FEEDBACK_FEELING = {
+  EASY: 'easy',
+  MODERATE: 'moderate',
+  HARD: 'hard',
+} as const;
+export type FeedbackFeeling = (typeof FEEDBACK_FEELING)[keyof typeof FEEDBACK_FEELING];
+export const FEEDBACK_FEELING_LABELS: Readonly<Record<FeedbackFeeling, string>> = {
+  easy: '轻松',
+  moderate: '适中',
+  hard: '吃力',
+};

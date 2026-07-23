@@ -18,8 +18,12 @@ function applyPreset() {
 }
 async function submit() {
   applyPreset();
-  if (!studentId.value || !start.value || start.value > end.value) {
-    error.value = '请选择学员，并确认开始日期不晚于结束日期';
+  const days =
+    (new Date(`${end.value}T00:00:00`).getTime() - new Date(`${start.value}T00:00:00`).getTime()) /
+      86_400_000 +
+    1;
+  if (!studentId.value || !start.value || start.value > end.value || days > 366) {
+    error.value = '请选择学员，并确认日期有效且范围不超过 366 天';
     return;
   }
   error.value = '';
@@ -31,7 +35,7 @@ async function submit() {
 }
 onMounted(async () => {
   students.value = (await fetchStudents({ page: 1, pageSize: 100 })).items;
-  studentId.value = students.value[0]?.id ?? 0;
+  studentId.value = students.value[0]?.user.id ?? 0;
   applyPreset();
 });
 </script>
@@ -39,7 +43,7 @@ onMounted(async () => {
   <form @submit.prevent="submit">
     <label
       >学员<select v-model.number="studentId">
-        <option v-for="s in students" :key="s.id" :value="s.id">{{ s.user.name }}</option>
+        <option v-for="s in students" :key="s.id" :value="s.user.id">{{ s.user.name }}</option>
       </select></label
     ><label
       >范围<select v-model="preset" @change="applyPreset">

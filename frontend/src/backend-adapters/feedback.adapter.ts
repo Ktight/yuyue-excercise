@@ -1,32 +1,17 @@
 import { httpClient } from '@/shared/api';
+import type { components } from '@/generated/api-types';
 import type { FeedbackWriteInput, StudentFeedback } from '@/features/feedback/model';
+type S = components['schemas'];
 
-interface FeedbackWire {
-  id: number;
-  class_record_id: number;
-  student_name: string;
-  feeling: 'easy' | 'moderate' | 'hard';
-  comment: string;
-  photo_urls: string[];
-  can_edit: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Success<T> {
-  code: string;
-  message: string;
-  data: T;
-}
-
-const map = (value: FeedbackWire): StudentFeedback => ({
+const map = (value: S['Feedback']): StudentFeedback => ({
   id: value.id,
-  classRecordId: value.class_record_id,
-  studentName: value.student_name,
+  classRecordId: value.class_record,
+  studentName: value.student.name,
   feeling: value.feeling,
+  improvementNote: value.improvement_note,
   comment: value.comment,
-  photoUrls: value.photo_urls,
-  canEdit: value.can_edit,
+  photoUrls: value.photos,
+  canEdit: value.is_editable,
   createdAt: value.created_at,
   updatedAt: value.updated_at,
 });
@@ -34,18 +19,19 @@ const map = (value: FeedbackWire): StudentFeedback => ({
 export async function fetchClassRecordFeedback(
   classRecordId: number,
 ): Promise<StudentFeedback | null> {
-  const { data } = await httpClient.get<Success<{ items: FeedbackWire[] }>>('/feedback/', {
-    params: { class_record_id: classRecordId },
+  const { data } = await httpClient.get<S['FeedbackListSuccessResponse']>('/feedback/', {
+    params: { class_record_id: classRecordId, page: 1, page_size: 1 },
   });
   return data.data.items[0] ? map(data.data.items[0]) : null;
 }
 
 export async function createStudentFeedback(input: FeedbackWriteInput): Promise<StudentFeedback> {
-  const { data } = await httpClient.post<Success<FeedbackWire>>('/student/feedback/', {
-    class_record_id: input.classRecordId,
+  const body: S['FeedbackCreateRequest'] = {
+    class_record: input.classRecordId,
     feeling: input.feeling,
+    improvement_note: input.improvementNote,
     comment: input.comment,
-    photo_urls: input.photoUrls,
-  });
+  };
+  const { data } = await httpClient.post<S['FeedbackSuccessResponse']>('/feedback/', body);
   return map(data.data);
 }

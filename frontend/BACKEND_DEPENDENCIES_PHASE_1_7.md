@@ -27,8 +27,8 @@
 | BE-FE-11 | 5、8 | 健康档案、体测和课堂媒体隐私权限 | 端点已有角色声明，但商业数据可见范围、审计、媒体保留和删除规则尚未形成完整验收矩阵 | 前端按现有角色路由和正式接口展示，不缓存到业务代码 | 后端/产品确认公司管理员、店长、训练师的字段级可见范围、审计日志、媒体授权与保留策略，再执行双租户真实验收 |
 | BE-FE-12 | 9 | 训练计划与课堂记录使用不同学员资源 ID | 契约 1.7.0：TrainingPlan 使用 StudentProfile ID；ClassRecord/Attendance 使用 User ID | 前端通过学员查询完成映射，页面只操作领域模型，转换集中在选择组件与适配器 | 使用真实学员、跨租户学员和停用学员验证映射与错误响应 |
 | BE-FE-13 | 9 | 训练计划状态动作及课堂记录关联/解除关联 | `complete`、`pause`、课堂记录自动关联与 `unlink` 均为 CONTRACT_READY / API_READY | 独立适配器、确认交互、Mock 和单元测试已完成 | 验证状态流转、非所属训练师、重复动作、无可关联计划及 409 冲突 |
-| BE-FE-14 | 10 | 学员反馈 Schema、感受枚举、媒体与重复提交规则 | `feedback`、相关 `student_self_service` 均为 DRAFT / NOT_STARTED | 暂定 UI/Mock 已实现；PA-10-01～06 集中隔离，未接真实 API | 后端按 `PHASE_10_BACKEND_HANDOFF.md` 冻结；前端随后关闭假设并替换适配器 |
-| BE-FE-15 | 10 | 阶段报告聚合、保存、发布、导出与分享 | `reports` 为 DRAFT / NOT_STARTED；现有候选 Report 不包含页面所需聚合数据 | 暂定生成/预览/打印 UI 已实现；分享保持禁用；PA-10-07～10 集中隔离 | 后端冻结计算口径、正式 Schema、状态流转及导出/分享范围后替换适配器并联调 |
+| BE-FE-14 | 10 | 学员反馈 Schema、感受枚举、媒体与重复提交规则 | contracts 1.8.0 已冻结 `GET/POST /api/feedback/`、不可修改、暂不支持照片 | 前端已替换正式适配器、Mock、表单和枚举映射；未接真实 API | 使用真实角色和课堂记录完成创建、列表、权限及异常路径联调后关闭 |
+| BE-FE-15 | 10 | 阶段报告聚合、保存、发布、导出与分享 | contracts 1.8.0 已冻结 `GET /api/reports/` 实时预览；本期不保存、不发布、不提供后端导出或分享 | 前端已替换正式查询适配器和 Mock；使用 User ID，限制包含首尾最多 366 天 | 使用真实学员数据完成有数据、无数据、越权和日期边界联调后关闭 |
 
 ## Mock 与真实接口切换
 
@@ -38,4 +38,4 @@
 
 ## 当前结论
 
-前端页面可以在 Mock 模式下演示 Phase 1–9 的当前闭环。契约 1.7.0 已为 Phase 9 提供正式训练计划与课堂记录关联端点，前端已达到 `UI_READY / MOCK_READY`；由于尚未执行真实角色、租户、状态流转和异常路径联调，BE-FE-12、BE-FE-13 以及其他未关闭条目均保持 `NOT_VERIFIED`。Phase 10 的 feedback、reports 与相关 student self-service 契约仍是 DRAFT，BE-FE-14、BE-FE-15 构成当前继续开发的正式阻塞，完整交付要求见 `PHASE_10_BACKEND_HANDOFF.md`。BE-FE-10、BE-FE-11 是商业上线前的安全与隐私联合决策，不能由前端静默改变协议或伪造完成。
+前端页面可以在 Mock 模式下演示 Phase 1–10 的当前闭环。官方 contracts 1.8.0 已冻结 Phase 9 训练计划以及 Phase 10 feedback、reports 契约，前端已达到对应的 `CONTRACT_READY / API_READY / UI_READY / MOCK_READY`。由于尚未执行真实角色、租户、状态流转和异常路径联调，BE-FE-12～15 以及其他未关闭条目均保持 `NOT_VERIFIED`，不得标记 `INTEGRATED / VERIFIED`。`PHASE_10_BACKEND_HANDOFF.md` 保留为冻结前的需求与决策历史，不再代表当前阻塞状态。BE-FE-10、BE-FE-11 是商业上线前的安全与隐私联合决策，不能由前端静默改变协议或伪造完成。

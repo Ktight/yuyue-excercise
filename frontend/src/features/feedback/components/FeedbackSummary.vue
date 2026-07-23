@@ -11,6 +11,7 @@ defineProps<{ feedback: StudentFeedback | null }>();
     <p v-if="!feedback">学员暂未反馈</p>
     <template v-else>
       <strong>{{ feedbackFeelingLabel(feedback.feeling) }}</strong>
+      <p v-if="feedback.improvementNote">{{ feedback.improvementNote }}</p>
       <p>{{ feedback.comment || '未填写文字反馈' }}</p>
       <div v-if="feedback.photoUrls.length" class="photos">
         <img v-for="url in feedback.photoUrls" :key="url" :src="url" alt="学员反馈照片" />

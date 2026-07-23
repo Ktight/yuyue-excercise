@@ -5,6 +5,7 @@ export interface StudentFeedback {
   classRecordId: number;
   studentName: string;
   feeling: FeedbackFeeling;
+  improvementNote: string;
   comment: string;
   photoUrls: string[];
   canEdit: boolean;
@@ -15,6 +16,6 @@ export interface StudentFeedback {
 export interface FeedbackWriteInput {
   classRecordId: number;
   feeling: FeedbackFeeling;
+  improvementNote: string;
   comment: string;
-  photoUrls: string[];
 }

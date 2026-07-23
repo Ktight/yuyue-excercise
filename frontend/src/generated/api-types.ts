@@ -629,11 +629,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getFeedback'];
+    /** @description Students see only their own feedback; trainers see feedback for classes they taught; store managers are limited to their store; company and super administrators have tenant-scoped reads. */
+    get: operations['listFeedback'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postFeedback'];
+    /** @description Creates immutable feedback for one completed ClassRecord owned by the authenticated Student User. One ClassRecord accepts one feedback. Photos are not supported in Phase 10. */
+    post: operations['createFeedback'];
     delete?: never;
     options?: never;
     head?: never;
@@ -649,15 +649,14 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getFeedbackFeedbackId'];
+    /** @description Uses the same role and tenant visibility as the feedback list. Out-of-scope objects return 404. */
+    get: operations['retrieveFeedback'];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchFeedbackFeedbackId'];
+    patch?: never;
     trace?: never;
   };
   '/api/reminders/': {
@@ -715,23 +714,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/reports/preview/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postReportsPreview'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/reports/': {
     parameters: {
       query?: never;
@@ -739,90 +721,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getReports'];
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postReports'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/reports/{report_id}/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getReportsReportId'];
+    /** @description Computes a live, non-persistent report preview for an inclusive date range. Student IDs are accounts.User IDs. Phase 10 does not save, publish, export or share reports. */
+    get: operations['previewStudentReport'];
     put?: never;
     post?: never;
     delete?: never;
-    options?: never;
-    head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchReportsReportId'];
-    trace?: never;
-  };
-  '/api/reports/{report_id}/publish/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postReportsReportIdPublish'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/reports/{report_id}/export/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postReportsReportIdExport'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/reports/{report_id}/share/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postReportsReportIdShare'];
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    delete: operations['deleteReportsReportIdShare'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1088,40 +991,6 @@ export interface paths {
     get: operations['getStudentTrainingPlans'];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/student/reports/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStudentReports'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/student/feedback/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postStudentFeedback'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1525,8 +1394,11 @@ export interface components {
       | 'BOOKING_CANCELLATION_DEADLINE_PASSED'
       | 'ATTENDANCE_ALREADY_RECORDED'
       | 'ATTENDANCE_TOO_EARLY'
+      | 'CLASS_RECORD_NOT_FOUND'
+      | 'CLASS_RECORD_NOT_COMPLETED'
       | 'CLASS_RECORD_ALREADY_COMPLETED'
       | 'CLASS_RECORD_EDIT_FORBIDDEN'
+      | 'FEEDBACK_ALREADY_EXISTS'
       | 'BULK_OPERATION_FAILED'
       | 'FILE_TYPE_NOT_ALLOWED'
       | 'FILE_TOO_LARGE'
@@ -1766,6 +1638,89 @@ export interface components {
       code: 'OK';
       message: string;
       data: components['schemas']['ClassTemplateListData'];
+    };
+    FeedbackStudentSummary: {
+      /**
+       * Format: int64
+       * @description accounts.User primary key.
+       */
+      id: number;
+      name: string;
+      /** Format: uri */
+      avatar: string | null;
+    };
+    FeedbackTrainerSummary: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+    };
+    FeedbackClassRecordSummary: {
+      /** Format: int64 */
+      id: number;
+      /** Format: date */
+      class_date: string;
+      theme: string;
+      trainer: components['schemas']['FeedbackTrainerSummary'];
+    };
+    Feedback: {
+      /** Format: int64 */
+      readonly id: number;
+      /** Format: int64 */
+      readonly company: number;
+      /**
+       * Format: int64
+       * @description ClassRecord primary key.
+       */
+      class_record: number;
+      class_record_summary: components['schemas']['FeedbackClassRecordSummary'];
+      /** @description Feedback owner; id is an accounts.User primary key and is inferred from authentication. */
+      student: components['schemas']['FeedbackStudentSummary'];
+      /** @enum {string} */
+      feeling: 'easy' | 'moderate' | 'hard';
+      improvement_note: string;
+      comment: string;
+      /** @description Always empty in Phase 10. Feedback photo upload and attachment are deferred. */
+      readonly photos: string[];
+      /**
+       * @description Feedback is immutable after creation in Phase 10.
+       * @enum {boolean}
+       */
+      readonly is_editable: false;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    FeedbackCreateRequest: {
+      /**
+       * Format: int64
+       * @description Completed ClassRecord owned by the authenticated Student User.
+       */
+      class_record: number;
+      /** @enum {string} */
+      feeling: 'easy' | 'moderate' | 'hard';
+      /** @default  */
+      improvement_note: string;
+      /** @default  */
+      comment: string;
+    };
+    FeedbackSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Feedback'];
+    };
+    FeedbackListData: {
+      items: components['schemas']['Feedback'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    FeedbackListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['FeedbackListData'];
     };
     Company: {
       /** Format: int64 */
@@ -2386,21 +2341,140 @@ export interface components {
       message: string;
       data: components['schemas']['FileUploadData'];
     };
-    Report: {
+    ReportPersonSummary: {
+      /**
+       * Format: int64
+       * @description accounts.User primary key.
+       */
+      id: number;
+      name: string;
+      /** Format: uri */
+      avatar: string | null;
+    };
+    ReportRatingPoint: {
+      /** Format: date */
+      date: string;
       /** Format: int64 */
-      readonly id: number;
+      class_record_id: number;
+      rating: number;
+    };
+    ReportBodyAssessment: {
       /** Format: int64 */
-      readonly company_id: number;
+      id: number;
+      /** Format: date */
+      date: string;
+      height_cm: number | null;
+      weight_kg: number | null;
+      posture_spine: string;
+      posture_pelvis: string;
+      posture_shoulder: string;
+      flexibility_score: number | null;
+      core_strength_score: number | null;
+      notes: string;
+    };
+    ReportBodyChanges: {
+      height_cm: number | null;
+      weight_kg: number | null;
+      flexibility_score: number | null;
+      core_strength_score: number | null;
+    };
+    ReportBodyComparison: {
+      before: components['schemas']['ReportBodyAssessment'] | null;
+      after: components['schemas']['ReportBodyAssessment'] | null;
+      changes: components['schemas']['ReportBodyChanges'] | null;
+      /** @enum {string|null} */
+      reason:
+        | 'NO_BODY_ASSESSMENTS'
+        | 'NO_BASELINE_ASSESSMENT'
+        | 'NO_END_ASSESSMENT'
+        | 'SINGLE_BODY_ASSESSMENT'
+        | null;
+    };
+    ReportFeedbackDistribution: {
+      easy: number;
+      moderate: number;
+      hard: number;
+    };
+    ReportFeedbackComment: {
+      /** Format: date */
+      date: string;
       /** Format: int64 */
-      student_id: number;
+      class_record_id: number;
+      improvement_note: string;
+      comment: string;
+    };
+    ReportFeedbackSummary: {
+      total: number;
+      distribution: components['schemas']['ReportFeedbackDistribution'];
+      representative_comments: components['schemas']['ReportFeedbackComment'][];
+      /** @enum {string|null} */
+      reason: 'NO_FEEDBACK_DATA' | null;
+    };
+    ReportTrainerComment: {
+      /** Format: date */
+      date: string;
+      /** Format: int64 */
+      class_record_id: number;
+      /** Format: int64 */
+      trainer_id: number;
+      trainer_name: string;
+      theme: string;
+      comment: string;
+    };
+    ReportTrainingPlan: {
+      /** Format: int64 */
+      id: number;
+      title: string;
+      /** @enum {string} */
+      status: 'active' | 'completed' | 'paused';
+      /** Format: date */
+      start_date: string;
+      /** Format: date */
+      end_date: string;
+      target_frequency_per_week: number;
+      focus_tags: string[];
+      total_sessions: number;
+      completed_sessions: number;
+      progress_percentage: number;
+    };
+    ReportPreview: {
+      student: components['schemas']['ReportPersonSummary'];
+      trainer: components['schemas']['ReportPersonSummary'] | null;
       /** Format: date */
       range_start: string;
       /** Format: date */
       range_end: string;
-      /** @enum {string} */
-      status: 'draft' | 'generated' | 'published' | 'archived';
       /** Format: date-time */
-      snapshot_at: string;
+      generated_at: string;
+      /** @description Completed ClassRecords in the inclusive report range. */
+      total_sessions: number;
+      /** @description Compatibility alias of total_sessions for the Phase 10 preview UI. */
+      train_count: number;
+      /** @description Present or late attendances divided by active-booking attendance records in range; null when no attendance exists. */
+      attendance_rate: number | null;
+      /** @description Mean ClassRecord completion rating; null when no ratings exist. */
+      average_rating: number | null;
+      rating_trend: components['schemas']['ReportRatingPoint'][];
+      body_comparison: components['schemas']['ReportBodyComparison'];
+      feedback_summary: components['schemas']['ReportFeedbackSummary'];
+      trainer_comments: components['schemas']['ReportTrainerComment'][];
+      training_plan: components['schemas']['ReportTrainingPlan'] | null;
+      data_notes: (
+        | 'NO_ATTENDANCE_DATA'
+        | 'NO_RATING_DATA'
+        | 'NO_FEEDBACK_DATA'
+        | 'NO_BODY_ASSESSMENTS'
+        | 'NO_BASELINE_ASSESSMENT'
+        | 'NO_END_ASSESSMENT'
+        | 'SINGLE_BODY_ASSESSMENT'
+        | 'NO_TRAINING_PLAN'
+      )[];
+    };
+    ReportPreviewSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ReportPreview'];
     };
     DashboardMetric: {
       key: string;
@@ -2428,7 +2502,7 @@ export interface components {
       title: string;
       message: string;
       /** Format: date-time */
-      created_at: string;
+      readonly created_at: string;
     };
     RecurringRule: {
       /** @description ISO weekday numbers where Monday is 1 and Sunday is 7. */
@@ -2900,8 +2974,17 @@ export interface components {
     };
   };
   responses: {
-    /** @description 请求参数或业务校验失败 */
-    BadRequest: {
+    /** @description 未认证或令牌无效 */
+    Unauthorized: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 内部错误，不泄露 traceback 或配置 */
+    ServerError: {
       headers: {
         [name: string]: unknown;
       };
@@ -2918,15 +3001,6 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 未认证或令牌无效 */
-    Unauthorized: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
     /** @description 唯一性或资源状态冲突 */
     Conflict: {
       headers: {
@@ -2936,8 +3010,8 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 内部错误，不泄露 traceback 或配置 */
-    ServerError: {
+    /** @description 请求参数或业务校验失败 */
+    BadRequest: {
       headers: {
         [name: string]: unknown;
       };
@@ -4447,33 +4521,38 @@ export interface operations {
       500: components['responses']['ServerError'];
     };
   };
-  getFeedback: {
+  listFeedback: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        class_record_id?: number;
+        /** @description accounts.User ID. Student visibility remains fixed to self. */
+        student_id?: number;
+        /** @description Super admin only. */
+        company_id?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Paginated feedback. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['FeedbackListSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postFeedback: {
+  createFeedback: {
     parameters: {
       query?: never;
       header?: never;
@@ -4482,17 +4561,17 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['FeedbackCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Feedback created. */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['FeedbackSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -4500,10 +4579,9 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getFeedbackFeedbackId: {
+  retrieveFeedback: {
     parameters: {
       query?: never;
       header?: never;
@@ -4514,53 +4592,18 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Feedback detail. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['FeedbackSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  patchFeedbackFeedbackId: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        feedback_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   getReminders: {
@@ -4653,274 +4696,35 @@ export interface operations {
       500: components['responses']['ServerError'];
     };
   };
-  postReportsPreview: {
+  previewStudentReport: {
     parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+      query: {
+        /** @description accounts.User primary key. */
+        student_id: number;
+        /** @description Inclusive range start. */
+        start: string;
+        /** @description Inclusive range end; cannot be in the future and the inclusive range cannot exceed 366 calendar days. */
+        end: string;
       };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getReports: {
-    parameters: {
-      query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Live report preview. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['ReportPreviewSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postReports: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getReportsReportId: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  patchReportsReportId: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postReportsReportIdPublish: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postReportsReportIdExport: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postReportsReportIdShare: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  deleteReportsReportIdShare: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        report_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['EmptySuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   listRooms: {
@@ -5594,62 +5398,6 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['DraftListSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getStudentReports: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postStudentFeedback: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];

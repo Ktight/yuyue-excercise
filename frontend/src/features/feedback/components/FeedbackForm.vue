@@ -8,8 +8,8 @@ const props = defineProps<{
   onSubmit: (value: FeedbackWriteInput) => Promise<void>;
 }>();
 const feeling = ref<FeedbackFeeling>('moderate');
+const improvementNote = ref('');
 const comment = ref('');
-const photosText = ref('');
 const submitting = ref(false);
 
 async function submit() {
@@ -18,12 +18,8 @@ async function submit() {
     await props.onSubmit({
       classRecordId: props.classRecordId,
       feeling: feeling.value,
+      improvementNote: improvementNote.value.trim(),
       comment: comment.value.trim(),
-      photoUrls: photosText.value
-        .split('\n')
-        .map((value) => value.trim())
-        .filter(Boolean)
-        .slice(0, 6),
     });
   } finally {
     submitting.value = false;
@@ -34,12 +30,9 @@ async function submit() {
 <template>
   <form @submit.prevent="submit">
     <FeelingSelector v-model="feeling" />
-    <label>文字反馈<textarea v-model="comment" maxlength="500" rows="6" /></label>
-    <label
-      >照片地址（演示模式，每行一个，最多 6 张）
-      <textarea v-model="photosText" rows="3" />
-    </label>
-    <p class="hint">真实照片上传等待后端媒体契约，当前输入不会调用上传服务。</p>
+    <label>改善感受<textarea v-model="improvementNote" maxlength="1000" rows="3" /></label>
+    <label>补充反馈<textarea v-model="comment" maxlength="2000" rows="6" /></label>
+    <p class="hint">Phase 10 正式契约暂不支持反馈照片。</p>
     <button :disabled="submitting">{{ submitting ? '提交中…' : '提交反馈' }}</button>
   </form>
 </template>
