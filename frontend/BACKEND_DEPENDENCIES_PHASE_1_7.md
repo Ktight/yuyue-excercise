@@ -31,6 +31,7 @@
 | BE-FE-15 | 10 | 阶段报告聚合、保存、发布、导出与分享 | contracts 1.8.0 已冻结 `GET /api/reports/` 实时预览；本期不保存、不发布、不提供后端导出或分享 | 前端已替换正式查询适配器和 Mock；使用 User ID，限制包含首尾最多 366 天 | 使用真实学员数据完成有数据、无数据、越权和日期边界联调后关闭 |
 | BE-FE-16 | 11 | 管理/训练师/学员看板指标与统计口径 | contracts 1.8.0 为 DRAFT / NOT_STARTED | 管理看板 UI、稳定视图模型、适配器、Mock 和不兼容响应保护已完成 | 冻结时区、租户/门店范围、指标、趋势粒度和空数据语义后替换适配器并联调 |
 | BE-FE-17 | 11 | 提醒列表、已读、忽略、分类与动作链接 | contracts 1.8.0 为 DRAFT / NOT_STARTED | 提醒中心 UI、筛选、操作、适配器和 Mock 已完成 | 冻结枚举、角色、分页排序、链接白名单及操作幂等语义后替换适配器并联调 |
+| BE-FE-18 | 11 / 功能 19 | 学员训练历史、训练计划、聚合首页和完整档案自助接口 | `student_self_service` 为 DRAFT / NOT_STARTED；正式 class-records/training-plans 不允许 student | 正式 feedback、reports 学员入口已完成；草案能力未伪造 | 冻结 student home/profile/class-records/training-plans Schema、分页、权限和 ID 语义后继续 |
 
 ## Mock 与真实接口切换
 

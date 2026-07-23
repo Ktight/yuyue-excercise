@@ -25,3 +25,16 @@
 ## PA-11-03 角色范围
 
 本轮只开放管理端页面；训练师与学员看板继续使用现有首页，等待各自契约和产品范围冻结。
+
+## 功能 19 学员端阻塞
+
+可安全完成：
+
+- `/api/feedback/` 正式允许 student 自助读取，已完成“我的反馈”页面；
+- `/api/reports/` 正式允许 student 以本人 User ID 查询，已完成“我的阶段报告”页面。
+
+不可安全继续：
+
+- `/api/student/class-records/`、`/api/student/training-plans/`、`/api/student/home/` 和 `/api/student/profile/` 仍为 DRAFT；
+- 正式 `/api/class-records/` 与 `/api/training-plans/` 明确不允许 student，不能复用管理端接口绕过权限；
+- 因此训练历史、我的训练计划、学员聚合首页和完整学员档案保持阻塞，不创建虚构字段。

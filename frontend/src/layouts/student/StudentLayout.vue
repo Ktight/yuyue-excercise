@@ -10,8 +10,9 @@ const navItems = [
   { label: '预约记录', key: 'courses', to: '/student/bookings' },
   { label: '我的考勤', key: 'schedule', to: '/student/attendance' },
   { label: '我的档案', key: 'profile', to: '/profile' },
+  { label: '我的反馈', key: 'feedback', to: '/student/feedback' },
+  { label: '阶段报告', key: 'reports', to: '/student/reports' },
   { label: '训练历史', key: 'history' },
-  { label: '阶段报告', key: 'reports' },
 ];
 
 const primaryNavItems = [
