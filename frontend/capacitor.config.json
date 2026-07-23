@@ -1,0 +1,9 @@
+{
+  "appId": "com.yuyuelian.app",
+  "appName": "瑜悦练",
+  "webDir": "dist",
+  "backgroundColor": "#fbfaf8",
+  "server": {
+    "androidScheme": "https"
+  }
+}

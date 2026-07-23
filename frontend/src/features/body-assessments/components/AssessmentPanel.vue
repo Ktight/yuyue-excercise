@@ -15,6 +15,7 @@ import type {
 import AssessmentForm from './AssessmentForm.vue';
 import AssessmentHistory from './AssessmentHistory.vue';
 import AssessmentTrend from './AssessmentTrend.vue';
+import AssessmentComparison from './AssessmentComparison.vue';
 import { confirmAction } from '@/app/components';
 const props = withDefaults(defineProps<{ studentId: number; canDelete?: boolean }>(), {
   canDelete: false,
@@ -76,7 +77,9 @@ onMounted(load);
       :student-id="studentId"
       :initial="editing"
       :on-submit="save"
-    /><AssessmentTrend :trend="trend" /><AssessmentHistory
+    /><AssessmentComparison :assessments="items" /><AssessmentTrend
+      :trend="trend"
+    /><AssessmentHistory
       :assessments="items"
       :can-delete="canDelete"
       @edit="

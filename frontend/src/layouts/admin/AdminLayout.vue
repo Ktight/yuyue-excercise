@@ -53,17 +53,15 @@ const navItems = computed(() =>
     <aside class="admin-layout__sidebar" :class="{ 'is-open': sidebarOpen }">
       <div class="admin-layout__brand">瑜悦练 · 管理</div>
       <nav class="admin-layout__nav">
-        <template v-for="item in navItems" :key="item.key">
-          <RouterLink
-            v-if="item.to"
-            class="admin-layout__nav-item"
-            :to="item.to"
-            @click="sidebarOpen = false"
-          >
-            {{ item.label }}
-          </RouterLink>
-          <span v-else class="admin-layout__nav-item is-disabled"> {{ item.label }} · 待开发 </span>
-        </template>
+        <RouterLink
+          v-for="item in navItems"
+          :key="item.key"
+          class="admin-layout__nav-item"
+          :to="item.to"
+          @click="sidebarOpen = false"
+        >
+          {{ item.label }}
+        </RouterLink>
       </nav>
     </aside>
 
@@ -178,11 +176,6 @@ const navItems = computed(() =>
   color: var(--color-brand);
   font-weight: var(--font-semibold);
 }
-.admin-layout__nav-item.is-disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
 .admin-layout__main {
   flex: 1;
   display: flex;

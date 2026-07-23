@@ -18,6 +18,7 @@ import { feedbackHandlers } from '@/features/feedback';
 import { reportsHandlers } from '@/features/reports';
 import { dashboardHandlers } from '@/features/dashboard';
 import { remindersHandlers } from '@/features/reminders';
+import { studentSelfServiceHandlers } from '@/features/student-self-service';
 
 const worker = setupWorker(
   ...healthHandlers,
@@ -39,6 +40,7 @@ const worker = setupWorker(
   ...reportsHandlers,
   ...dashboardHandlers,
   ...remindersHandlers,
+  ...studentSelfServiceHandlers,
 );
 
 export async function startMocks(): Promise<void> {
