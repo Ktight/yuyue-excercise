@@ -11,6 +11,7 @@ const navItems = [
   { label: '课程模板', key: 'course-templates', to: '/trainer/course-templates' },
   { label: '预约管理', key: 'bookings', to: '/trainer/bookings' },
   { label: '签到考勤', key: 'attendance', to: '/trainer/attendance' },
+  { label: '课堂档案模板', key: 'class-templates', to: '/trainer/class-templates' },
   { label: '课时档案', key: 'records' },
   { label: '训练规划', key: 'plans' },
 ];

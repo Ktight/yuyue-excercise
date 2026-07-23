@@ -17,6 +17,7 @@ import { usersRoutes } from '@/features/users';
 import { schedulesRoutes } from '@/features/schedules';
 import { bookingsRoutes } from '@/features/bookings';
 import { attendanceRoutes } from '@/features/attendance';
+import { classTemplatesRoutes } from '@/features/class-templates';
 import { registerGuards } from './guards';
 
 const featureRoutes: RouteRecordRaw[] = [
@@ -28,6 +29,7 @@ const featureRoutes: RouteRecordRaw[] = [
   ...schedulesRoutes,
   ...bookingsRoutes,
   ...attendanceRoutes,
+  ...classTemplatesRoutes,
 ];
 
 function childrenFor(prefix: '/admin/' | '/trainer/' | '/student/'): RouteRecordRaw[] {
