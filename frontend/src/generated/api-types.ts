@@ -315,7 +315,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/uploads/presign/': {
+  '/api/upload/': {
     parameters: {
       query?: never;
       header?: never;
@@ -324,50 +324,51 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postUploadsPresign'];
+    /** @description Saves an image or video up to 10MB. Images receive a JPEG thumbnail bounded to 300x300 pixels. */
+    post: operations['uploadClassMediaFile'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/uploads/{upload_id}/complete/': {
+  '/api/class-records/{record_id}/media/': {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        upload_id: string;
+        record_id: number;
       };
       cookie?: never;
     };
-    get?: never;
+    get: operations['listClassMedia'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postUploadsUploadIdComplete'];
+    /** @description The owning trainer attaches a previously uploaded file URL to a class record. */
+    post: operations['createClassMedia'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/media/{media_id}/': {
+  '/api/class-records/{record_id}/media/{media_id}/': {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        record_id: number;
         media_id: number;
       };
       cookie?: never;
     };
-    get?: never;
+    get: operations['retrieveClassMedia'];
     put?: never;
     post?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    delete: operations['deleteMediaMediaId'];
+    /** @description Deletes the media metadata row. Uploaded-file lifecycle cleanup is deferred to the configured storage backend. */
+    delete: operations['deleteClassMedia'];
     options?: never;
     head?: never;
-    patch?: never;
+    patch: operations['updateClassMedia'];
     trace?: never;
   };
   '/api/class-records/': {
@@ -377,11 +378,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getClassRecords'];
+    /** @description Company-scoped history ordered by newest class date. Only super admins may select company_id. */
+    get: operations['listClassRecords'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postClassRecords'];
+    /** @description Creates one draft record from a present/late attendance owned by the authenticated trainer. */
+    post: operations['createClassRecord'];
     delete?: never;
     options?: never;
     head?: never;
@@ -397,15 +398,14 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getClassRecordsRecordId'];
+    get: operations['retrieveClassRecord'];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchClassRecordsRecordId'];
+    /** @description The owning trainer may edit a draft record. Completed records are immutable. */
+    patch: operations['updateClassRecord'];
     trace?: never;
   };
   '/api/class-records/{record_id}/complete/': {
@@ -419,15 +419,15 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postClassRecordsRecordIdComplete'];
+    /** @description The owning trainer transitions a draft record to completed. Repeating the action returns conflict. */
+    post: operations['completeClassRecord'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/class-records/bulk/': {
+  '/api/training/batch-records/': {
     parameters: {
       query?: never;
       header?: never;
@@ -436,8 +436,8 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postClassRecordsBulk'];
+    /** @description Atomically creates records for every present/late attendance in the trainer's schedule. Student overrides replace common values. */
+    post: operations['batchCreateClassRecords'];
     delete?: never;
     options?: never;
     head?: never;
@@ -451,11 +451,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getClassTemplates'];
+    /** @description Trainers see company-shared templates and their own personal templates. Administrators see company templates. */
+    get: operations['listClassTemplates'];
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postClassTemplates'];
+    /** @description Company administrators create personal or company-shared templates for a trainer in the same company. */
+    post: operations['createClassTemplate'];
     delete?: never;
     options?: never;
     head?: never;
@@ -471,16 +471,13 @@ export interface paths {
       };
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getClassTemplatesTemplateId'];
+    get: operations['retrieveClassTemplate'];
     put?: never;
     post?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    delete: operations['deleteClassTemplatesTemplateId'];
+    delete: operations['deleteClassTemplate'];
     options?: never;
     head?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    patch: operations['patchClassTemplatesTemplateId'];
+    patch: operations['updateClassTemplate'];
     trace?: never;
   };
   '/api/companies/': {
@@ -853,7 +850,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description Company-scoped schedules with annotated booking counts. */
+    /** @description Company-scoped schedules with active booking counts. Student requests are server-filtered to published, future, before-deadline schedules with remaining capacity, valid membership, no time conflict and no previous booking by the authenticated student. Personal booking status is intentionally read from GET /api/bookings/ and is not duplicated here. */
     get: operations['listSchedules'];
     put?: never;
     /** @description Creates one schedule, or all ISO weekdays across the requested number of weeks when schedule_mode=recurring. The operation is atomic. */
@@ -873,6 +870,7 @@ export interface paths {
       };
       cookie?: never;
     };
+    /** @description Staff may retrieve any visible company schedule. Students may retrieve only schedules that satisfy the same discovery rules as the list endpoint. */
     get: operations['retrieveSchedule'];
     put?: never;
     post?: never;
@@ -964,23 +962,6 @@ export interface paths {
     };
     /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
     get: operations['getStudentHome'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/student/schedules/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getStudentSchedules'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1721,13 +1702,69 @@ export interface components {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      company_id: number;
+      readonly company: number;
       /** Format: int64 */
-      owner_id: number;
+      trainer: number;
+      readonly trainer_name: string;
       name: string;
       /** @enum {string} */
-      scope: 'personal' | 'company';
-      content_items: Record<string, never>[];
+      scope: 'personal' | 'company_shared';
+      /** Format: int64 */
+      course_template: number | null;
+      readonly course_template_name: string | null;
+      pose_sequence: components['schemas']['PoseSequence'];
+      /** @default  */
+      notes_template: string;
+      /** @default true */
+      is_active: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ClassTemplateCreateRequest: {
+      /** Format: int64 */
+      trainer: number;
+      name: string;
+      /** @enum {string} */
+      scope: 'personal' | 'company_shared';
+      /** Format: int64 */
+      course_template?: number | null;
+      pose_sequence: components['schemas']['PoseSequence'];
+      /** @default  */
+      notes_template: string;
+      /** @default true */
+      is_active: boolean;
+    };
+    ClassTemplateUpdateRequest: {
+      /** Format: int64 */
+      trainer?: number;
+      name?: string;
+      /** @enum {string} */
+      scope?: 'personal' | 'company_shared';
+      /** Format: int64 */
+      course_template?: number | null;
+      pose_sequence?: components['schemas']['PoseSequence'];
+      notes_template?: string;
+      is_active?: boolean;
+    };
+    ClassTemplateSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ClassTemplate'];
+    };
+    ClassTemplateListData: {
+      items: components['schemas']['ClassTemplate'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    ClassTemplateListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ClassTemplateListData'];
     };
     Company: {
       /** Format: int64 */
@@ -1918,7 +1955,10 @@ export interface components {
       readonly booking: number;
       /** Format: int64 */
       readonly schedule: number;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description accounts.User primary key, not StudentProfile ID.
+       */
       readonly student: number;
       readonly student_name: string;
       readonly schedule_name: string;
@@ -1959,6 +1999,7 @@ export interface components {
     AttendanceBatchCheckInRequest: {
       /** Format: int64 */
       schedule_id: number;
+      /** @description accounts.User primary keys, not StudentProfile IDs. */
       student_ids: number[];
     };
     AttendanceBatchData: {
@@ -1981,7 +2022,10 @@ export interface components {
       data: components['schemas']['AttendanceAutoCreateData'];
     };
     StudentAttendanceStats: {
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description accounts.User primary key, not StudentProfile ID.
+       */
       student_id: number;
       total_count: number;
       attended_count: number;
@@ -2009,39 +2053,224 @@ export interface components {
       message: string;
       data: components['schemas']['AttendanceStatsData'];
     };
+    PoseItem: {
+      name: string;
+      /** @description Minutes. */
+      duration: number;
+      /** @default  */
+      notes: string;
+      /** @default  */
+      variations: string;
+      /** @default  */
+      assists: string;
+    };
+    PoseSequence: {
+      warmup: components['schemas']['PoseItem'][];
+      main: components['schemas']['PoseItem'][];
+      cooldown: components['schemas']['PoseItem'][];
+    };
+    ClassMedia: {
+      /** Format: int64 */
+      readonly id: number;
+      /** Format: int64 */
+      readonly class_record: number;
+      /** @enum {string} */
+      media_type: 'image' | 'video';
+      /** Format: uri */
+      file_url: string;
+      /**
+       * @description Empty when no thumbnail exists.
+       * @default
+       */
+      thumbnail_url: string;
+      /** @default  */
+      caption: string;
+      annotations: {
+        [key: string]: unknown;
+      } | null;
+      /** @default 0 */
+      sort_order: number;
+    };
+    ClassMediaCreateRequest: {
+      /** @enum {string} */
+      media_type: 'image' | 'video';
+      /** Format: uri */
+      file_url: string;
+      /**
+       * @description Empty when no thumbnail exists.
+       * @default
+       */
+      thumbnail_url: string;
+      /** @default  */
+      caption: string;
+      annotations?: {
+        [key: string]: unknown;
+      } | null;
+      /** @default 0 */
+      sort_order: number;
+    };
+    ClassMediaUpdateRequest: {
+      /** @enum {string} */
+      media_type?: 'image' | 'video';
+      /** Format: uri */
+      file_url?: string;
+      /** @description Empty when no thumbnail exists. */
+      thumbnail_url?: string;
+      caption?: string;
+      annotations?: {
+        [key: string]: unknown;
+      } | null;
+      sort_order?: number;
+    };
+    ClassMediaSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ClassMedia'];
+    };
+    ClassMediaListData: {
+      items: components['schemas']['ClassMedia'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    ClassMediaListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ClassMediaListData'];
+    };
     ClassRecord: {
       /** Format: int64 */
       readonly id: number;
       /** Format: int64 */
-      readonly company_id: number;
+      readonly company: number;
+      /** Format: int64 */
+      readonly attendance: number | null;
+      /** @enum {string|null} */
+      readonly attendance_status: 'present' | 'late' | 'absent' | 'leave' | null;
+      /** Format: int64 */
+      readonly schedule: number | null;
+      /** Format: int64 */
+      readonly student: number;
+      readonly student_name: string;
+      /** Format: int64 */
+      readonly trainer: number;
+      readonly trainer_name: string;
+      /** Format: int64 */
+      readonly store: number;
+      /** Format: int64 */
+      plan: number | null;
+      /** Format: date */
+      readonly class_date: string;
+      theme: string;
+      readonly session_number: number;
+      pose_sequence: components['schemas']['PoseSequence'];
+      /** @default  */
+      trainer_notes: string;
+      /** @default  */
+      homework: string;
+      completion_rating: number | null;
+      improvement_tags: string[];
+      /** @default  */
+      next_focus: string;
+      /** @enum {string} */
+      readonly status: 'draft' | 'completed';
+      readonly media: components['schemas']['ClassMedia'][];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ClassRecordCreateRequest: {
+      /** Format: int64 */
+      attendance_id: number;
+      /** Format: int64 */
+      plan?: number | null;
+      theme: string;
+      pose_sequence: components['schemas']['PoseSequence'];
+      /** @default  */
+      trainer_notes: string;
+      /** @default  */
+      homework: string;
+      completion_rating?: number | null;
+      /** @default [] */
+      improvement_tags: string[];
+      /** @default  */
+      next_focus: string;
+    };
+    ClassRecordUpdateRequest: {
+      /** Format: int64 */
+      plan?: number | null;
+      theme?: string;
+      pose_sequence?: components['schemas']['PoseSequence'];
+      trainer_notes?: string;
+      homework?: string;
+      completion_rating?: number | null;
+      improvement_tags?: string[];
+      next_focus?: string;
+    };
+    ClassRecordSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ClassRecord'];
+    };
+    ClassRecordListData: {
+      items: components['schemas']['ClassRecord'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    ClassRecordListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ClassRecordListData'];
+    };
+    BatchStudentOverride: {
+      completion_rating?: number;
+      trainer_notes?: string;
+      improvement_tags?: string[];
+      homework?: string;
+    };
+    BatchClassRecordCommonData: {
+      theme: string;
+      pose_sequence: components['schemas']['PoseSequence'];
+      /** @default  */
+      trainer_notes: string;
+      /** @default  */
+      homework: string;
+    };
+    BatchClassRecordRequest: {
       /** Format: int64 */
       schedule_id: number;
-      /** Format: int64 */
-      student_id: number;
-      /** Format: int64 */
-      trainer_id: number;
-      content: string;
-      goals: string;
-      completion: string;
-      trainer_notes: string | null;
-      student_performance: string | null;
+      common_data: components['schemas']['BatchClassRecordCommonData'];
+      student_overrides: {
+        [key: string]: components['schemas']['BatchStudentOverride'];
+      };
+    };
+    BatchClassRecordData: {
+      created_count: number;
+      items: components['schemas']['ClassRecord'][];
+    };
+    BatchClassRecordSuccessResponse: {
       /** @enum {string} */
-      status: 'draft' | 'completed';
-      media: components['schemas']['MediaResource'][];
+      code: 'OK';
+      message: string;
+      data: components['schemas']['BatchClassRecordData'];
     };
-    BulkOperationResult: {
-      succeeded: number;
-      failed: number;
-      items: Record<string, never>[];
-    };
-    Upload: {
-      upload_id: string;
+    FileUploadData: {
       /** Format: uri */
-      upload_url: string;
-      /** Format: date-time */
-      expires_at: string;
+      file_url: string;
+      /** @description Empty for videos. */
+      thumbnail_url: string;
+    };
+    FileUploadSuccessResponse: {
       /** @enum {string} */
-      status: 'pending' | 'uploaded' | 'failed' | 'deleted';
+      code: 'OK';
+      message: string;
+      data: components['schemas']['FileUploadData'];
     };
     Report: {
       /** Format: int64 */
@@ -2122,7 +2351,10 @@ export interface components {
       recurring_rule?: components['schemas']['RecurringRule'] | null;
       /** @enum {string} */
       status: 'published' | 'cancelled' | 'completed';
+      /** @description Number of active booked reservations; cancelled reservations are excluded. */
       readonly bookings_count: number;
+      /** @description max(capacity - bookings_count, 0). */
+      readonly remaining_capacity: number;
       readonly course_template_name: string;
       readonly trainer_name: string;
       readonly room_name: string;
@@ -2218,7 +2450,10 @@ export interface components {
       data: components['schemas']['ScheduleListData'];
     };
     BookingScheduleBrief: {
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description accounts.User primary key, not StudentProfile ID.
+       */
       id: number;
       course_template_name: string;
       trainer_name: string;
@@ -2259,14 +2494,14 @@ export interface components {
       schedule_id: number;
       /**
        * Format: int64
-       * @description Required for trainer or manager proxy booking; omitted for student self-booking.
+       * @description accounts.User primary key, not StudentProfile ID. Required for staff proxy booking and omitted for student self-booking.
        */
       student_id?: number;
     };
     ScheduleBookingCreateRequest: {
       /**
        * Format: int64
-       * @description Required for trainer or manager proxy booking; omitted for student self-booking.
+       * @description accounts.User primary key, not StudentProfile ID. Required for staff proxy booking and omitted for student self-booking.
        */
       student_id?: number;
     };
@@ -2551,26 +2786,8 @@ export interface components {
     };
   };
   responses: {
-    /** @description 未认证或令牌无效 */
-    Unauthorized: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
-    /** @description 资源不存在或为避免跨租户枚举而隐藏 */
-    NotFound: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
-    /** @description 内部错误，不泄露 traceback 或配置 */
-    ServerError: {
+    /** @description 请求参数或业务校验失败 */
+    BadRequest: {
       headers: {
         [name: string]: unknown;
       };
@@ -2587,8 +2804,26 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
-    /** @description 请求参数或业务校验失败 */
-    BadRequest: {
+    /** @description 内部错误，不泄露 traceback 或配置 */
+    ServerError: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 未认证或令牌无效 */
+    Unauthorized: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 资源不存在或为避免跨租户枚举而隐藏 */
+    NotFound: {
       headers: {
         [name: string]: unknown;
       };
@@ -2782,6 +3017,7 @@ export interface operations {
   getAttendanceStats: {
     parameters: {
       query?: {
+        /** @description accounts.User primary key, not StudentProfile ID. */
         student_id?: number;
         schedule_id?: number;
       };
@@ -3234,7 +3470,7 @@ export interface operations {
       409: components['responses']['Conflict'];
     };
   };
-  postUploadsPresign: {
+  uploadClassMediaFile: {
     parameters: {
       query?: never;
       header?: never;
@@ -3243,71 +3479,129 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'multipart/form-data': {
+          /** Format: binary */
+          file: string;
+          /**
+           * @description Optional when inferable from MIME type.
+           * @enum {string}
+           */
+          media_type?: 'image' | 'video';
+        };
       };
     };
     responses: {
-      /** @description 成功 */
-      200: {
+      /** @description File stored */
+      201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['FileUploadSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postUploadsUploadIdComplete: {
+  listClassMedia: {
+    parameters: {
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+      };
+      header?: never;
+      path: {
+        record_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Class media list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ClassMediaListSuccessResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  createClassMedia: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        upload_id: string;
+        record_id: number;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ClassMediaCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
-      200: {
+      /** @description Media attached */
+      201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ClassMediaSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  deleteMediaMediaId: {
+  retrieveClassMedia: {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        record_id: number;
         media_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Media detail */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ClassMediaSuccessResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+    };
+  };
+  deleteClassMedia: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        record_id: number;
+        media_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Media deleted */
       200: {
         headers: {
           [name: string]: unknown;
@@ -3316,41 +3610,77 @@ export interface operations {
           'application/json': components['schemas']['EmptySuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getClassRecords: {
+  updateClassMedia: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        record_id: number;
+        media_id: number;
+      };
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ClassMediaUpdateRequest'];
+      };
+    };
     responses: {
-      /** @description 成功 */
+      /** @description Media updated */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['ClassMediaSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postClassRecords: {
+  listClassRecords: {
+    parameters: {
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        student_id?: number;
+        trainer_id?: number;
+        date_from?: string;
+        date_to?: string;
+        /** @description Comma-separated inclusive start and end dates. */
+        date_range?: string;
+        /** @description Super admin only. */
+        company_id?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Class-record history */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ClassRecordListSuccessResponse'];
+        };
+      };
+      400: components['responses']['BadRequest'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  createClassRecord: {
     parameters: {
       query?: never;
       header?: never;
@@ -3359,17 +3689,17 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ClassRecordCreateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Class record created */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ClassRecordSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -3377,10 +3707,9 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getClassRecordsRecordId: {
+  retrieveClassRecord: {
     parameters: {
       query?: never;
       header?: never;
@@ -3391,24 +3720,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Class-record detail */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ClassRecordSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchClassRecordsRecordId: {
+  updateClassRecord: {
     parameters: {
       query?: never;
       header?: never;
@@ -3419,17 +3745,17 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ClassRecordUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Class record updated */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ClassRecordSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -3437,98 +3763,35 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postClassRecordsRecordIdComplete: {
+  completeClassRecord: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         record_id: number;
       };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  postClassRecordsBulk: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
-      };
-    };
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getClassTemplates: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Class record completed */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['ClassRecordSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  postClassTemplates: {
+  batchCreateClassRecords: {
     parameters: {
       query?: never;
       header?: never;
@@ -3537,17 +3800,17 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['BatchClassRecordRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Batch created */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['BatchClassRecordSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
@@ -3555,10 +3818,65 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
       409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  getClassTemplatesTemplateId: {
+  listClassTemplates: {
+    parameters: {
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        scope?: 'personal' | 'company_shared';
+        /** @description Super admin only. */
+        company_id?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Class-template list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ClassTemplateListSuccessResponse'];
+        };
+      };
+      400: components['responses']['BadRequest'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  createClassTemplate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ClassTemplateCreateRequest'];
+      };
+    };
+    responses: {
+      /** @description Class template created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ClassTemplateSuccessResponse'];
+        };
+      };
+      400: components['responses']['BadRequest'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  retrieveClassTemplate: {
     parameters: {
       query?: never;
       header?: never;
@@ -3569,24 +3887,21 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Class-template detail */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ClassTemplateSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  deleteClassTemplatesTemplateId: {
+  deleteClassTemplate: {
     parameters: {
       query?: never;
       header?: never;
@@ -3597,7 +3912,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Class template deleted */
       200: {
         headers: {
           [name: string]: unknown;
@@ -3606,15 +3921,12 @@ export interface operations {
           'application/json': components['schemas']['EmptySuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
-  patchClassTemplatesTemplateId: {
+  updateClassTemplate: {
     parameters: {
       query?: never;
       header?: never;
@@ -3625,25 +3937,23 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ClassTemplateUpdateRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Class template updated */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ClassTemplateSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
     };
   };
   listCompanies: {
@@ -4937,32 +5247,6 @@ export interface operations {
     };
   };
   getStudentHome: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getStudentSchedules: {
     parameters: {
       query?: never;
       header?: never;

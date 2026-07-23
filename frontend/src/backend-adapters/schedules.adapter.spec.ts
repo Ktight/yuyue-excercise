@@ -24,6 +24,7 @@ describe('schedules adapter', () => {
       storeId: 1,
       courseTemplateName: '流瑜伽基础',
       bookingsCount: 1,
+      remainingCapacity: 7,
     });
   });
   it('distinguishes single and recurring creation responses', async () => {

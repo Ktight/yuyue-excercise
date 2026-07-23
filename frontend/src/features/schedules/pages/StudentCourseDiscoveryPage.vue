@@ -61,19 +61,10 @@ onMounted(load);
         >
         <h2>{{ item.courseTemplateName }}</h2>
         <p>{{ item.trainerName }} · {{ item.roomName }}</p>
-        <p>
-          剩余 {{ Math.max(0, item.capacity - item.bookingsCount) }} / {{ item.capacity }} 个名额
-        </p>
-        <button
-          :disabled="bookingId !== null || item.bookingsCount >= item.capacity"
-          @click="book(item)"
-        >
+        <p>剩余 {{ item.remainingCapacity }} / {{ item.capacity }} 个名额</p>
+        <button :disabled="bookingId !== null || item.remainingCapacity <= 0" @click="book(item)">
           {{
-            bookingId === item.id
-              ? '预约中…'
-              : item.bookingsCount >= item.capacity
-                ? '已满员'
-                : '立即预约'
+            bookingId === item.id ? '预约中…' : item.remainingCapacity <= 0 ? '已满员' : '立即预约'
           }}
         </button>
       </article>

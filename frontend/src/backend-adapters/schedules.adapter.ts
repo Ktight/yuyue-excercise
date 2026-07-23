@@ -31,6 +31,7 @@ export function mapSchedule(v: Wire): Schedule {
     recurringRule: v.recurring_rule ?? null,
     status: v.status,
     bookingsCount: v.bookings_count,
+    remainingCapacity: v.remaining_capacity,
     courseTemplateName: v.course_template_name,
     trainerName: v.trainer_name,
     roomName: v.room_name,

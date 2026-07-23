@@ -54,6 +54,7 @@ export const schedulesHandlers = [
       recurring_rule: b.recurring_rule ?? null,
       status: b.status,
       bookings_count: 0,
+      remaining_capacity: b.capacity,
       course_template_name: 'Mock 课程',
       trainer_name: 'Mock 教练',
       room_name: 'Mock 教室',
@@ -66,7 +67,14 @@ export const schedulesHandlers = [
   http.patch('/api/schedules/:id/', async ({ params, request }) => {
     const item = MOCK_SCHEDULES.find((v) => v.id === Number(params.id));
     if (!item) return missing();
-    Object.assign(item, (await request.json()) as Update, { updated_at: new Date().toISOString() });
+    const update = (await request.json()) as Update;
+    Object.assign(item, update, {
+      remaining_capacity:
+        update.capacity === undefined
+          ? item.remaining_capacity
+          : Math.max(0, update.capacity - item.bookings_count),
+      updated_at: new Date().toISOString(),
+    });
     return ok(item);
   }),
   http.delete('/api/schedules/:id/', ({ params }) => {

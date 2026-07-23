@@ -20,6 +20,7 @@ export interface Schedule {
   recurringRule: RecurringRule | null;
   status: ScheduleStatus;
   bookingsCount: number;
+  remainingCapacity: number;
   courseTemplateName: string;
   trainerName: string;
   roomName: string;
