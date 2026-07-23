@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: 瑜悦练 API
-  version: 1.7.0
+  version: 1.8.0
   description: Project API contract. CONTRACT_READY/API_READY modules may be integrated; DRAFT modules are design and Mock
     only. See status.json.
 servers:
@@ -1828,55 +1828,75 @@ paths:
           $ref: '#/components/responses/ServerError'
   /api/feedback/:
     get:
-      operationId: getFeedback
+      operationId: listFeedback
       tags:
       - feedback
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      - student
+      x-tenant-scope: company-or-self
+      description: Students see only their own feedback; trainers see feedback for classes they taught; store managers are
+        limited to their store; company and super administrators have tenant-scoped reads.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - name: class_record_id
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: student_id
+        in: query
+        description: accounts.User ID. Student visibility remains fixed to self.
+        schema:
+          type: integer
+          minimum: 1
+      - name: company_id
+        in: query
+        description: Super admin only.
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
-          description: 成功
+          description: Paginated feedback.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/FeedbackListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
     post:
-      operationId: postFeedback
+      operationId: createFeedback
       tags:
       - feedback
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      - student
+      x-tenant-scope: self
+      description: Creates immutable feedback for one completed ClassRecord owned by the authenticated Student User. One ClassRecord
+        accepts one feedback. Photos are not supported in Phase 10.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/FeedbackCreateRequest'
       responses:
+        '201':
+          description: Feedback created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1887,14 +1907,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/feedback/{feedback_id}/:
     parameters:
     - name: feedback_id
@@ -1905,73 +1917,31 @@ paths:
         format: int64
         minimum: 1
     get:
-      operationId: getFeedbackFeedbackId
+      operationId: retrieveFeedback
       tags:
       - feedback
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      - student
+      x-tenant-scope: company-or-self
+      description: Uses the same role and tenant visibility as the feedback list. Out-of-scope objects return 404.
       responses:
         '200':
-          description: 成功
+          description: Feedback detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/FeedbackSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-    patch:
-      operationId: patchFeedbackFeedbackId
-      tags:
-      - feedback
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/reminders/:
     get:
       operationId: getReminders
@@ -2096,270 +2066,51 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/ServerError'
-  /api/reports/preview/:
-    post:
-      operationId: postReportsPreview
-      tags:
-      - reports
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/reports/:
-    post:
-      operationId: postReports
-      tags:
-      - reports
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
     get:
-      operationId: getReports
+      operationId: previewStudentReport
       tags:
       - reports
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
       - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/reports/{report_id}/:
-    parameters:
-    - name: report_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    get:
-      operationId: getReportsReportId
-      tags:
-      - reports
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-    patch:
-      operationId: patchReportsReportId
-      tags:
-      - reports
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
+      - student
+      x-tenant-scope: company-store-trainer-or-self
+      description: Computes a live, non-persistent report preview for an inclusive date range. Student IDs are accounts.User
+        IDs. Phase 10 does not save, publish, export or share reports.
+      parameters:
+      - name: student_id
+        in: query
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/reports/{report_id}/publish/:
-    parameters:
-    - name: report_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postReportsReportIdPublish
-      tags:
-      - reports
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
+        description: accounts.User primary key.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: start
+        in: query
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/reports/{report_id}/export/:
-    parameters:
-    - name: report_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postReportsReportIdExport
-      tags:
-      - reports
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
+        description: Inclusive range start.
+        schema:
+          type: string
+          format: date
+      - name: end
+        in: query
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+        description: Inclusive range end; cannot be in the future and the inclusive range cannot exceed 366 calendar days.
+        schema:
+          type: string
+          format: date
       responses:
         '200':
-          description: 成功
+          description: Live report preview.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
+                $ref: '#/components/schemas/ReportPreviewSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2368,87 +2119,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/reports/{report_id}/share/:
-    parameters:
-    - name: report_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    post:
-      operationId: postReportsReportIdShare
-      tags:
-      - reports
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-    delete:
-      operationId: deleteReportsReportIdShare
-      tags:
-      - reports
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptySuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/rooms/:
     get:
       operationId: listRooms
@@ -3263,70 +2933,6 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/ServerError'
-  /api/student/reports/:
-    get:
-      operationId: getStudentReports
-      tags:
-      - student-self-service
-      x-status: DRAFT
-      x-roles:
-      - student
-      x-tenant-scope: self
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/student/feedback/:
-    post:
-      operationId: postStudentFeedback
-      tags:
-      - student-self-service
-      x-status: DRAFT
-      x-roles:
-      - student
-      x-tenant-scope: self
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
-      responses:
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '201':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
   /api/students/:
     get:
       operationId: listStudents
@@ -4476,8 +4082,11 @@ components:
       - BOOKING_CANCELLATION_DEADLINE_PASSED
       - ATTENDANCE_ALREADY_RECORDED
       - ATTENDANCE_TOO_EARLY
+      - CLASS_RECORD_NOT_FOUND
+      - CLASS_RECORD_NOT_COMPLETED
       - CLASS_RECORD_ALREADY_COMPLETED
       - CLASS_RECORD_EDIT_FORBIDDEN
+      - FEEDBACK_ALREADY_EXISTS
       - BULK_OPERATION_FAILED
       - FILE_TYPE_NOT_ALLOWED
       - FILE_TOO_LARGE
@@ -5121,6 +4730,210 @@ components:
           type: string
         data:
           $ref: '#/components/schemas/ClassTemplateListData'
+    FeedbackStudentSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - avatar
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: accounts.User primary key.
+        name:
+          type: string
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+    FeedbackTrainerSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+    FeedbackClassRecordSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - class_date
+      - theme
+      - trainer
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        class_date:
+          type: string
+          format: date
+        theme:
+          type: string
+        trainer:
+          $ref: '#/components/schemas/FeedbackTrainerSummary'
+    Feedback:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - company
+      - class_record
+      - class_record_summary
+      - student
+      - feeling
+      - improvement_note
+      - comment
+      - photos
+      - is_editable
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        company:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        class_record:
+          type: integer
+          format: int64
+          minimum: 1
+          description: ClassRecord primary key.
+        class_record_summary:
+          $ref: '#/components/schemas/FeedbackClassRecordSummary'
+        student:
+          allOf:
+          - $ref: '#/components/schemas/FeedbackStudentSummary'
+          description: Feedback owner; id is an accounts.User primary key and is inferred from authentication.
+        feeling:
+          type: string
+          enum:
+          - easy
+          - moderate
+          - hard
+        improvement_note:
+          type: string
+          maxLength: 1000
+        comment:
+          type: string
+          maxLength: 2000
+        photos:
+          type: array
+          maxItems: 0
+          items:
+            type: string
+          readOnly: true
+          description: Always empty in Phase 10. Feedback photo upload and attachment are deferred.
+        is_editable:
+          type: boolean
+          enum:
+          - false
+          readOnly: true
+          description: Feedback is immutable after creation in Phase 10.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    FeedbackCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - class_record
+      - feeling
+      properties:
+        class_record:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Completed ClassRecord owned by the authenticated Student User.
+        feeling:
+          type: string
+          enum:
+          - easy
+          - moderate
+          - hard
+        improvement_note:
+          type: string
+          maxLength: 1000
+          default: ''
+        comment:
+          type: string
+          maxLength: 2000
+          default: ''
+    FeedbackSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Feedback'
+    FeedbackListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feedback'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    FeedbackListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/FeedbackListData'
     Company:
       type: object
       additionalProperties: false
@@ -6816,48 +6629,383 @@ components:
           type: string
         data:
           $ref: '#/components/schemas/FileUploadData'
-    Report:
+    ReportPersonSummary:
       type: object
       additionalProperties: false
       required:
       - id
-      - company_id
-      - student_id
-      - range_start
-      - range_end
-      - status
-      - snapshot_at
+      - name
+      - avatar
       properties:
         id:
           type: integer
           format: int64
           minimum: 1
-          readOnly: true
-        company_id:
+          description: accounts.User primary key.
+        name:
+          type: string
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+    ReportRatingPoint:
+      type: object
+      additionalProperties: false
+      required:
+      - date
+      - class_record_id
+      - rating
+      properties:
+        date:
+          type: string
+          format: date
+        class_record_id:
           type: integer
           format: int64
           minimum: 1
-          readOnly: true
-        student_id:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+    ReportBodyAssessment:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - date
+      - height_cm
+      - weight_kg
+      - posture_spine
+      - posture_pelvis
+      - posture_shoulder
+      - flexibility_score
+      - core_strength_score
+      - notes
+      properties:
+        id:
           type: integer
           format: int64
           minimum: 1
+        date:
+          type: string
+          format: date
+        height_cm:
+          type: number
+          nullable: true
+        weight_kg:
+          type: number
+          nullable: true
+        posture_spine:
+          type: string
+        posture_pelvis:
+          type: string
+        posture_shoulder:
+          type: string
+        flexibility_score:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        core_strength_score:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+        notes:
+          type: string
+    ReportBodyChanges:
+      type: object
+      additionalProperties: false
+      required:
+      - height_cm
+      - weight_kg
+      - flexibility_score
+      - core_strength_score
+      properties:
+        height_cm:
+          type: number
+          nullable: true
+        weight_kg:
+          type: number
+          nullable: true
+        flexibility_score:
+          type: number
+          nullable: true
+        core_strength_score:
+          type: number
+          nullable: true
+    ReportBodyComparison:
+      type: object
+      additionalProperties: false
+      required:
+      - before
+      - after
+      - changes
+      - reason
+      properties:
+        before:
+          nullable: true
+          allOf:
+          - $ref: '#/components/schemas/ReportBodyAssessment'
+        after:
+          nullable: true
+          allOf:
+          - $ref: '#/components/schemas/ReportBodyAssessment'
+        changes:
+          nullable: true
+          allOf:
+          - $ref: '#/components/schemas/ReportBodyChanges'
+        reason:
+          type: string
+          nullable: true
+          enum:
+          - NO_BODY_ASSESSMENTS
+          - NO_BASELINE_ASSESSMENT
+          - NO_END_ASSESSMENT
+          - SINGLE_BODY_ASSESSMENT
+          - null
+    ReportFeedbackDistribution:
+      type: object
+      additionalProperties: false
+      required:
+      - easy
+      - moderate
+      - hard
+      properties:
+        easy:
+          type: integer
+          minimum: 0
+        moderate:
+          type: integer
+          minimum: 0
+        hard:
+          type: integer
+          minimum: 0
+    ReportFeedbackComment:
+      type: object
+      additionalProperties: false
+      required:
+      - date
+      - class_record_id
+      - improvement_note
+      - comment
+      properties:
+        date:
+          type: string
+          format: date
+        class_record_id:
+          type: integer
+          format: int64
+          minimum: 1
+        improvement_note:
+          type: string
+        comment:
+          type: string
+    ReportFeedbackSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - total
+      - distribution
+      - representative_comments
+      - reason
+      properties:
+        total:
+          type: integer
+          minimum: 0
+        distribution:
+          $ref: '#/components/schemas/ReportFeedbackDistribution'
+        representative_comments:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/ReportFeedbackComment'
+        reason:
+          type: string
+          nullable: true
+          enum:
+          - NO_FEEDBACK_DATA
+          - null
+    ReportTrainerComment:
+      type: object
+      additionalProperties: false
+      required:
+      - date
+      - class_record_id
+      - trainer_id
+      - trainer_name
+      - theme
+      - comment
+      properties:
+        date:
+          type: string
+          format: date
+        class_record_id:
+          type: integer
+          format: int64
+          minimum: 1
+        trainer_id:
+          type: integer
+          format: int64
+          minimum: 1
+        trainer_name:
+          type: string
+        theme:
+          type: string
+        comment:
+          type: string
+    ReportTrainingPlan:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - title
+      - status
+      - start_date
+      - end_date
+      - target_frequency_per_week
+      - focus_tags
+      - total_sessions
+      - completed_sessions
+      - progress_percentage
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        title:
+          type: string
+        status:
+          type: string
+          enum:
+          - active
+          - completed
+          - paused
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        target_frequency_per_week:
+          type: integer
+          minimum: 1
+        focus_tags:
+          type: array
+          items:
+            type: string
+        total_sessions:
+          type: integer
+          minimum: 0
+        completed_sessions:
+          type: integer
+          minimum: 0
+        progress_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+    ReportPreview:
+      type: object
+      additionalProperties: false
+      required:
+      - student
+      - trainer
+      - range_start
+      - range_end
+      - generated_at
+      - total_sessions
+      - train_count
+      - attendance_rate
+      - average_rating
+      - rating_trend
+      - body_comparison
+      - feedback_summary
+      - trainer_comments
+      - training_plan
+      - data_notes
+      properties:
+        student:
+          $ref: '#/components/schemas/ReportPersonSummary'
+        trainer:
+          nullable: true
+          allOf:
+          - $ref: '#/components/schemas/ReportPersonSummary'
         range_start:
           type: string
           format: date
         range_end:
           type: string
           format: date
-        status:
-          type: string
-          enum:
-          - draft
-          - generated
-          - published
-          - archived
-        snapshot_at:
+        generated_at:
           type: string
           format: date-time
+        total_sessions:
+          type: integer
+          minimum: 0
+          description: Completed ClassRecords in the inclusive report range.
+        train_count:
+          type: integer
+          minimum: 0
+          description: Compatibility alias of total_sessions for the Phase 10 preview UI.
+        attendance_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+          nullable: true
+          description: Present or late attendances divided by active-booking attendance records in range; null when no attendance
+            exists.
+        average_rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          nullable: true
+          description: Mean ClassRecord completion rating; null when no ratings exist.
+        rating_trend:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportRatingPoint'
+        body_comparison:
+          $ref: '#/components/schemas/ReportBodyComparison'
+        feedback_summary:
+          $ref: '#/components/schemas/ReportFeedbackSummary'
+        trainer_comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportTrainerComment'
+        training_plan:
+          nullable: true
+          allOf:
+          - $ref: '#/components/schemas/ReportTrainingPlan'
+        data_notes:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - NO_ATTENDANCE_DATA
+            - NO_RATING_DATA
+            - NO_FEEDBACK_DATA
+            - NO_BODY_ASSESSMENTS
+            - NO_BASELINE_ASSESSMENT
+            - NO_END_ASSESSMENT
+            - SINGLE_BODY_ASSESSMENT
+            - NO_TRAINING_PLAN
+    ReportPreviewSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ReportPreview'
     DashboardMetric:
       type: object
       additionalProperties: false
@@ -6932,6 +7080,7 @@ components:
         created_at:
           type: string
           format: date-time
+          readOnly: true
     RecurringRule:
       type: object
       additionalProperties: false
@@ -8202,23 +8351,23 @@ components:
       schema:
         type: string
   responses:
-    BadRequest:
-      description: 请求参数或业务校验失败
+    Unauthorized:
+      description: 未认证或令牌无效
       content: &id001
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: 内部错误，不泄露 traceback 或配置
+      content: *id001
     Forbidden:
       description: 权限不足
-      content: *id001
-    Unauthorized:
-      description: 未认证或令牌无效
       content: *id001
     Conflict:
       description: 唯一性或资源状态冲突
       content: *id001
-    ServerError:
-      description: 内部错误，不泄露 traceback 或配置
+    BadRequest:
+      description: 请求参数或业务校验失败
       content: *id001
     NotFound:
       description: 资源不存在或为避免跨租户枚举而隐藏

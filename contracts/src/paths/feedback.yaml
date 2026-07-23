@@ -1,146 +1,52 @@
 /api/feedback/:
   get:
-    operationId: getFeedback
-    tags:
-    - feedback
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    operationId: listFeedback
+    tags: [feedback]
+    x-status: API_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
+    x-tenant-scope: company-or-self
+    description: Students see only their own feedback; trainers see feedback for classes they taught; store managers are limited to their store; company and super administrators have tenant-scoped reads.
+    parameters:
+      - {$ref: '../root.yaml#/components/parameters/PageParameter'}
+      - {$ref: '../root.yaml#/components/parameters/PageSizeParameter'}
+      - {name: class_record_id, in: query, schema: {type: integer, minimum: 1}}
+      - {name: student_id, in: query, description: accounts.User ID. Student visibility remains fixed to self., schema: {type: integer, minimum: 1}}
+      - {name: company_id, in: query, description: Super admin only., schema: {type: integer, minimum: 1}}
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftListSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Paginated feedback., content: {application/json: {schema: {$ref: '../schemas/feedback.yaml#/FeedbackListSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
   post:
-    operationId: postFeedback
-    tags:
-    - feedback
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    operationId: createFeedback
+    tags: [feedback]
+    x-status: API_READY
+    x-roles: [student]
+    x-tenant-scope: self
+    description: Creates immutable feedback for one completed ClassRecord owned by the authenticated Student User. One ClassRecord accepts one feedback. Photos are not supported in Phase 10.
     requestBody:
       required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
+      content: {application/json: {schema: {$ref: '../schemas/feedback.yaml#/FeedbackCreateRequest'}}}
     responses:
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-      '201':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
+      '201': {description: Feedback created., content: {application/json: {schema: {$ref: '../schemas/feedback.yaml#/FeedbackSuccessResponse'}}}}
+      '400': {$ref: '../schemas/common.yaml#/BadRequest'}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}
+      '409': {$ref: '../schemas/common.yaml#/Conflict'}
+
 /api/feedback/{feedback_id}/:
   parameters:
-  - name: feedback_id
-    in: path
-    required: true
-    schema:
-      type: integer
-      format: int64
-      minimum: 1
+    - {name: feedback_id, in: path, required: true, schema: {type: integer, format: int64, minimum: 1}}
   get:
-    operationId: getFeedbackFeedbackId
-    tags:
-    - feedback
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+    operationId: retrieveFeedback
+    tags: [feedback]
+    x-status: API_READY
+    x-roles: [super_admin, company_admin, store_manager, trainer, student]
+    x-tenant-scope: company-or-self
+    description: Uses the same role and tenant visibility as the feedback list. Out-of-scope objects return 404.
     responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
-  patch:
-    operationId: patchFeedbackFeedbackId
-    tags:
-    - feedback
-    x-status: DRAFT
-    x-roles:
-    - super_admin
-    - company_admin
-    - store_manager
-    - trainer
-    x-tenant-scope: company
-    description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../schemas/common.yaml#/DraftWriteRequest
-    responses:
-      '200':
-        description: 成功
-        content:
-          application/json:
-            schema:
-              $ref: ../schemas/common.yaml#/DraftSuccessResponse
-      '400':
-        $ref: ../schemas/common.yaml#/BadRequest
-      '401':
-        $ref: ../schemas/common.yaml#/Unauthorized
-      '403':
-        $ref: ../schemas/common.yaml#/Forbidden
-      '404':
-        $ref: ../schemas/common.yaml#/NotFound
-      '409':
-        $ref: ../schemas/common.yaml#/Conflict
-      '500':
-        $ref: ../schemas/common.yaml#/ServerError
+      '200': {description: Feedback detail., content: {application/json: {schema: {$ref: '../schemas/feedback.yaml#/FeedbackSuccessResponse'}}}}
+      '401': {$ref: '../schemas/common.yaml#/Unauthorized'}
+      '403': {$ref: '../schemas/common.yaml#/Forbidden'}
+      '404': {$ref: '../schemas/common.yaml#/NotFound'}

@@ -1,5 +1,19 @@
 # Contract Changelog
 
+## CONTRACT-20260723-11
+
+- Released contract version `1.8.0` for immutable student feedback and live stage-report previews.
+- Froze Feedback IDs, Student User IDs, ClassRecord ownership, completed-record eligibility, one-feedback-per-record uniqueness and stable 404/409 business errors.
+- Added `FeedbackFeeling` (`easy / moderate / hard`) to the synchronized enum source of truth.
+- Froze feedback visibility for students, teaching trainers, store managers, company administrators and super administrators; feedback modification and deletion are not published.
+- Explicitly deferred feedback photos in Phase 10. Responses retain an always-empty read-only array; Base64, arbitrary URLs and media IDs are rejected by the create schema.
+- Replaced draft report persistence endpoints with the implemented `GET /api/reports/` live preview, inclusive date inputs, 366-day maximum, future-date rejection and role-scoped visibility.
+- Froze completed-session counts, 0–1 attendance ratio, nullable missing-data metrics, rating points, body comparison and deltas, feedback summary, trainer comments, selected overlapping plan and machine-readable empty-data reasons.
+- Explicitly deferred report persistence, lifecycle state, export and sharing; no aspirational endpoints are published.
+- Added the formal feedback migration, permanent Phase 10 API tests and stable demo feedback/report source data.
+- Promoted feedback and reports to `CONTRACT_READY / API_READY` and removed duplicate student-self-service feedback/report placeholders.
+- Rebundled `openapi.yaml` exclusively from `contracts/src/**`.
+
 ## CONTRACT-20260723-10
 
 - Released contract version `1.7.0` for Phase 9 training plans and class-record linking.

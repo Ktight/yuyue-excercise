@@ -1,0 +1,55 @@
+{
+  "code": "OK",
+  "message": "",
+  "data": {
+    "student": {"id": 201, "name": "测试学员", "avatar": null},
+    "trainer": {"id": 101, "name": "测试教练", "avatar": null},
+    "range_start": "2026-07-01",
+    "range_end": "2026-07-07",
+    "generated_at": "2026-07-07T18:00:00+08:00",
+    "total_sessions": 1,
+    "train_count": 1,
+    "attendance_rate": 1,
+    "average_rating": 4,
+    "rating_trend": [
+      {"date": "2026-07-03", "class_record_id": 801, "rating": 4}
+    ],
+    "body_comparison": {
+      "before": {
+        "id": 501,
+        "date": "2026-06-30",
+        "height_cm": null,
+        "weight_kg": 60,
+        "posture_spine": "",
+        "posture_pelvis": "",
+        "posture_shoulder": "",
+        "flexibility_score": 5,
+        "core_strength_score": 4,
+        "notes": "仅一次评估"
+      },
+      "after": {
+        "id": 501,
+        "date": "2026-06-30",
+        "height_cm": null,
+        "weight_kg": 60,
+        "posture_spine": "",
+        "posture_pelvis": "",
+        "posture_shoulder": "",
+        "flexibility_score": 5,
+        "core_strength_score": 4,
+        "notes": "仅一次评估"
+      },
+      "changes": null,
+      "reason": "SINGLE_BODY_ASSESSMENT"
+    },
+    "feedback_summary": {
+      "total": 0,
+      "distribution": {"easy": 0, "moderate": 0, "hard": 0},
+      "representative_comments": [],
+      "reason": "NO_FEEDBACK_DATA"
+    },
+    "trainer_comments": [],
+    "training_plan": null,
+    "data_notes": ["NO_FEEDBACK_DATA", "SINGLE_BODY_ASSESSMENT", "NO_TRAINING_PLAN"]
+  }
+}

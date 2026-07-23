@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/', include('apps.members.urls')),
     path('api/', include('apps.attendance.urls')),
     path('api/', include('apps.training.urls')),
+    path('api/', include('apps.feedback.urls')),
     path('api/', include('config.api_urls')),
 ]
 

@@ -1,0 +1,37 @@
+{
+  "code": "OK",
+  "message": "",
+  "data": {
+    "student": {"id": 201, "name": "测试学员", "avatar": null},
+    "trainer": null,
+    "range_start": "2026-07-01",
+    "range_end": "2026-07-28",
+    "generated_at": "2026-07-28T18:00:00+08:00",
+    "total_sessions": 0,
+    "train_count": 0,
+    "attendance_rate": null,
+    "average_rating": null,
+    "rating_trend": [],
+    "body_comparison": {
+      "before": null,
+      "after": null,
+      "changes": null,
+      "reason": "NO_BODY_ASSESSMENTS"
+    },
+    "feedback_summary": {
+      "total": 0,
+      "distribution": {"easy": 0, "moderate": 0, "hard": 0},
+      "representative_comments": [],
+      "reason": "NO_FEEDBACK_DATA"
+    },
+    "trainer_comments": [],
+    "training_plan": null,
+    "data_notes": [
+      "NO_ATTENDANCE_DATA",
+      "NO_RATING_DATA",
+      "NO_FEEDBACK_DATA",
+      "NO_BODY_ASSESSMENTS",
+      "NO_TRAINING_PLAN"
+    ]
+  }
+}

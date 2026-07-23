@@ -1,6 +1,6 @@
 {
-  "code": "CONFLICT",
-  "message": "资源状态冲突",
+  "code": "FEEDBACK_ALREADY_EXISTS",
+  "message": "该课时已经提交过反馈。",
   "errors": {},
   "request_id": "req_example"
 }
