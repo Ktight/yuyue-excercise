@@ -1,6 +1,6 @@
 {
-  "code": "NOT_FOUND",
-  "message": "资源不存在",
+  "code": "CLASS_RECORD_NOT_FOUND",
+  "message": "课时记录不存在。",
   "errors": {},
   "request_id": "req_example"
 }

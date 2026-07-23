@@ -6,6 +6,7 @@ __pycache__/
 .coverage
 htmlcov/
 .codex_tmp/
+.tmp/
 
 # Virtual environments and local configuration
 .venv/

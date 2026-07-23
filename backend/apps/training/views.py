@@ -20,13 +20,15 @@ from core.permissions import IsCompanyAdmin, IsTrainer
 from core.responses import success_response
 from utils.storage import generate_thumbnail, get_media_storage, get_upload_path
 
-from .models import ClassMedia, ClassRecord, ClassTemplate
+from .models import ClassMedia, ClassRecord, ClassTemplate, TrainingPlan
 from .serializers import (
     BatchClassRecordSerializer,
     ClassMediaSerializer,
     ClassRecordCreateSerializer,
     ClassRecordSerializer,
     ClassTemplateSerializer,
+    TrainingPlanCreateSerializer,
+    TrainingPlanSerializer,
 )
 from .services import batch_create_class_records
 
@@ -65,6 +67,21 @@ class ClassTemplatePermission(BasePermission):
         if request.method in SAFE_METHODS:
             return role in IsTrainer.allowed_roles
         return role in IsCompanyAdmin.allowed_roles
+
+
+class TrainingPlanPermission(BasePermission):
+    """Trainers own plan writes; staff roles have tenant-scoped reads."""
+
+    def has_permission(self, request, view):
+        role = getattr(request.user, 'role', None)
+        if request.method in SAFE_METHODS:
+            return role in IsTrainer.allowed_roles
+        return role == UserRole.TRAINER
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return obj.trainer_id == request.user.id
 
 
 class ClassRecordViewSet(ContractResponseMixin, viewsets.ModelViewSet):
@@ -159,6 +176,23 @@ class ClassRecordViewSet(ContractResponseMixin, viewsets.ModelViewSet):
         record.save(update_fields=['status', 'updated_at'])
         return success_response(data=ClassRecordSerializer(record).data)
 
+    @action(detail=True, methods=['post'])
+    def unlink(self, request, *args, **kwargs):
+        record = self.get_object()
+        if record.plan_id is None:
+            raise ConflictError(
+                code='CLASS_RECORD_NOT_LINKED',
+                message='课时记录未关联训练规划。',
+            )
+        record.plan = None
+        record.save(update_fields=['plan', 'updated_at'])
+        return success_response(
+            data=ClassRecordSerializer(
+                record,
+                context=self.get_serializer_context(),
+            ).data
+        )
+
 
 class ClassMediaViewSet(ContractResponseMixin, viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
@@ -251,6 +285,111 @@ class ClassTemplateViewSet(ContractResponseMixin, viewsets.ModelViewSet):
                 {'course_template': ['课程类型必须属于目标公司。']}
             )
         serializer.save(company_id=company_id)
+
+
+class TrainingPlanViewSet(ContractResponseMixin, viewsets.ModelViewSet):
+    http_method_names = [
+        'get',
+        'post',
+        'patch',
+        'delete',
+        'head',
+        'options',
+    ]
+    serializer_class = TrainingPlanSerializer
+    permission_classes = [TrainingPlanPermission]
+    queryset = TrainingPlan.objects.select_related(
+        'company',
+        'student',
+        'student__user',
+        'trainer',
+    )
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return TrainingPlanCreateSerializer
+        return TrainingPlanSerializer
+
+    def get_queryset(self):
+        queryset = _tenant_queryset(
+            super().get_queryset(),
+            self.request.user,
+            self.request.query_params.get('company_id'),
+        )
+        if self.request.user.role == UserRole.TRAINER:
+            queryset = queryset.filter(trainer=self.request.user)
+
+        student_id = (
+            self.request.query_params.get('student_id')
+            or self.request.query_params.get('student')
+        )
+        if student_id:
+            queryset = queryset.filter(student_id=student_id)
+        trainer_id = (
+            self.request.query_params.get('trainer_id')
+            or self.request.query_params.get('trainer')
+        )
+        if trainer_id:
+            queryset = queryset.filter(trainer_id=trainer_id)
+        status_value = self.request.query_params.get('status')
+        if status_value:
+            allowed = {value for value, _ in TrainingPlan.STATUS_CHOICES}
+            if status_value not in allowed:
+                raise serializers.ValidationError(
+                    {'status': ['无效的训练规划状态。']}
+                )
+            queryset = queryset.filter(status=status_value)
+        return queryset
+
+    def perform_create(self, serializer):
+        company_id = self.request.user.company_id
+        if company_id is None:
+            raise serializers.ValidationError(
+                {'company': ['当前训练师必须关联公司。']}
+            )
+        serializer.save(
+            trainer=self.request.user,
+            company_id=company_id,
+        )
+
+    @action(detail=True, methods=['post'])
+    def complete(self, request, *args, **kwargs):
+        plan = self.get_object()
+        if plan.status == 'completed':
+            raise ConflictError(
+                code='TRAINING_PLAN_ALREADY_COMPLETED',
+                message='训练规划已经完成。',
+            )
+        plan.status = 'completed'
+        plan.save(update_fields=['status', 'updated_at'])
+        return success_response(
+            data=TrainingPlanSerializer(
+                plan,
+                context=self.get_serializer_context(),
+            ).data
+        )
+
+    @action(detail=True, methods=['post'])
+    def pause(self, request, *args, **kwargs):
+        plan = self.get_object()
+        if plan.status == 'completed':
+            raise ConflictError(
+                code='TRAINING_PLAN_COMPLETED',
+                message='已完成的训练规划不能暂停。',
+            )
+        if plan.status == 'paused':
+            raise ConflictError(
+                code='TRAINING_PLAN_ALREADY_PAUSED',
+                message='训练规划已经暂停。',
+            )
+        plan.status = 'paused'
+        plan.save(update_fields=['status', 'updated_at'])
+        return success_response(
+            data=TrainingPlanSerializer(
+                plan,
+                context=self.get_serializer_context(),
+            ).data
+        )
 
 
 class BatchClassRecordView(APIView):

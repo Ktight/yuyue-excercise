@@ -5,41 +5,41 @@ from core.mixins import TenantModelMixin
 
 
 class TrainingPlan(TenantModelMixin):
-    """Phase 9 extension point required by ClassRecord.plan."""
+    """A student's trainer-authored plan for a bounded training period."""
 
     STATUS_CHOICES = (
-        ('draft', '草稿'),
         ('active', '进行中'),
         ('completed', '已完成'),
-        ('cancelled', '已取消'),
+        ('paused', '已暂停'),
     )
 
     student = models.ForeignKey(
-        'accounts.User',
+        'members.StudentProfile',
         on_delete=models.CASCADE,
         related_name='training_plans',
     )
     trainer = models.ForeignKey(
         'accounts.User',
         on_delete=models.CASCADE,
-        related_name='managed_training_plans',
+        related_name='created_plans',
     )
-    name = models.CharField(max_length=200)
-    starts_on = models.DateField()
-    ends_on = models.DateField()
+    title = models.CharField(max_length=200)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    target_frequency_per_week = models.PositiveIntegerField(default=2)
+    goal_description = models.TextField()
+    focus_tags = models.JSONField(default=list)
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
-        default='draft',
     )
-    stages = models.JSONField(default=list)
 
     class Meta:
         db_table = 'training_plans'
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.name
+        return self.title
 
 
 class ClassRecord(TenantModelMixin):

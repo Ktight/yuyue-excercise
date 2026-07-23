@@ -222,6 +222,13 @@ def main():
         'training-plans/complete.success.json': 'TrainingPlanSuccessResponse',
         'training-plans/pause.success.json': 'TrainingPlanSuccessResponse',
         'training-plans/delete.success.json': 'EmptySuccessResponse',
+        'feedback/list.success.json': 'FeedbackListSuccessResponse',
+        'feedback/detail.success.json': 'FeedbackSuccessResponse',
+        'feedback/create.request.json': 'FeedbackCreateRequest',
+        'feedback/create.success.json': 'FeedbackSuccessResponse',
+        'reports/preview.success.json': 'ReportPreviewSuccessResponse',
+        'reports/preview-empty.success.json': 'ReportPreviewSuccessResponse',
+        'reports/preview-single.success.json': 'ReportPreviewSuccessResponse',
     }
     for example in examples:
         value = json.loads(example.read_text(encoding='utf-8'))

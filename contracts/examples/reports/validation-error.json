@@ -2,8 +2,8 @@
   "code": "VALIDATION_ERROR",
   "message": "请求参数校验失败",
   "errors": {
-    "field": [
-      "字段不合法"
+    "end": [
+      "结束日期不能晚于今天。"
     ]
   },
   "request_id": "req_example"

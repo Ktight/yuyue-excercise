@@ -46,5 +46,10 @@
   "ClassRecordStatus": {
     "draft": "草稿",
     "completed": "已完成"
+  },
+  "FeedbackFeeling": {
+    "easy": "轻松",
+    "moderate": "适中",
+    "hard": "吃力"
   }
 }

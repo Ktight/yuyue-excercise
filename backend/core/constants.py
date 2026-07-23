@@ -113,3 +113,15 @@ class ClassRecordStatus:
         (DRAFT, '草稿'),
         (COMPLETED, '已完成'),
     )
+
+
+class FeedbackFeeling:
+    EASY = 'easy'
+    MODERATE = 'moderate'
+    HARD = 'hard'
+
+    CHOICES = (
+        (EASY, '轻松'),
+        (MODERATE, '适中'),
+        (HARD, '吃力'),
+    )

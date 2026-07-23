@@ -11,7 +11,9 @@ from apps.accounts.models import User
 from apps.attendance.models import Attendance
 from apps.companies.models import Company, Room, Store
 from apps.courses.models import CourseBooking, CourseSchedule, CourseTemplate
-from apps.members.models import StudentProfile
+from apps.feedback.models import StudentFeedback
+from apps.members.models import BodyAssessment, StudentProfile
+from apps.training.models import ClassRecord, TrainingPlan
 from core.constants import (
     AttendanceStatus,
     CourseCategory,
@@ -238,6 +240,37 @@ class Command(BaseCommand):
         )
 
     def seed_phase_6_7_states(self, today, company, store, trainer, student):
+        profile = StudentProfile.objects.get(user=student)
+        plan, _ = TrainingPlan.objects.update_or_create(
+            student=profile,
+            title='Demo Phase 10 Training Plan',
+            defaults={
+                'company': company,
+                'trainer': trainer,
+                'start_date': today - timedelta(days=28),
+                'end_date': today,
+                'target_frequency_per_week': 2,
+                'goal_description': 'Demo report progress and feedback.',
+                'focus_tags': ['core', 'mobility'],
+                'status': 'active',
+            },
+        )
+        for assess_date, weight, core_score, label in (
+            (today - timedelta(days=28), 60, 5, 'Demo baseline'),
+            (today - timedelta(days=1), 58, 7, 'Demo follow-up'),
+        ):
+            BodyAssessment.objects.update_or_create(
+                student=profile,
+                assess_date=assess_date,
+                defaults={
+                    'weight': weight,
+                    'flexibility_score': core_score,
+                    'core_strength_score': core_score,
+                    'photos': [],
+                    'notes': label,
+                },
+            )
+
         room, _ = Room.objects.update_or_create(
             store=store,
             name='Demo Integration Room',
@@ -306,7 +339,7 @@ class Command(BaseCommand):
                     datetime.combine(schedule.course_date, schedule.start_time)
                     + timedelta(minutes=minutes)
                 )
-            Attendance.objects.update_or_create(
+            attendance, _ = Attendance.objects.update_or_create(
                 booking=booking,
                 defaults={
                     'company': company,
@@ -317,6 +350,49 @@ class Command(BaseCommand):
                     'checked_by': trainer,
                 },
             )
+            if status in {AttendanceStatus.PRESENT, AttendanceStatus.LATE}:
+                record, _ = ClassRecord.objects.update_or_create(
+                    attendance=attendance,
+                    defaults={
+                        'company': company,
+                        'schedule': schedule,
+                        'student': student,
+                        'trainer': trainer,
+                        'store': store,
+                        'plan': plan,
+                        'class_date': schedule.course_date,
+                        'theme': f'Demo {status} class record',
+                        'session_number': 1 if status == AttendanceStatus.PRESENT else 2,
+                        'pose_sequence': {
+                            'warmup': [],
+                            'main': [],
+                            'cooldown': [],
+                        },
+                        'trainer_notes': f'Demo trainer comment for {status}.',
+                        'homework': 'Demo home practice.',
+                        'completion_rating': (
+                            4 if status == AttendanceStatus.PRESENT else 3
+                        ),
+                        'improvement_tags': ['core'],
+                        'next_focus': 'mobility',
+                        'status': 'completed',
+                    },
+                )
+                StudentFeedback.objects.update_or_create(
+                    class_record=record,
+                    defaults={
+                        'company': company,
+                        'student': student,
+                        'feeling': (
+                            'moderate'
+                            if status == AttendanceStatus.PRESENT
+                            else 'hard'
+                        ),
+                        'improvement_note': 'Demo improvement note.',
+                        'comment': 'Demo student feedback.',
+                        'photos': [],
+                    },
+                )
 
     @staticmethod
     def upsert_schedule(
