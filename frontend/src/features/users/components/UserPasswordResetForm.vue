@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { getErrorMessage } from '@/shared/api';
+import { confirmAction } from '@/app/components';
 const props = defineProps<{ onSubmit: (password: string) => Promise<void> }>();
 const password = ref(''),
   confirmation = ref(''),
@@ -17,7 +18,15 @@ async function submit() {
     error.value = '两次输入的密码不一致';
     return;
   }
-  if (!globalThis.confirm('确认重置该用户的登录密码？')) return;
+  if (
+    !(await confirmAction({
+      title: '重置登录密码',
+      message: '重置后请通过安全渠道单独告知用户，并要求用户尽快修改临时密码。',
+      confirmText: '确认重置',
+      danger: true,
+    }))
+  )
+    return;
   saving.value = true;
   error.value = '';
   try {

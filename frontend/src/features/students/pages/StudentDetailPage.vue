@@ -6,6 +6,7 @@ import type { Student, StudentCreateInput, StudentUpdateInput } from '@/features
 import { MembershipPanel, StudentDetailTabs, StudentForm } from '@/features/students/components';
 import type { StudentDetailTab } from '@/features/students/components';
 import { AssessmentPanel } from '@/features/body-assessments';
+import { StudentTrainingPlansPanel } from '@/features/training-plans';
 import { useAuthStore } from '@/features/auth';
 import { AppPage, AppLoading, AppError } from '@/app/components';
 const route = useRoute(),
@@ -43,8 +44,10 @@ onMounted(load);
         v-else-if="tab === 'membership'"
         :student-id="student.id"
         :readonly="!canEditMembership" /><AssessmentPanel
-        v-else
+        v-else-if="tab === 'assessment'"
         :student-id="student.id"
-        :can-delete="isAdmin" /></template
+        :can-delete="isAdmin" /><StudentTrainingPlansPanel
+        v-else
+        :student-id="student.id" /></template
   ></AppPage>
 </template>

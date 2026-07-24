@@ -17,6 +17,7 @@ export const MOCK_SCHEDULES: MockSchedule[] = [
     recurring_rule: null,
     status: 'published',
     bookings_count: 1,
+    remaining_capacity: 7,
     course_template_name: '流瑜伽基础',
     trainer_name: '演示教练',
     room_name: '一号教室',

@@ -16,6 +16,10 @@ describe('auth backend adapter', () => {
     expect(result.refreshToken).toBe(MOCK_REFRESH_TOKEN);
     expect(result.user.companyId).toBe(1);
   });
+  it('returns the requested administrator role in mock integration', async () => {
+    const result = await login({ phone: '13800000001', password: '12345678' });
+    expect(result.user.role).toBe('super_admin');
+  });
   it('refreshes with a body token and maps the rotated pair', async () => {
     const result = await refreshToken({ refresh_token: MOCK_REFRESH_TOKEN });
     expect(result.refreshToken).toBe('mock-rotated-refresh-token');

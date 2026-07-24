@@ -7,5 +7,6 @@ describe('StudentDetailTabs', () => {
     expect(wrapper.get('.active').text()).toBe('档案信息');
     await wrapper.get('button:nth-child(2)').trigger('click');
     expect(wrapper.emitted('update:modelValue')).toEqual([['membership']]);
+    expect(wrapper.findAll('button').map((button) => button.text())).toContain('训练规划');
   });
 });

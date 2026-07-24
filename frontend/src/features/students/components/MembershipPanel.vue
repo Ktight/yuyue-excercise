@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
+import { getErrorMessage } from '@/shared/api';
 import { fetchEligibility, fetchMembership, updateMembership } from '@/features/students/api';
 import type { Membership, StudentEligibility } from '@/features/students/model';
 const props = withDefaults(defineProps<{ studentId: number; readonly?: boolean }>(), {
@@ -14,7 +15,7 @@ const form = reactive({
   startsOn: '',
   expiresOn: '',
   remainingCount: 0,
-  balanceMinor: 0,
+  balanceYuan: 0,
   active: true,
 });
 async function load() {
@@ -28,7 +29,7 @@ async function load() {
       startsOn: current.startsOn,
       expiresOn: current.expiresOn,
       remainingCount: current.remainingCount ?? 0,
-      balanceMinor: current.balanceMinor ?? 0,
+      balanceYuan: (current.balanceMinor ?? 0) / 100,
       active: current.active,
     });
   } catch {
@@ -37,12 +38,24 @@ async function load() {
 }
 async function save() {
   if (props.readonly) return;
+  if (form.startsOn > form.expiresOn) {
+    error.value = '到期日期不能早于开始日期';
+    return;
+  }
   saving.value = true;
+  error.value = '';
   try {
-    membership.value = await updateMembership(props.studentId, { ...form });
+    membership.value = await updateMembership(props.studentId, {
+      cardType: form.cardType,
+      startsOn: form.startsOn,
+      expiresOn: form.expiresOn,
+      remainingCount: form.cardType === 'count' ? form.remainingCount : null,
+      balanceMinor: form.cardType === 'stored' ? Math.round(Number(form.balanceYuan) * 100) : null,
+      active: form.active,
+    });
     await load();
-  } catch {
-    error.value = '会员资格保存失败';
+  } catch (cause) {
+    error.value = getErrorMessage(cause, '会员资格保存失败');
   } finally {
     saving.value = false;
   }
@@ -51,7 +64,7 @@ onMounted(load);
 </script>
 <template>
   <section>
-    <p v-if="error" class="error">{{ error }}</p>
+    <p v-if="error" class="error" role="alert">{{ error }}</p>
     <template v-if="membership"
       ><div class="eligibility" :class="{ invalid: !eligibility?.isEligible }">
         <strong>{{ eligibility?.isEligible ? '当前可预约' : '当前不可预约' }}</strong
@@ -80,10 +93,11 @@ onMounted(load);
             :disabled="readonly || saving"
         /></label>
         ><label v-if="form.cardType === 'stored'"
-          >余额（分）<input
-            v-model.number="form.balanceMinor"
+          >余额（元）<input
+            v-model.number="form.balanceYuan"
             type="number"
             min="0"
+            step="0.01"
             :disabled="readonly || saving"
         /></label>
         <label class="check"

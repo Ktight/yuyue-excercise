@@ -24,6 +24,10 @@ const allNavItems = [
   { label: '排课管理', key: 'scheduling', to: '/admin/schedules' },
   { label: '预约管理', key: 'bookings', to: '/admin/bookings' },
   { label: '签到考勤', key: 'attendance', to: '/admin/attendance' },
+  { label: '课堂档案模板', key: 'class-templates', to: '/admin/class-templates' },
+  { label: '课时档案', key: 'class-records', to: '/admin/class-records' },
+  { label: '训练计划', key: 'training-plans', to: '/admin/training-plans' },
+  { label: '阶段报告', key: 'reports', to: '/admin/reports' },
   { label: '数据看板', key: 'analytics' },
 ];
 const navItems = computed(() =>

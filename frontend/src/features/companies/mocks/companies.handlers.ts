@@ -42,4 +42,10 @@ export const companiesHandlers = [
     Object.assign(item, (await request.json()) as Update);
     return HttpResponse.json({ code: 'OK', message: '', data: item });
   }),
+  http.delete('/api/companies/:id/', ({ params }) => {
+    const index = MOCK_COMPANIES.findIndex((v) => v.id === Number(params.id));
+    if (index < 0) return missing();
+    MOCK_COMPANIES.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];

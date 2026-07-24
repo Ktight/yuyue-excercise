@@ -11,15 +11,17 @@ const navItems = [
   { label: '课程模板', key: 'course-templates', to: '/trainer/course-templates' },
   { label: '预约管理', key: 'bookings', to: '/trainer/bookings' },
   { label: '签到考勤', key: 'attendance', to: '/trainer/attendance' },
-  { label: '课时档案', key: 'records' },
-  { label: '训练规划', key: 'plans' },
+  { label: '课堂档案模板', key: 'class-templates', to: '/trainer/class-templates' },
+  { label: '课时档案', key: 'records', to: '/trainer/class-records' },
+  { label: '训练规划', key: 'plans', to: '/trainer/training-plans' },
+  { label: '阶段报告', key: 'reports', to: '/trainer/reports' },
 ];
 
 const mobileNavItems = [
   { label: '首页', key: 'home', icon: '⌂', to: '/trainer' },
   { label: '学员', key: 'students', icon: '♙', to: '/trainer/students' },
   { label: '课程', key: 'courses', icon: '□', to: '/trainer/schedules' },
-  { label: '我的', key: 'profile', icon: '○' },
+  { label: '我的', key: 'profile', icon: '○', to: '/profile' },
 ];
 </script>
 

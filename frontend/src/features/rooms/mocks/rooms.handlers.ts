@@ -39,4 +39,10 @@ export const roomsHandlers = [
     Object.assign(item, (await request.json()) as Update);
     return HttpResponse.json({ code: 'OK', message: '', data: item });
   }),
+  http.delete('/api/rooms/:id/', ({ params }) => {
+    const index = MOCK_ROOMS.findIndex((v) => v.id === Number(params.id));
+    if (index < 0) return missing();
+    MOCK_ROOMS.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];

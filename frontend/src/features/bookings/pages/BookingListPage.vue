@@ -3,7 +3,14 @@ import { onMounted, ref } from 'vue';
 import { cancelBooking, fetchBookings } from '@/features/bookings/api';
 import type { Booking } from '@/features/bookings/model';
 import { BookingCard } from '@/features/bookings/components';
-import { AppPage, AppLoading, AppEmpty, AppError, AppPagination } from '@/app/components';
+import {
+  AppPage,
+  AppLoading,
+  AppEmpty,
+  AppError,
+  AppPagination,
+  confirmAction,
+} from '@/app/components';
 import { getErrorMessage } from '@/shared/api';
 const items = ref<Booking[]>([]),
   loading = ref(true),
@@ -40,7 +47,16 @@ function changePage(value: number) {
   void load();
 }
 async function cancel(id: number) {
-  if (cancellingId.value !== null || !globalThis.confirm('确认取消这条预约？')) return;
+  if (
+    cancellingId.value !== null ||
+    !(await confirmAction({
+      title: '取消预约',
+      message: '取消后名额将被释放，会员权益是否返还以系统规则为准。',
+      confirmText: '确认取消',
+      danger: true,
+    }))
+  )
+    return;
   cancellingId.value = id;
   actionError.value = '';
   try {

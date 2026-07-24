@@ -15,6 +15,7 @@ import type {
 import AssessmentForm from './AssessmentForm.vue';
 import AssessmentHistory from './AssessmentHistory.vue';
 import AssessmentTrend from './AssessmentTrend.vue';
+import { confirmAction } from '@/app/components';
 const props = withDefaults(defineProps<{ studentId: number; canDelete?: boolean }>(), {
   canDelete: false,
 });
@@ -41,6 +42,15 @@ async function save(value: BodyAssessmentWriteInput) {
   await load();
 }
 async function remove(id: number) {
+  if (
+    !(await confirmAction({
+      title: '删除身体评估',
+      message: '确认删除这条身体评估记录？该操作无法恢复。',
+      confirmText: '确认删除',
+      danger: true,
+    }))
+  )
+    return;
   await deleteAssessment(id);
   await load();
 }

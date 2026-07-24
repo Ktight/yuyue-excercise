@@ -74,3 +74,6 @@ export async function updateCompany(
 export function setCompanyActive(id: number, active: boolean): Promise<Company> {
   return updateCompany(id, { status: active ? 'active' : 'inactive' });
 }
+export async function deleteCompany(id: number): Promise<void> {
+  await httpClient.delete(`/companies/${id}/`);
+}

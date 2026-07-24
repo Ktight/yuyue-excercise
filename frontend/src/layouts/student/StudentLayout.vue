@@ -9,16 +9,16 @@ const navItems = [
   { label: '我的课程', key: 'discover', to: '/student/courses' },
   { label: '预约记录', key: 'courses', to: '/student/bookings' },
   { label: '我的考勤', key: 'schedule', to: '/student/attendance' },
-  { label: '我的档案', key: 'profile' },
+  { label: '我的档案', key: 'profile', to: '/profile' },
   { label: '训练历史', key: 'history' },
   { label: '阶段报告', key: 'reports' },
 ];
 
 const primaryNavItems = [
   { label: '首页', key: 'home', icon: '⌂', to: '/student' },
-  { label: '学员', key: 'students', icon: '♙' },
+  { label: '预约', key: 'bookings', icon: '♙', to: '/student/bookings' },
   { label: '课程', key: 'courses', icon: '□', to: '/student/courses' },
-  { label: '我的', key: 'profile', icon: '○' },
+  { label: '我的', key: 'profile', icon: '○', to: '/profile' },
 ];
 </script>
 

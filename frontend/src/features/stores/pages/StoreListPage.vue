@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchStores } from '@/features/stores/api';
 import type { ResourceStatus, Store } from '@/features/stores/model';
 import { StoreList } from '@/features/stores/components';
 import { AppPage, AppLoading, AppEmpty, AppError, AppPagination } from '@/app/components';
+import { useAuthStore } from '@/features/auth';
 const router = useRouter();
+const auth = useAuthStore();
+const canCreate = computed(() => ['super_admin', 'company_admin'].includes(auth.userRole ?? ''));
 const stores = ref<Store[]>([]);
 const loading = ref(true);
 const error = ref('');
@@ -45,7 +48,7 @@ onMounted(load);
 <template>
   <AppPage title="门店管理"
     ><template #header-extra
-      ><button class="btn-primary" @click="router.push('/admin/stores/new')">
+      ><button v-if="canCreate" class="btn-primary" @click="router.push('/admin/stores/new')">
         新建门店
       </button></template
     >
