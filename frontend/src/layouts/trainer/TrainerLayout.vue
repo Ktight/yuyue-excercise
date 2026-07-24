@@ -38,19 +38,15 @@ const mobileNavItems = [
     <aside class="trainer-layout__sidebar" :class="{ 'is-open': sidebarOpen }">
       <div class="trainer-layout__brand">瑜悦练 · 训练师</div>
       <nav class="trainer-layout__nav">
-        <template v-for="item in navItems" :key="item.key">
-          <RouterLink
-            v-if="item.to"
-            class="trainer-layout__nav-item"
-            :to="item.to"
-            @click="sidebarOpen = false"
-          >
-            {{ item.label }}
-          </RouterLink>
-          <span v-else class="trainer-layout__nav-item is-disabled">
-            {{ item.label }} · 待开发
-          </span>
-        </template>
+        <RouterLink
+          v-for="item in navItems"
+          :key="item.key"
+          class="trainer-layout__nav-item"
+          :to="item.to"
+          @click="sidebarOpen = false"
+        >
+          {{ item.label }}
+        </RouterLink>
       </nav>
     </aside>
 
@@ -68,16 +64,15 @@ const mobileNavItems = [
     </div>
 
     <nav class="trainer-layout__mobile-nav" aria-label="训练师主导航">
-      <template v-for="item in mobileNavItems" :key="item.key">
-        <RouterLink v-if="item.to" class="trainer-layout__mobile-item" :to="item.to">
-          <span class="trainer-layout__mobile-icon" aria-hidden="true">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
-        </RouterLink>
-        <span v-else class="trainer-layout__mobile-item is-disabled">
-          <span class="trainer-layout__mobile-icon" aria-hidden="true">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
-        </span>
-      </template>
+      <RouterLink
+        v-for="item in mobileNavItems"
+        :key="item.key"
+        class="trainer-layout__mobile-item"
+        :to="item.to"
+      >
+        <span class="trainer-layout__mobile-icon" aria-hidden="true">{{ item.icon }}</span>
+        <span>{{ item.label }}</span>
+      </RouterLink>
     </nav>
   </div>
 </template>
@@ -176,11 +171,6 @@ const mobileNavItems = [
   background: linear-gradient(90deg, var(--color-brand-light), #fffaf6);
   font-weight: var(--font-semibold);
 }
-.trainer-layout__nav-item.is-disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
 .trainer-layout__main {
   flex: 1;
   display: flex;
@@ -274,10 +264,6 @@ const mobileNavItems = [
   .trainer-layout__mobile-item.router-link-active {
     color: var(--color-brand);
     font-weight: var(--font-semibold);
-  }
-
-  .trainer-layout__mobile-item.is-disabled {
-    opacity: 0.45;
   }
 }
 </style>

@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchSchedules } from '@/features/schedules/api';
 import type { Schedule, ScheduleStatus } from '@/features/schedules/model';
-import { ScheduleCard } from '@/features/schedules/components';
+import { ScheduleCard, ScheduleWeekView } from '@/features/schedules/components';
 import { useAuthStore } from '@/features/auth';
 import { AppPage, AppLoading, AppEmpty, AppError, AppPagination } from '@/app/components';
 const router = useRouter(),
@@ -15,7 +15,8 @@ const items = ref<Schedule[]>([]),
   dateTo = ref(''),
   status = ref<ScheduleStatus | ''>(''),
   page = ref(1),
-  total = ref(0);
+  total = ref(0),
+  view = ref<'list' | 'week'>('list');
 const pageSize = 20;
 const canCreate = ['super_admin', 'company_admin', 'store_manager'].includes(auth.userRole ?? '');
 async function load() {
@@ -24,7 +25,7 @@ async function load() {
   try {
     const result = await fetchSchedules({
       page: page.value,
-      pageSize,
+      pageSize: view.value === 'week' ? 100 : pageSize,
       dateFrom: dateFrom.value || undefined,
       dateTo: dateTo.value || undefined,
       status: status.value || undefined,
@@ -45,6 +46,9 @@ function changePage(value: number) {
   page.value = value;
   void load();
 }
+function selectSchedule(item: Schedule) {
+  void router.push(`${auth.userRole === 'trainer' ? '/trainer' : '/admin'}/schedules/${item.id}`);
+}
 onMounted(load);
 </script>
 <template>
@@ -54,6 +58,28 @@ onMounted(load);
         新建排课
       </button></template
     >
+    <div class="view-switch" role="group" aria-label="排课视图">
+      <button
+        type="button"
+        :class="{ active: view === 'list' }"
+        @click="
+          view = 'list';
+          applyFilters();
+        "
+      >
+        列表
+      </button>
+      <button
+        type="button"
+        :class="{ active: view === 'week' }"
+        @click="
+          view = 'week';
+          applyFilters();
+        "
+      >
+        周视图
+      </button>
+    </div>
     <form class="filters" @submit.prevent="applyFilters">
       <input v-model="dateFrom" type="date" /><input v-model="dateTo" type="date" /><select
         v-model="status"
@@ -69,16 +95,25 @@ onMounted(load);
       :message="error"
       show-retry
       @retry="load"
-    /><AppEmpty v-else-if="!items.length" description="暂无排课" /><ScheduleCard
+    /><AppEmpty v-else-if="!items.length" description="暂无排课" /><ScheduleWeekView
+      v-else-if="view === 'week'"
+      :schedules="items"
+      :start-date="dateFrom"
+      @select="selectSchedule"
+    /><ScheduleCard
       v-for="item in items"
       v-else
       :key="item.id"
       :schedule="item"
-      @select="
-        router.push(`${auth.userRole === 'trainer' ? '/trainer' : '/admin'}/schedules/${item.id}`)
-      "
+      @select="selectSchedule"
     />
-    <AppPagination :page="page" :page-size="pageSize" :total="total" @change="changePage" />
+    <AppPagination
+      v-if="view === 'list'"
+      :page="page"
+      :page-size="pageSize"
+      :total="total"
+      @change="changePage"
+    />
   </AppPage>
 </template>
 <style scoped>
@@ -87,6 +122,16 @@ onMounted(load);
   flex-wrap: wrap;
   gap: var(--space-2);
   margin-bottom: var(--space-4);
+}
+.view-switch {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.view-switch button.active {
+  color: var(--color-text-inverse);
+  background: var(--color-brand);
+  border-color: var(--color-brand);
 }
 input,
 select,

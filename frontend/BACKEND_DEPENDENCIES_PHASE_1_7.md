@@ -1,4 +1,4 @@
-# Phase 1–9 前端后端依赖分层台账
+# Phase 1–11 前端后端依赖分层台账
 
 更新日期：2026-07-23
 
@@ -29,6 +29,9 @@
 | BE-FE-13 | 9 | 训练计划状态动作及课堂记录关联/解除关联 | `complete`、`pause`、课堂记录自动关联与 `unlink` 均为 CONTRACT_READY / API_READY | 独立适配器、确认交互、Mock 和单元测试已完成 | 验证状态流转、非所属训练师、重复动作、无可关联计划及 409 冲突 |
 | BE-FE-14 | 10 | 学员反馈 Schema、感受枚举、媒体与重复提交规则 | contracts 1.8.0 已冻结 `GET/POST /api/feedback/`、不可修改、暂不支持照片 | 前端已替换正式适配器、Mock、表单和枚举映射；未接真实 API | 使用真实角色和课堂记录完成创建、列表、权限及异常路径联调后关闭 |
 | BE-FE-15 | 10 | 阶段报告聚合、保存、发布、导出与分享 | contracts 1.8.0 已冻结 `GET /api/reports/` 实时预览；本期不保存、不发布、不提供后端导出或分享 | 前端已替换正式查询适配器和 Mock；使用 User ID，限制包含首尾最多 366 天 | 使用真实学员数据完成有数据、无数据、越权和日期边界联调后关闭 |
+| BE-FE-16 | 11 | 管理/训练师/学员看板指标与统计口径 | contracts 1.8.0 为 DRAFT / NOT_STARTED | 管理看板 UI、稳定视图模型、适配器、Mock 和不兼容响应保护已完成 | 冻结时区、租户/门店范围、指标、趋势粒度和空数据语义后替换适配器并联调 |
+| BE-FE-17 | 11 | 提醒列表、已读、忽略、分类与动作链接 | contracts 1.8.0 为 DRAFT / NOT_STARTED | 提醒中心 UI、筛选、操作、适配器和 Mock 已完成 | 冻结枚举、角色、分页排序、链接白名单及操作幂等语义后替换适配器并联调 |
+| BE-FE-18 | 11 / 功能 19 | 学员训练历史、训练计划、聚合首页和完整档案自助接口 | `student_self_service` 为 DRAFT / NOT_STARTED；正式 class-records/training-plans 不允许 student | 已完成独立 `student-self-service` 稳定领域模型、单一适配器、Mock、聚合首页、训练历史/详情、训练计划/详情和完整档案；页面不调用管理端接口 | 冻结 student home/profile/class-records/training-plans Schema、分页、权限、隐私和 ID 语义后，只替换 adapter/Mock/测试并做真实联调 |
 
 ## Mock 与真实接口切换
 
@@ -38,4 +41,4 @@
 
 ## 当前结论
 
-前端页面可以在 Mock 模式下演示 Phase 1–10 的当前闭环。官方 contracts 1.8.0 已冻结 Phase 9 训练计划以及 Phase 10 feedback、reports 契约，前端已达到对应的 `CONTRACT_READY / API_READY / UI_READY / MOCK_READY`。由于尚未执行真实角色、租户、状态流转和异常路径联调，BE-FE-12～15 以及其他未关闭条目均保持 `NOT_VERIFIED`，不得标记 `INTEGRATED / VERIFIED`。`PHASE_10_BACKEND_HANDOFF.md` 保留为冻结前的需求与决策历史，不再代表当前阻塞状态。BE-FE-10、BE-FE-11 是商业上线前的安全与隐私联合决策，不能由前端静默改变协议或伪造完成。
+前端页面可以在 Mock 模式下演示 Phase 1–11 及功能 00～20 的前端闭环。官方 contracts 1.8.0 已冻结 Phase 9 训练计划以及 Phase 10 feedback、reports 契约，前端已达到对应的 `CONTRACT_READY / API_READY / UI_READY / MOCK_READY`。Phase 11 的数据看板、提醒和学员自助聚合接口仅达到 `PROVISIONAL_UI_READY / MOCK_READY`，不能标记 `CONTRACT_READY / API_READY / INTEGRATED`。由于尚未执行真实角色、租户、状态流转和异常路径联调，BE-FE-12～18 以及其他未关闭条目均保持 `NOT_VERIFIED`。`PHASE_10_BACKEND_HANDOFF.md` 保留为冻结前的需求与决策历史，不再代表当前阻塞状态。更细的后端替换点见 `FRONTEND_BACKEND_REPLACEMENT_MATRIX.md`。BE-FE-10、BE-FE-11 是商业上线前的安全与隐私联合决策，不能由前端静默改变协议或伪造完成。

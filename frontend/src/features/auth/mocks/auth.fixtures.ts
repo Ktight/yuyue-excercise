@@ -26,6 +26,28 @@ export const MOCK_USER_TRAINER: UserDto = {
   is_active: true,
 };
 
+export const MOCK_USER_COMPANY_ADMIN: UserDto = {
+  id: 4,
+  name: '公司管理员',
+  phone: '13800000004',
+  role: 'company_admin',
+  avatar: null,
+  company_id: 1,
+  store_id: null,
+  is_active: true,
+};
+
+export const MOCK_USER_STORE_MANAGER: UserDto = {
+  id: 5,
+  name: '门店店长',
+  phone: '13800000005',
+  role: 'store_manager',
+  avatar: null,
+  company_id: 1,
+  store_id: 1,
+  is_active: true,
+};
+
 export const MOCK_USER_STUDENT: UserDto = {
   id: 3,
   name: '李学员',
@@ -58,6 +80,9 @@ export const MOCK_REFRESH_RESPONSE: RefreshResponseDto = {
 };
 
 export const TEST_CREDENTIALS = {
+  super_admin: { phone: '13800000001', password: '12345678' },
+  company_admin: { phone: '13800000004', password: '12345678' },
+  store_manager: { phone: '13800000005', password: '12345678' },
   trainer: { phone: '13800000002', password: '12345678' },
-  admin: { phone: '13800000001', password: '12345678' },
+  student: { phone: '13800000003', password: '12345678' },
 };

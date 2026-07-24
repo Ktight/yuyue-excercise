@@ -25,6 +25,13 @@ export async function fetchClassRecordFeedback(
   return data.data.items[0] ? map(data.data.items[0]) : null;
 }
 
+export async function fetchMyFeedback(): Promise<StudentFeedback[]> {
+  const { data } = await httpClient.get<S['FeedbackListSuccessResponse']>('/feedback/', {
+    params: { page: 1, page_size: 100 },
+  });
+  return data.data.items.map(map);
+}
+
 export async function createStudentFeedback(input: FeedbackWriteInput): Promise<StudentFeedback> {
   const body: S['FeedbackCreateRequest'] = {
     class_record: input.classRecordId,

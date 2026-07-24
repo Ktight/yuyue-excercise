@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Booking } from '@/features/bookings/model';
 withDefaults(defineProps<{ booking: Booking; cancelling?: boolean }>(), { cancelling: false });
-defineEmits<{ cancel: [number] }>();
+defineEmits<{ cancel: [number]; select: [number] }>();
 </script>
 <template>
   <article class="card">
@@ -14,6 +14,7 @@ defineEmits<{ cancel: [number] }>();
       <p>{{ booking.student.name }} · {{ booking.schedule.trainerName }}</p>
     </div>
     <span>{{ booking.status === 'booked' ? '已预约' : '已取消' }}</span
+    ><button class="detail" @click="$emit('select', booking.id)">查看详情</button
     ><button
       v-if="booking.status === 'booked'"
       :disabled="cancelling"
@@ -43,5 +44,8 @@ button {
   background: none;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-button);
+}
+.detail {
+  color: var(--color-brand);
 }
 </style>

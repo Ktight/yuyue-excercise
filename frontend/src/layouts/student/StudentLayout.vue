@@ -9,16 +9,18 @@ const navItems = [
   { label: '我的课程', key: 'discover', to: '/student/courses' },
   { label: '预约记录', key: 'courses', to: '/student/bookings' },
   { label: '我的考勤', key: 'schedule', to: '/student/attendance' },
-  { label: '我的档案', key: 'profile', to: '/profile' },
-  { label: '训练历史', key: 'history' },
-  { label: '阶段报告', key: 'reports' },
+  { label: '训练历史', key: 'history', to: '/student/history' },
+  { label: '训练计划', key: 'plans', to: '/student/plans' },
+  { label: '我的档案', key: 'profile', to: '/student/profile' },
+  { label: '我的反馈', key: 'feedback', to: '/student/feedback' },
+  { label: '阶段报告', key: 'reports', to: '/student/reports' },
 ];
 
 const primaryNavItems = [
   { label: '首页', key: 'home', icon: '⌂', to: '/student' },
   { label: '预约', key: 'bookings', icon: '♙', to: '/student/bookings' },
   { label: '课程', key: 'courses', icon: '□', to: '/student/courses' },
-  { label: '我的', key: 'profile', icon: '○', to: '/profile' },
+  { label: '我的', key: 'profile', icon: '○', to: '/student/profile' },
 ];
 </script>
 
@@ -41,29 +43,27 @@ const primaryNavItems = [
     </header>
 
     <nav class="student-layout__tabs">
-      <template v-for="item in navItems" :key="item.key">
-        <RouterLink v-if="item.to" class="student-layout__tab" :to="item.to">
-          {{ item.label }}
-        </RouterLink>
-        <span v-else class="student-layout__tab is-disabled">{{ item.label }}</span>
-      </template>
+      <RouterLink
+        v-for="item in navItems"
+        :key="item.key"
+        class="student-layout__tab"
+        :to="item.to"
+      >
+        {{ item.label }}
+      </RouterLink>
     </nav>
 
     <aside class="student-layout__drawer" :class="{ 'is-open': sidebarOpen }">
       <nav class="student-layout__drawer-nav">
-        <template v-for="item in navItems" :key="item.key">
-          <RouterLink
-            v-if="item.to"
-            class="student-layout__drawer-item"
-            :to="item.to"
-            @click="sidebarOpen = false"
-          >
-            {{ item.label }}
-          </RouterLink>
-          <span v-else class="student-layout__drawer-item is-disabled">
-            {{ item.label }} · 待开发
-          </span>
-        </template>
+        <RouterLink
+          v-for="item in navItems"
+          :key="item.key"
+          class="student-layout__drawer-item"
+          :to="item.to"
+          @click="sidebarOpen = false"
+        >
+          {{ item.label }}
+        </RouterLink>
       </nav>
     </aside>
 
@@ -72,16 +72,15 @@ const primaryNavItems = [
     </main>
 
     <nav class="student-layout__bottom-nav" aria-label="学员端主导航">
-      <template v-for="item in primaryNavItems" :key="item.key">
-        <RouterLink v-if="item.to" class="student-layout__bottom-item" :to="item.to">
-          <span class="student-layout__bottom-icon" aria-hidden="true">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
-        </RouterLink>
-        <span v-else class="student-layout__bottom-item is-disabled">
-          <span class="student-layout__bottom-icon" aria-hidden="true">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
-        </span>
-      </template>
+      <RouterLink
+        v-for="item in primaryNavItems"
+        :key="item.key"
+        class="student-layout__bottom-item"
+        :to="item.to"
+      >
+        <span class="student-layout__bottom-icon" aria-hidden="true">{{ item.icon }}</span>
+        <span>{{ item.label }}</span>
+      </RouterLink>
     </nav>
   </div>
 </template>
@@ -185,12 +184,6 @@ const primaryNavItems = [
   color: var(--color-brand);
   border-bottom-color: var(--color-brand);
 }
-.student-layout__tab.is-disabled,
-.student-layout__drawer-item.is-disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
 /* Drawer for mobile */
 .student-layout__drawer {
   display: none;
@@ -296,10 +289,6 @@ const primaryNavItems = [
   .student-layout__bottom-item.router-link-active {
     color: var(--color-brand);
     font-weight: var(--font-semibold);
-  }
-
-  .student-layout__bottom-item.is-disabled {
-    opacity: 0.45;
   }
 }
 </style>

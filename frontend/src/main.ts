@@ -6,6 +6,7 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from '@/app/router';
 import { config } from '@/shared/config';
+import { registerServiceWorker } from '@/app/pwa/register-service-worker';
 
 async function bootstrap(): Promise<void> {
   if (import.meta.env.DEV && config.enableMock) {
@@ -17,6 +18,7 @@ async function bootstrap(): Promise<void> {
   app.use(createPinia());
   app.use(router);
   app.mount('#app');
+  await registerServiceWorker();
 }
 
 void bootstrap();

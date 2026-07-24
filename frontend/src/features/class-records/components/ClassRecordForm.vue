@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { getErrorMessage } from '@/shared/api';
-import { PoseSequenceEditor } from '@/features/class-templates';
+import { ClassTemplateWorkflow, PoseSequenceEditor } from '@/features/class-templates';
+import type { ClassTemplate } from '@/features/class-templates';
+import { useAuthStore } from '@/features/auth';
 import type { ClassRecord, ClassRecordWriteInput } from '@/features/class-records/model';
 import ClassRecordAttendanceSelect from './ClassRecordAttendanceSelect.vue';
 import ClassRecordPlanSelect from './ClassRecordPlanSelect.vue';
@@ -12,6 +14,7 @@ const p = defineProps<{
   readonly?: boolean;
   onSubmit: (v: ClassRecordWriteInput) => Promise<unknown>;
 }>();
+const auth = useAuthStore();
 const form = reactive<ClassRecordWriteInput>({
     attendanceId: p.initial?.attendanceId ?? p.attendanceId ?? 0,
     planId: p.initial?.plan?.id,
@@ -27,6 +30,12 @@ const form = reactive<ClassRecordWriteInput>({
   busy = ref(false),
   error = ref('');
 const selectedStudentUserId = ref<number>();
+const selectedScheduleId = ref<number | null>(p.initial?.scheduleId ?? null);
+function applyTemplate(template: ClassTemplate) {
+  form.poseSequence = structuredClone(template.poseSequence);
+  form.trainerNotes = template.notesTemplate;
+  if (!form.theme.trim()) form.theme = template.name;
+}
 async function submit() {
   if (!form.attendanceId || !form.theme.trim()) {
     error.value = '请选择到课学员并填写课堂主题';
@@ -55,7 +64,12 @@ async function submit() {
       <ClassRecordAttendanceSelect
         v-model="form.attendanceId"
         :disabled="readonly || Boolean(initial)"
-        @select="(attendance: Attendance | null) => (selectedStudentUserId = attendance?.studentId)"
+        @select="
+          (attendance: Attendance | null) => {
+            selectedStudentUserId = attendance?.studentId;
+            selectedScheduleId = attendance?.scheduleId ?? null;
+          }
+        "
       /><ClassRecordPlanSelect
         v-if="!initial"
         v-model="form.planId"
@@ -72,6 +86,14 @@ async function submit() {
           :disabled="readonly" /></label
       ><label>改进标签<input v-model="tags" placeholder="以逗号分隔" :disabled="readonly" /></label>
     </div>
+    <ClassTemplateWorkflow
+      v-if="!readonly && auth.user?.id"
+      :trainer-id="auth.user.id"
+      :schedule-id="selectedScheduleId"
+      :current-sequence="form.poseSequence"
+      :current-notes="form.trainerNotes"
+      @apply="applyTemplate"
+    />
     <PoseSequenceEditor v-model="form.poseSequence" :disabled="readonly" /><label
       >教练记录<textarea v-model="form.trainerNotes" rows="3" :disabled="readonly" /></label
     ><label>课后作业<textarea v-model="form.homework" rows="3" :disabled="readonly" /></label

@@ -2,6 +2,8 @@
 const shortcuts = [
   { title: '我的课程', note: '查看预约与课程安排', to: '/student/bookings' },
   { title: '我的考勤', note: '查看出勤记录与统计', to: '/student/attendance' },
+  { title: '课后反馈', note: '查看已经提交的课程感受', to: '/student/feedback' },
+  { title: '阶段报告', note: '按日期查看训练成果', to: '/student/reports' },
 ];
 </script>
 

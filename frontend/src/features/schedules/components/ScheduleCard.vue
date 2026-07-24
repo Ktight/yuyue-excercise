@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Schedule } from '@/features/schedules/model';
 defineProps<{ schedule: Schedule }>();
-defineEmits<{ select: [] }>();
+defineEmits<{ select: [schedule: Schedule] }>();
 </script>
 <template>
-  <button class="card" @click="$emit('select')">
+  <button class="card" @click="$emit('select', schedule)">
     <span class="date"
       >{{ schedule.courseDate
       }}<small>{{ schedule.startTime.slice(0, 5) }}–{{ schedule.endTime.slice(0, 5) }}</small></span

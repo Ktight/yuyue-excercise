@@ -22,6 +22,9 @@ import { classRecordsRoutes } from '@/features/class-records';
 import { trainingPlansRoutes } from '@/features/training-plans';
 import { feedbackRoutes } from '@/features/feedback';
 import { reportsRoutes } from '@/features/reports';
+import { dashboardRoutes } from '@/features/dashboard';
+import { remindersRoutes } from '@/features/reminders';
+import { studentSelfServiceRoutes } from '@/features/student-self-service';
 import { registerGuards } from './guards';
 
 const featureRoutes: RouteRecordRaw[] = [
@@ -38,6 +41,9 @@ const featureRoutes: RouteRecordRaw[] = [
   ...trainingPlansRoutes,
   ...feedbackRoutes,
   ...reportsRoutes,
+  ...dashboardRoutes,
+  ...remindersRoutes,
+  ...studentSelfServiceRoutes,
 ];
 
 function childrenFor(prefix: '/admin/' | '/trainer/' | '/student/'): RouteRecordRaw[] {
@@ -106,7 +112,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'student-home',
-        component: () => import('@/app/views/StudentHome.vue'),
+        component: () => import('@/features/student-self-service/pages/StudentSelfHomePage.vue'),
       },
       ...childrenFor('/student/'),
     ],

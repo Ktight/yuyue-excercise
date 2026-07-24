@@ -5,7 +5,14 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'android/**',
+      'ios/**',
+      'playwright-report/**',
+      'test-results/**',
+    ],
   },
 
   // Base JavaScript recommended rules
@@ -23,6 +30,9 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         parser: tseslint.parser,
+      },
+      globals: {
+        structuredClone: 'readonly',
       },
     },
     rules: {

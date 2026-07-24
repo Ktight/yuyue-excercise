@@ -11,4 +11,9 @@ export const reportsRoutes: RouteRecordRaw[] = [
     component: () => import('../pages/ReportCreatePage.vue'),
     meta: { roles: ['trainer'], provisional: true },
   },
+  {
+    path: '/student/reports',
+    component: () => import('../pages/StudentReportPage.vue'),
+    meta: { roles: ['student'] },
+  },
 ];

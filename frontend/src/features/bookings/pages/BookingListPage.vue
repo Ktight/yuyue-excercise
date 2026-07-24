@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { cancelBooking, fetchBookings } from '@/features/bookings/api';
 import type { Booking } from '@/features/bookings/model';
 import { BookingCard } from '@/features/bookings/components';
@@ -20,6 +21,15 @@ const items = ref<Booking[]>([]),
   status = ref<'booked' | 'cancelled' | ''>(''),
   page = ref(1),
   total = ref(0);
+const route = useRoute();
+const router = useRouter();
+const prefix = computed(() =>
+  route.path.startsWith('/trainer')
+    ? '/trainer'
+    : route.path.startsWith('/student')
+      ? '/student'
+      : '/admin',
+);
 const pageSize = 20;
 async function load() {
   loading.value = true;
@@ -92,6 +102,7 @@ onMounted(load);
       :booking="item"
       :cancelling="cancellingId === item.id"
       @cancel="cancel"
+      @select="(id) => router.push(`${prefix}/bookings/${id}`)"
     />
     <AppPagination :page="page" :page-size="pageSize" :total="total" @change="changePage" />
   </AppPage>

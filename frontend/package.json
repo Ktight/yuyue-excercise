@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "build:verified": "npm run build && npm run check:bundle",
     "preview": "vite preview",
+    "native:sync": "npm run build:verified && cap sync",
+    "native:android": "npm run native:sync && cap open android",
+    "native:ios": "npm run native:sync && cap open ios",
     "lint": "eslint . --ext .vue,.ts,.tsx,.mjs",
     "lint:fix": "eslint . --ext .vue,.ts,.tsx,.mjs --fix",
     "format": "prettier --write \"src/**/*.{vue,ts,tsx,css}\"",
@@ -19,9 +23,13 @@
     "generate:enums": "node scripts/generate-enums.mjs",
     "generate": "npm run generate:api-types && npm run generate:enums",
     "check:boundaries": "node scripts/check-boundaries.mjs",
-    "check:all": "npm run generate && npm run typecheck && npm run lint && prettier --check \"src/**/*.{vue,ts,tsx,css}\" && npm run check:boundaries && npm run test && npm run build"
+    "check:bundle": "node scripts/check-bundle-budget.mjs",
+    "check:all": "npm run generate && npm run typecheck && npm run lint && prettier --check \"src/**/*.{vue,ts,tsx,css}\" && npm run check:boundaries && npm run test && npm run build:verified"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/ios": "^8.4.2",
     "axios": "^1.18.1",
     "pinia": "^4.0.2",
     "vant": "^4.10.0",
@@ -29,6 +37,7 @@
     "vue-router": "^5.2.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.4.2",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.61.1",
     "@types/node": "^24.13.2",

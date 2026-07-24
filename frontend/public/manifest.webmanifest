@@ -1,0 +1,19 @@
+{
+  "name": "瑜悦练",
+  "short_name": "瑜悦练",
+  "description": "瑜伽馆课程、学员与训练服务管理",
+  "lang": "zh-CN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fbfaf8",
+  "theme_color": "#7d6654",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
