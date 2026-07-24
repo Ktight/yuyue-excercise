@@ -1,18 +1,18 @@
 # 瑜悦练前端主动维护交接文档
 
 更新时间：2026-07-24
-事实基线：前端功能提交 `49cdab0`，contracts `1.8.0`
+事实基线：`origin/main` 提交 `2afbb75`，contracts `1.8.0`
 
 ## 1. 当前结论
 
-- 当前分支：`frontend/phase-11-dashboard-reminders`
+- 当前分支：`frontend/post-merge-verification`
 - 前端功能基线：`49cdab0 feat(frontend): complete frontend-only delivery`
 - 当前准确状态：`FRONTEND_DEMO_COMPLETE / MOCK_READY / AUTOMATED_CHECKS_PASSED / REAL_API_NOT_FULLY_VERIFIED`
 - Phase 1～11 及功能 00～20 的纯前端范围已经收口，可在 Mock 模式下完整演示。
 - Phase 9、10 已按正式 contracts 1.7.0/1.8.0 对齐；Phase 11 看板、提醒和学员自助仍依赖草案契约。
-- 当前分支已推送至 `origin/frontend/phase-11-dashboard-reminders` 并设置远程上游。
-- PR [#5](https://github.com/Ktight/yuyue-excercise/pull/5) 已创建，目标分支为 `main`；检查时状态为 `OPEN / MERGEABLE / CLEAN`。
-- GitHub 当前没有为该分支报告自动化检查，合并前需要结合本地质量证据进行人工审查。
+- PR [#5](https://github.com/Ktight/yuyue-excercise/pull/5) 已于 2026-07-24 合并到 `main`，合并提交为 `2afbb75`。
+- 当前验证分支直接建立在最新 `origin/main` 上；尚未设置远程上游。
+- GitHub 没有为 PR #5 报告自动化检查；合并后已在本地重新执行完整质量门禁和 E2E。
 - 仓库根目录仍有两个来源不明的未跟踪文件，不属于前端交付，禁止使用 `git add .` 将其带入提交。
 
 ## 2. 已完成事项
@@ -60,7 +60,7 @@
 
 ## 4. 当前验证证据
 
-基于提交 `49cdab0`：
+基于合并后的 `origin/main` 提交 `2afbb75`，于 2026-07-24 重新验证：
 
 - `check:all`：通过
 - 模块边界：452 个源文件通过
@@ -96,14 +96,15 @@
 
 ## 6. 下一步执行顺序
 
-### A. 当前分支安全交付
+### A. 合并后安全收口
 
-- [x] 执行 `git fetch origin`，确认当前分支已包含 `origin/main`。
-- [x] 只推送 `frontend/phase-11-dashboard-reminders`，未暂存两个异常根目录文件。
-- [x] 创建以 `main` 为目标分支的 PR #5。
-- [x] 检查 PR 文件范围，确认全部位于 `frontend/**`。
-- [ ] 等待协作者审查；GitHub 当前没有报告 CI 检查。
-- [ ] 审查通过后由仓库维护者决定是否合并，不在本地直接修改 `main`。
+- [x] PR #5 已由仓库维护者合并到 `main`。
+- [x] 确认原前端分支完整包含在 `origin/main`，合并前后文件树无差异。
+- [x] 从最新 `origin/main` 新建 `frontend/post-merge-verification`，未直接修改本地 `main`。
+- [x] 合并后重新执行 `check:all` 和 17 项 Playwright E2E，全部通过。
+- [x] 两个异常根目录文件继续保持未跟踪，未进入任何前端提交。
+- [ ] 当前没有可在不猜测正式契约的前提下继续实现的后端相关业务代码。
+- [ ] 等待后端按替换台账交付后，再在当前验证分支或新的专项分支实施适配。
 
 ### B. 后端契约交付后
 
