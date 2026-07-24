@@ -11,8 +11,12 @@
 - Phase 1～11 及功能 00～20 的纯前端范围已经收口，可在 Mock 模式下完整演示。
 - Phase 9、10 已按正式 contracts 1.7.0/1.8.0 对齐；Phase 11 看板、提醒和学员自助仍依赖草案契约。
 - PR [#5](https://github.com/Ktight/yuyue-excercise/pull/5) 已于 2026-07-24 合并到 `main`，合并提交为 `2afbb75`。
-- 当前验证分支直接建立在最新 `origin/main` 上；尚未设置远程上游。
+- 当前验证分支直接建立在最新 `origin/main` 上，已推送至
+  `origin/frontend/post-merge-verification`；PR
+  [#6](https://github.com/Ktight/yuyue-excercise/pull/6) 正在审查。
 - GitHub 没有为 PR #5 报告自动化检查；合并后已在本地重新执行完整质量门禁和 E2E。
+- 已收到 Phase 11 后端审计与候选接口交接；候选实现虽通过后端测试，但正式契约
+  仍为 DRAFT，远程仓库也尚无可追溯候选提交，因此前端未提前接入。
 - 仓库根目录仍有两个来源不明的未跟踪文件，不属于前端交付，禁止使用 `git add .` 将其带入提交。
 
 ## 2. 已完成事项
@@ -78,8 +82,8 @@
 
 当前统一以 [FRONTEND_BACKEND_REPLACEMENT_MATRIX.md](./FRONTEND_BACKEND_REPLACEMENT_MATRIX.md) 为准：
 
-- `BE-FE-16`：管理、训练师和学员看板正式契约
-- `BE-FE-17`：提醒中心正式契约
+- `BE-FE-16`：管理看板候选已实现；正式角色范围、Schema、统计口径和远程提交待冻结
+- `BE-FE-17`：提醒候选已实现；正式分页、未读筛选、枚举、动作语义和远程提交待冻结
 - `BE-FE-18～21`：学员首页、训练历史、训练计划和完整档案正式契约
 - `BE-FE-22`：批量课堂记录部分失败结果
 - `BE-FE-23`：媒体和图片上传服务
@@ -103,8 +107,10 @@
 - [x] 从最新 `origin/main` 新建 `frontend/post-merge-verification`，未直接修改本地 `main`。
 - [x] 合并后重新执行 `check:all` 和 17 项 Playwright E2E，全部通过。
 - [x] 两个异常根目录文件继续保持未跟踪，未进入任何前端提交。
+- [x] 审查 Phase 11 后端候选交接，确认提醒分页与当前 adapter 不兼容。
+- [x] 生成 `PHASE_11_CONTRACT_DECISION_RESPONSE.md`，给出一次性冻结建议。
 - [ ] 当前没有可在不猜测正式契约的前提下继续实现的后端相关业务代码。
-- [ ] 等待后端按替换台账交付后，再在当前验证分支或新的专项分支实施适配。
+- [ ] 等待契约负责人裁决并冻结，再由后端提供可追溯提交后实施适配。
 
 ### B. 后端契约交付后
 
