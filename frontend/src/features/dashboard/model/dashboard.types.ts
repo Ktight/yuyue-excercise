@@ -23,6 +23,7 @@ export interface DashboardScheduleItem {
 
 export interface AdminDashboardSummary {
   generatedAt: string;
+  timezone: 'Asia/Shanghai';
   metrics: DashboardMetric[];
   bookingTrend: DashboardTrendPoint[];
   todaySchedules: DashboardScheduleItem[];

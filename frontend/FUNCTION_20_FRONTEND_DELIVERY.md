@@ -19,7 +19,7 @@
 |---|---|---|
 | Web 生产构建 | VERIFIED | `npm run build:verified` 通过 |
 | 包体预算 | VERIFIED | 单块不超过 400 KiB，总 JS 不超过 1.2 MiB |
-| Playwright | VERIFIED | 17 项本地 Mock 浏览器流程通过 |
+| Playwright | VERIFIED | 17 项本地 Mock 浏览器流程通过，含 Phase 11 正式交互 |
 | Capacitor sync | VERIFIED | Android/iOS 工程生成并同步成功 |
 | Android APK | ENV_BLOCKED | 当前电脑未安装/配置 Android SDK；需 `ANDROID_HOME` 或 `sdk.dir` |
 | iOS Archive | ENV_BLOCKED | 必须在 macOS/Xcode 完成签名构建 |
@@ -27,8 +27,8 @@
 
 ## 最新验证证据
 
-- `check:all`：生成、类型、Lint、Prettier、452 个源文件边界、57 个测试文件共 164 项单测、生产构建及包体预算全部通过；
-- 生产构建：890 个模块，最大 JS 分块 320.7 KiB，总 JS 775.3 KiB；
+- `check:all`：生成、类型、Lint、Prettier、452 个源文件边界、57 个测试文件共 165 项单测、生产构建及包体预算全部通过；
+- 生产构建：890 个模块，最大 JS 分块 320.7 KiB，总 JS 778.5 KiB；
 - Playwright：17/17 通过；
 - 内置浏览器人工检查：学员聚合首页和训练历史无横向溢出、无页面警告或控制台错误；
 - `cap sync`：最新 Web 资源已同步到 Android/iOS。

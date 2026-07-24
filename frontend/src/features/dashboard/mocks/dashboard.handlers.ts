@@ -1,12 +1,25 @@
 import { http, HttpResponse } from 'msw';
+import type { components } from '@/generated/api-types';
+
+type AdminDashboardSuccessResponse = components['schemas']['AdminDashboardSuccessResponse'];
+
+function recentDate(daysAgo: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 export const dashboardHandlers = [
   http.get('/api/dashboards/admin/', () =>
-    HttpResponse.json({
+    HttpResponse.json<AdminDashboardSuccessResponse>({
       code: 'OK',
       message: '',
       data: {
         generated_at: new Date().toISOString(),
+        timezone: 'Asia/Shanghai',
         metrics: {
           today_classes: 8,
           today_bookings: 46,
@@ -14,13 +27,13 @@ export const dashboardHandlers = [
           pending_items: 5,
         },
         booking_trend: [
-          { label: '周一', value: 31 },
-          { label: '周二', value: 38 },
-          { label: '周三', value: 34 },
-          { label: '周四', value: 45 },
-          { label: '周五', value: 42 },
-          { label: '周六', value: 57 },
-          { label: '周日', value: 46 },
+          { label: recentDate(6), value: 31 },
+          { label: recentDate(5), value: 38 },
+          { label: recentDate(4), value: 34 },
+          { label: recentDate(3), value: 45 },
+          { label: recentDate(2), value: 42 },
+          { label: recentDate(1), value: 57 },
+          { label: recentDate(0), value: 46 },
         ],
         today_schedules: [
           {

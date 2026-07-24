@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('button', { name: '登录' }).click();
 });
 
-test('dashboard renders isolated demonstration metrics and schedules', async ({ page }) => {
+test('dashboard renders contract-backed demonstration metrics and schedules', async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/analytics$/);
   await expect(page.getByRole('heading', { name: '数据看板' })).toBeVisible();
   await expect(page.getByText('演示数据')).toBeVisible();
@@ -24,5 +24,6 @@ test('reminder center supports read and dismiss interactions', async ({ page }) 
   await reminder.getByRole('button', { name: '标为已读' }).click();
   await expect(reminder.getByRole('button', { name: '标为已读' })).toHaveCount(0);
   await reminder.getByRole('button', { name: '忽略' }).click();
+  await page.getByRole('button', { name: '确认忽略' }).click();
   await expect(page.getByText('晚课即将满员')).toHaveCount(0);
 });

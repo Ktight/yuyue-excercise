@@ -126,3 +126,31 @@ export const FEEDBACK_FEELING_LABELS: Readonly<Record<FeedbackFeeling, string>> 
   moderate: '适中',
   hard: '吃力',
 };
+
+export const REMINDER_CATEGORY = {
+  BOOKING: 'booking',
+  ATTENDANCE: 'attendance',
+  MEMBERSHIP: 'membership',
+  TRAINING: 'training',
+  SYSTEM: 'system',
+} as const;
+export type ReminderCategory = (typeof REMINDER_CATEGORY)[keyof typeof REMINDER_CATEGORY];
+export const REMINDER_CATEGORY_LABELS: Readonly<Record<ReminderCategory, string>> = {
+  booking: '预约',
+  attendance: '考勤',
+  membership: '会员',
+  training: '训练',
+  system: '系统',
+};
+
+export const REMINDER_PRIORITY = {
+  HIGH: 'high',
+  NORMAL: 'normal',
+  LOW: 'low',
+} as const;
+export type ReminderPriority = (typeof REMINDER_PRIORITY)[keyof typeof REMINDER_PRIORITY];
+export const REMINDER_PRIORITY_LABELS: Readonly<Record<ReminderPriority, string>> = {
+  high: '高',
+  normal: '普通',
+  low: '低',
+};

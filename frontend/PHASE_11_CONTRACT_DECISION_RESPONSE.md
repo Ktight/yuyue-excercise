@@ -1,8 +1,12 @@
 # Phase 11 前端契约裁决反馈
 
 更新日期：2026-07-24
-前端状态：`PROVISIONAL_UI_READY / MOCK_READY / AWAITING_CONTRACT_FREEZE`
-后端候选状态：`IMPLEMENTED / TESTED / AWAITING_CONTRACT_FREEZE`
+前端状态：`CONTRACT_READY / API_READY / UI_READY / MOCK_READY / NOT_INTEGRATED`
+后端状态：`IMPLEMENTED / TESTED / CONTRACT_1_9_FROZEN`
+
+> 裁决结果：官方提交 `a7fba3a` 已将建议中的管理角色范围、统计口径、具名 Schema、
+> 提醒分页、`unread_only`、枚举、动作响应和路径白名单冻结到 contracts 1.9.0。
+> 前端已完成集中替换；本文以下内容保留为决策过程记录。
 
 ## 1. 核对结论
 

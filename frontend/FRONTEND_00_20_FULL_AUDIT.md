@@ -2,7 +2,7 @@
 
 审查日期：2026-07-23
 审查基线：`frontend/phase-11-dashboard-reminders`
-后端/契约基线：GitHub `2e4e8dc`，contracts `1.8.0`
+后端/契约基线：GitHub `a7fba3a`，contracts `1.9.0`
 
 ## 1. 总体结论
 
@@ -31,15 +31,15 @@
 | 14 训练规划 | `CONTRACT_READY / API_READY / UI_READY / MOCK_READY` | CRUD、状态、进度、关联课时和学员详情接入完成；真实 Phase 9 联调未执行 |
 | 15 学员反馈 | `CONTRACT_READY / API_READY / UI_READY / MOCK_READY` | 已按 1.8.0 修正为正式 GET/POST `/feedback/`、不可变、无照片；真实联调未执行 |
 | 16 阶段报告 | `CONTRACT_READY / API_READY / UI_READY / MOCK_READY` | 已按 1.8.0 使用 GET 实时预览、User ID、正式统计结构；保存、发布、后端导出和分享由契约明确延期 |
-| 17 数据看板 | `PROVISIONAL_UI_READY / MOCK_READY / CONTRACT_DRAFT` | 独立 dashboard 模块、指标卡、七日趋势、今日课程、适配器与 Mock 已完成；统计口径仍待冻结 |
-| 18 智能提醒 | `PROVISIONAL_UI_READY / MOCK_READY / CONTRACT_DRAFT` | 独立 reminders 模块、未读筛选、已读/忽略操作、适配器与 Mock 已完成；枚举、角色和动作语义待冻结 |
+| 17 数据看板 | `CONTRACT_READY / API_READY / UI_READY / MOCK_READY` | 已按 1.9.0 接入正式 Schema、统计时区、生成时间、指标、七日趋势和今日课程；真实联调未执行 |
+| 18 智能提醒 | `CONTRACT_READY / API_READY / UI_READY / MOCK_READY` | 已按 1.9.0 接入分页、服务端未读筛选、枚举、完整动作响应、确认和路径白名单；真实联调未执行 |
 | 19 学员端 | `PROVISIONAL_UI_READY / MOCK_READY / CONTRACT_DRAFT` | 聚合首页、课程发现、预约、考勤、训练历史/详情、训练计划/详情、完整档案、反馈和报告入口全部具备；草案字段集中在单一适配器 |
 | 20 测试打包部署 | `ENGINEERING_READY / ENV_PARTIALLY_BLOCKED` | 完整门禁、17 项 E2E、包体预算、PWA、Capacitor Android/iOS、Docker/Nginx 均已完成；APK、iOS Archive 和 Docker image 仅受本机环境阻塞 |
 
 ## 3. Phase 10 GitHub 对齐结果
 
 - 已合并 GitHub `c2d98d7` Phase 9 和 `2e4e8dc` Phase 10；
-- contracts 已统一为官方 1.8.0；
+- contracts 已统一为官方 1.9.0；
 - feedback/reports 生成类型成功；
 - 反馈照片、反馈修改、student 专用反馈路径均已按正式契约移除；
 - 报告 POST preview 已改为 GET `/reports/`；
@@ -76,15 +76,16 @@
 - ESLint：通过；
 - Prettier：通过；
 - 模块边界：452 个源文件通过；
-- Vitest：57 个测试文件、164 项测试通过；
+- Vitest：57 个测试文件、165 项测试通过；
 - Build：890 个模块转换成功；
-- 包体：最大 JS 分块 320.7 KiB，总 JS 775.3 KiB；
+- 包体：最大 JS 分块 320.7 KiB，总 JS 778.5 KiB；
 - Playwright：17 项 E2E 通过；
 - Capacitor：Android/iOS 最新 Web 资源同步通过。
 
 ## 6. 后续优先级
 
-1. 后端冻结并交付 `FRONTEND_BACKEND_REPLACEMENT_MATRIX.md` 中 BE-FE-16～25。
-2. 前端按“更新 contracts → generate → adapter/Mock/测试 → 真实联调”的固定顺序替换草案。
-3. 使用五个真实角色、双租户和 400/401/403/404/409/500 完成联调矩阵。
-4. 在具备 Android SDK、macOS/Xcode 和 Docker Engine 的环境完成最终产物验证。
+1. 使用真实管理角色和双租户完成 BE-FE-16、17 的 Phase 11 浏览器联调。
+2. 后端冻结并交付 `FRONTEND_BACKEND_REPLACEMENT_MATRIX.md` 中 BE-FE-18～25。
+3. 前端按“更新 contracts → generate → adapter/Mock/测试 → 真实联调”的固定顺序替换草案。
+4. 使用五个真实角色、双租户和 400/401/403/404/409/500 完成联调矩阵。
+5. 在具备 Android SDK、macOS/Xcode 和 Docker Engine 的环境完成最终产物验证。
