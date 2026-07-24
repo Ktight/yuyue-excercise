@@ -30,8 +30,9 @@
 
 - 后端已提供 `PHASE_11_BACKEND_AUDIT.md` 和 `PHASE_11_FRONTEND_HANDOFF.md`；
   候选实现状态为 `IMPLEMENTED / TESTED / AWAITING_CONTRACT_FREEZE`。
-- 当前远程 contracts 仍为 1.8.0，`dashboards`、`reminders` 仍是
-  `DRAFT / NOT_STARTED`，远程仓库中尚无可见的 Phase 11 后端候选提交。
+- Phase 11 后端候选提交 `66b6dce` 已通过 PR #7 合入 `main`；当前远程
+  contracts 仍为 1.8.0，`dashboards`、`reminders` 仍是
+  `DRAFT / NOT_STARTED`。
 - 管理看板候选结构与暂定字段大体一致，但提醒候选返回
   `{items,page,page_size,total}`，当前 adapter 期待扁平数组，不能直接联调。
 - 后端分页会使当前本地“仅看未读”过滤失去全量准确性，正式契约需要服务端

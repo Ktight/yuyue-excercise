@@ -1,7 +1,7 @@
 # 瑜悦练前端功能 00～20 完整审查
 
 审查日期：2026-07-24
-审查基线：`frontend/frontend-quality-hardening`，基于 `origin/main` 提交 `2afbb75`
+审查基线：`frontend/frontend-quality-hardening`，已合入 `origin/main` 提交 `f2f2127`
 后端/契约基线：GitHub `2e4e8dc`，contracts `1.8.0`
 
 ## 1. 总体结论

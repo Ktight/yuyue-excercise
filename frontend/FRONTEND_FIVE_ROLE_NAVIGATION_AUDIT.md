@@ -2,7 +2,7 @@
 
 审计日期：2026-07-24
 分支：`frontend/frontend-quality-hardening`
-基线：`origin/main` 提交 `2afbb75`
+最终验证基线：已合入 `origin/main` 提交 `f2f2127`
 
 ## 审计目标
 
