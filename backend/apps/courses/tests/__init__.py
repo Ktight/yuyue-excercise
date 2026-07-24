@@ -14,7 +14,7 @@ from core.constants import (
     UserRole,
 )
 
-from .models import CourseBooking, CourseSchedule, CourseTemplate
+from ..models import CourseBooking, CourseSchedule, CourseTemplate
 
 
 @override_settings(ALLOWED_HOSTS=['testserver'])

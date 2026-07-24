@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from apps.accounts.models import User
 from core.constants import UserRole
 
-from .models import Company, Room, Store
+from ..models import Company, Room, Store
 
 
 @override_settings(ALLOWED_HOSTS=['testserver'])

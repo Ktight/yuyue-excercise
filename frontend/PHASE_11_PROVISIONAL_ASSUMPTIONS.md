@@ -1,6 +1,6 @@
 # Phase 11 前端暂定假设台账
 
-更新日期：2026-07-23
+更新日期：2026-07-24
 状态：`PROVISIONAL / CONTRACT_DRAFT`
 
 ## 边界
@@ -25,6 +25,20 @@
 ## PA-11-03 角色范围
 
 本轮只开放管理端页面；训练师与学员看板继续使用现有首页，等待各自契约和产品范围冻结。
+
+## 2026-07-24 后端候选交接核对
+
+- 后端已提供 `PHASE_11_BACKEND_AUDIT.md` 和 `PHASE_11_FRONTEND_HANDOFF.md`；
+  候选实现状态为 `IMPLEMENTED / TESTED / AWAITING_CONTRACT_FREEZE`。
+- 当前远程 contracts 仍为 1.8.0，`dashboards`、`reminders` 仍是
+  `DRAFT / NOT_STARTED`，远程仓库中尚无可见的 Phase 11 后端候选提交。
+- 管理看板候选结构与暂定字段大体一致，但提醒候选返回
+  `{items,page,page_size,total}`，当前 adapter 期待扁平数组，不能直接联调。
+- 后端分页会使当前本地“仅看未读”过滤失去全量准确性，正式契约需要服务端
+  `unread_only` 参数或同等能力。
+- 前端裁决建议、冻结清单和后续修改范围见
+  `PHASE_11_CONTRACT_DECISION_RESPONSE.md`。
+- 契约冻结前不修改生成类型、adapter、Mock 或页面，不提升功能状态。
 
 ## 功能 19 学员端阻塞
 

@@ -15,7 +15,7 @@ from apps.companies.models import Company, Room, Store
 from apps.courses.models import CourseBooking, CourseSchedule, CourseTemplate
 from apps.members.models import StudentProfile
 
-from .models import ClassRecord, TrainingPlan
+from ..models import ClassRecord, TrainingPlan
 
 
 TEST_MEDIA_ROOT = Path(settings.BASE_DIR) / '.phase8_test_media'

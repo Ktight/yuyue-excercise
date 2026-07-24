@@ -125,3 +125,31 @@ class FeedbackFeeling:
         (MODERATE, '适中'),
         (HARD, '吃力'),
     )
+
+
+class ReminderCategory:
+    BOOKING = 'booking'
+    ATTENDANCE = 'attendance'
+    MEMBERSHIP = 'membership'
+    TRAINING = 'training'
+    SYSTEM = 'system'
+
+    CHOICES = (
+        (BOOKING, '预约'),
+        (ATTENDANCE, '考勤'),
+        (MEMBERSHIP, '会员'),
+        (TRAINING, '训练'),
+        (SYSTEM, '系统'),
+    )
+
+
+class ReminderPriority:
+    HIGH = 'high'
+    NORMAL = 'normal'
+    LOW = 'low'
+
+    CHOICES = (
+        (HIGH, '高'),
+        (NORMAL, '普通'),
+        (LOW, '低'),
+    )
