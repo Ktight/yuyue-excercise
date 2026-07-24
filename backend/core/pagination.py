@@ -29,7 +29,11 @@ class ContractPageNumberPagination(BasePagination):
                 {self.page_size_query_param: [f'不得大于 {self.max_page_size}。']}
             )
 
-        self.total = queryset.count()
+        self.total = (
+            queryset.count()
+            if hasattr(queryset, 'model')
+            else len(queryset)
+        )
         offset = (self.page_number - 1) * self.current_page_size
         if offset >= self.total:
             return []
