@@ -3,6 +3,7 @@
  * 创建用户表单 — 基础字段，门店联动在 Phase 3 完成。
  */
 import { reactive, ref, watch } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { validateUserCreateForm } from '@/features/users/model/user-create.schema';
 import { ROLE_LABELS, USER_ROLES } from '@/features/auth';
 import type { UserRole } from '@/features/auth';
@@ -33,6 +34,7 @@ const form = reactive({
   role: 'trainer' as UserRole,
   storeId: null as number | null,
 });
+const { runGuardedSubmit } = useUnsavedChangesGuard({ source: () => form });
 const fieldErrors = reactive<Record<string, string>>({});
 const serverError = ref('');
 const submitting = ref(false);
@@ -59,7 +61,13 @@ async function handleSubmit() {
   }
   submitting.value = true;
   try {
-    await props.onSubmit({ ...form, phone: form.phone.trim(), name: form.name.trim() });
+    await runGuardedSubmit(() =>
+      props.onSubmit({
+        ...form,
+        phone: form.phone.trim(),
+        name: form.name.trim(),
+      }),
+    );
     emit('success');
   } catch (error) {
     if (error instanceof ApiError) {

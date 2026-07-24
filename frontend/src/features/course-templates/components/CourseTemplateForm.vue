@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import type {
   CourseCategory,
   CourseDifficulty,
@@ -27,6 +28,10 @@ const form = reactive<CourseTemplateWriteInput>({
   difficulty: props.initial?.difficulty ?? 'beginner',
   description: props.initial?.description ?? '',
   status: props.initial?.status ?? 'active',
+});
+const { runGuardedSubmit } = useUnsavedChangesGuard({
+  source: () => form,
+  enabled: () => !props.readonly,
 });
 const errors = reactive<Partial<Record<keyof CourseTemplateWriteInput, string>>>({});
 const serverError = ref('');
@@ -58,7 +63,13 @@ async function handleSubmit() {
   serverError.value = '';
   submitting.value = true;
   try {
-    await props.onSubmit({ ...form, name: form.name.trim(), description: form.description.trim() });
+    await runGuardedSubmit(() =>
+      props.onSubmit({
+        ...form,
+        name: form.name.trim(),
+        description: form.description.trim(),
+      }),
+    );
     emit('success');
   } catch (error) {
     serverError.value = error instanceof ApiError ? error.message : '保存失败，请稍后重试';

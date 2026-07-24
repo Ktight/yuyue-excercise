@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { getErrorMessage } from '@/shared/api';
 import type { ClassTemplate, ClassTemplateWriteInput } from '@/features/class-templates/model';
 import PoseSequenceEditor from './PoseSequenceEditor.vue';
@@ -18,6 +19,10 @@ const form = reactive<ClassTemplateWriteInput>({
   poseSequence: props.initial?.poseSequence ?? emptySequence(),
   notesTemplate: props.initial?.notesTemplate ?? '',
   isActive: props.initial?.isActive ?? true,
+});
+const { runGuardedSubmit } = useUnsavedChangesGuard({
+  source: () => form,
+  enabled: () => !props.readonly,
 });
 const saving = ref(false),
   error = ref(''),
@@ -39,7 +44,7 @@ async function submit() {
   error.value = '';
   notice.value = '';
   try {
-    await props.onSubmit({ ...form, name: form.name.trim() });
+    await runGuardedSubmit(() => props.onSubmit({ ...form, name: form.name.trim() }));
     notice.value = '模板已保存';
   } catch (cause) {
     error.value = getErrorMessage(cause, '模板保存失败，请检查字段或权限');

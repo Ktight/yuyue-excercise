@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { ROLE_LABELS, USER_ROLES, type UserRole } from '@/features/auth';
 import { fetchStores, StoreSelect, type Store } from '@/features/stores';
 import type { UserDto, UserUpdateRequestDto } from '@/features/users/model';
@@ -18,6 +19,7 @@ const form = reactive({
   storeId: props.user.storeId,
   isActive: props.user.isActive,
 });
+const { runGuardedSubmit } = useUnsavedChangesGuard({ source: () => form });
 const storeRoles: UserRole[] = ['store_manager', 'trainer'];
 onMounted(async () => {
   try {
@@ -35,12 +37,14 @@ async function submit() {
   saving.value = true;
   error.value = '';
   try {
-    await props.onSubmit({
-      name: form.name.trim(),
-      role: form.role,
-      storeId: storeRoles.includes(form.role) ? form.storeId : null,
-      isActive: form.isActive,
-    });
+    await runGuardedSubmit(() =>
+      props.onSubmit({
+        name: form.name.trim(),
+        role: form.role,
+        storeId: storeRoles.includes(form.role) ? form.storeId : null,
+        isActive: form.isActive,
+      }),
+    );
   } catch (cause) {
     error.value = getErrorMessage(cause, '保存用户失败');
   } finally {

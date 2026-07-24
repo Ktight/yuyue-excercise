@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import type { FeedbackFeeling, FeedbackWriteInput } from '../model';
 import FeelingSelector from './FeelingSelector.vue';
 
@@ -11,16 +12,25 @@ const feeling = ref<FeedbackFeeling>('moderate');
 const improvementNote = ref('');
 const comment = ref('');
 const submitting = ref(false);
+const { runGuardedSubmit } = useUnsavedChangesGuard({
+  source: () => ({
+    feeling: feeling.value,
+    improvementNote: improvementNote.value,
+    comment: comment.value,
+  }),
+});
 
 async function submit() {
   submitting.value = true;
   try {
-    await props.onSubmit({
-      classRecordId: props.classRecordId,
-      feeling: feeling.value,
-      improvementNote: improvementNote.value.trim(),
-      comment: comment.value.trim(),
-    });
+    await runGuardedSubmit(() =>
+      props.onSubmit({
+        classRecordId: props.classRecordId,
+        feeling: feeling.value,
+        improvementNote: improvementNote.value.trim(),
+        comment: comment.value.trim(),
+      }),
+    );
   } finally {
     submitting.value = false;
   }

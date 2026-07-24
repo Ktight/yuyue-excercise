@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { fetchStudents } from '@/features/students';
 import type { Student } from '@/features/students';
 import { getErrorMessage } from '@/shared/api';
@@ -23,6 +24,10 @@ const form = reactive<TrainingPlanWriteInput>({
   focusTags: p.initial?.focusTags ?? [],
   status: p.initial?.status ?? 'active',
 });
+const { runGuardedSubmit } = useUnsavedChangesGuard({
+  source: () => ({ form, tags: tags.value }),
+  enabled: () => !p.readonly,
+});
 onMounted(async () => {
   if (p.readonly) return;
   try {
@@ -39,13 +44,15 @@ async function submit() {
   busy.value = true;
   error.value = '';
   try {
-    await p.onSubmit({
-      ...form,
-      focusTags: tags.value
-        .split(/[、,，]/)
-        .map((x) => x.trim())
-        .filter(Boolean),
-    });
+    await runGuardedSubmit(() =>
+      p.onSubmit({
+        ...form,
+        focusTags: tags.value
+          .split(/[、,，]/)
+          .map((x) => x.trim())
+          .filter(Boolean),
+      }),
+    );
   } catch (cause) {
     error.value = getErrorMessage(cause, '训练计划保存失败');
   } finally {
