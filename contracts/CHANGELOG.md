@@ -1,5 +1,16 @@
 # Contract Changelog
 
+## CONTRACT-20260724-12
+
+- Released contract version `1.9.0` for the Phase 11 management dashboard and reminders.
+- Published only `/api/dashboards/admin/` for super administrators, company administrators and store managers; trainer and student dashboards are deferred.
+- Froze the Asia/Shanghai dashboard snapshot, four management metrics, seven-day zero-filled booking trend and today's schedule summaries.
+- Froze reminders as a standard paginated response with `unread_only` filtering before pagination, synchronized category/priority enums and allowlisted internal actions.
+- Froze one-way idempotent read/dismiss actions returning the complete updated reminder and 404 hiding for missing, expired and other-user IDs.
+- Accepted idempotent per-user state materialization on GET while requiring stable repeated-read semantics and counts.
+- Added schema-valid dashboard/reminder examples and promoted dashboards/reminders to `CONTRACT_READY / API_READY` after backend PR #7 and 59 backend tests passed.
+- Rebundled `openapi.yaml` exclusively from `contracts/src/**`.
+
 ## CONTRACT-20260723-11
 
 - Released contract version `1.8.0` for immutable student feedback and live stage-report previews.

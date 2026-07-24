@@ -51,5 +51,17 @@
     "easy": "轻松",
     "moderate": "适中",
     "hard": "吃力"
+  },
+  "ReminderCategory": {
+    "booking": "预约",
+    "attendance": "考勤",
+    "membership": "会员",
+    "training": "训练",
+    "system": "系统"
+  },
+  "ReminderPriority": {
+    "high": "高",
+    "normal": "普通",
+    "low": "低"
   }
 }

@@ -1,0 +1,34 @@
+{
+  "code": "OK",
+  "message": "",
+  "data": {
+    "generated_at": "2026-07-24T10:00:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "metrics": {
+      "today_classes": 2,
+      "today_bookings": 18,
+      "active_students": 42,
+      "pending_items": 3
+    },
+    "booking_trend": [
+      {"label": "2026-07-18", "value": 9},
+      {"label": "2026-07-19", "value": 0},
+      {"label": "2026-07-20", "value": 7},
+      {"label": "2026-07-21", "value": 11},
+      {"label": "2026-07-22", "value": 8},
+      {"label": "2026-07-23", "value": 10},
+      {"label": "2026-07-24", "value": 18}
+    ],
+    "today_schedules": [
+      {
+        "id": 101,
+        "time": "10:00",
+        "course_name": "核心瑜伽",
+        "trainer_name": "林教练",
+        "room_name": "一号教室",
+        "booked": 10,
+        "capacity": 12
+      }
+    ]
+  }
+}

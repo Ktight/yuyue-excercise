@@ -1,0 +1,16 @@
+{
+  "code": "OK",
+  "message": "",
+  "data": {
+    "id": 1,
+    "title": "课程已满员",
+    "message": "10:00 的课程已达到 12 人容量。",
+    "category": "booking",
+    "priority": "high",
+    "created_at": "2026-07-24T09:00:00+08:00",
+    "is_read": false,
+    "is_dismissed": true,
+    "action_label": "查看排课",
+    "action_to": "/admin/schedules/101"
+  }
+}

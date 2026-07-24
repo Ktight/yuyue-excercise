@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: 瑜悦练 API
-  version: 1.8.0
+  version: 1.9.0
   description: Project API contract. CONTRACT_READY/API_READY modules may be integrated; DRAFT modules are design and Mock
     only. See status.json.
 servers:
@@ -1732,98 +1732,29 @@ paths:
           $ref: '#/components/responses/Conflict'
   /api/dashboards/admin/:
     get:
-      operationId: getDashboardsAdmin
+      operationId: getAdminDashboard
       tags:
       - dashboards
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: global-or-company-store
+      description: Returns the management dashboard in Asia/Shanghai. Super administrators see global data, company administrators
+        see their company, and store managers see only their assigned store. Trainer and student dashboards are explicitly
+        deferred.
       responses:
         '200':
-          description: 成功
+          description: Management dashboard snapshot.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/AdminDashboardSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/dashboards/trainer/:
-    get:
-      operationId: getDashboardsTrainer
-      tags:
-      - dashboards
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/dashboards/student/:
-    get:
-      operationId: getDashboardsStudent
-      tags:
-      - dashboards
-      x-status: DRAFT
-      x-roles:
-      - super_admin
-      - company_admin
-      - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
-      responses:
-        '200':
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/ServerError'
   /api/feedback/:
@@ -1944,34 +1875,41 @@ paths:
           $ref: '#/components/responses/NotFound'
   /api/reminders/:
     get:
-      operationId: getReminders
+      operationId: listReminders
       tags:
       - reminders
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: global-or-company-store-and-user-state
+      description: Lists current derived reminders for the authenticated management user. Dismissed reminders are excluded.
+        Filtering is applied before pagination. The read may idempotently materialize per-user state; repeated reads do not
+        change response semantics or counts.
+      parameters:
+      - $ref: '#/components/parameters/PageParameter'
+      - $ref: '#/components/parameters/PageSizeParameter'
+      - name: unread_only
+        in: query
+        required: false
+        description: Return only reminders whose per-user state is unread.
+        schema:
+          type: boolean
+          default: false
       responses:
         '200':
-          description: 成功
+          description: Paginated reminders ordered by priority, creation time and ID.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftListSuccessResponse'
+                $ref: '#/components/schemas/ReminderListSuccessResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/ServerError'
   /api/reminders/{reminder_id}/read/:
@@ -1984,40 +1922,36 @@ paths:
         format: int64
         minimum: 1
     post:
-      operationId: postRemindersReminderIdRead
+      operationId: markReminderRead
       tags:
       - reminders
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: global-or-company-store-and-user-state
+      description: Idempotently marks one current reminder as read. Missing, expired or another user's reminder is hidden
+        behind the same 404 response.
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ReminderActionRequest'
       responses:
         '200':
-          description: 成功
+          description: Complete updated reminder.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/ReminderSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/ServerError'
   /api/reminders/{reminder_id}/dismiss/:
@@ -2030,40 +1964,36 @@ paths:
         format: int64
         minimum: 1
     post:
-      operationId: postRemindersReminderIdDismiss
+      operationId: dismissReminder
       tags:
       - reminders
-      x-status: DRAFT
+      x-status: API_READY
       x-roles:
       - super_admin
       - company_admin
       - store_manager
-      - trainer
-      x-tenant-scope: company
-      description: DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。
+      x-tenant-scope: global-or-company-store-and-user-state
+      description: Idempotently dismisses one current reminder. Dismiss is one-way in version 1.9.0. Missing, expired or another
+        user's reminder is hidden behind the same 404 response.
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftWriteRequest'
+              $ref: '#/components/schemas/ReminderActionRequest'
       responses:
         '200':
-          description: 成功
+          description: Complete updated reminder.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftSuccessResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/ReminderSuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/ServerError'
   /api/reports/:
@@ -3711,6 +3641,238 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    AdminDashboardMetrics:
+      type: object
+      additionalProperties: false
+      required:
+      - today_classes
+      - today_bookings
+      - active_students
+      - pending_items
+      properties:
+        today_classes:
+          type: integer
+          minimum: 0
+          description: Non-cancelled schedules on the current Asia/Shanghai date.
+        today_bookings:
+          type: integer
+          minimum: 0
+          description: Booked reservations on today's included schedules.
+        active_students:
+          type: integer
+          minimum: 0
+          description: Enabled students with an enabled membership in its valid date range; count and stored-value memberships
+            also require positive balance.
+        pending_items:
+          type: integer
+          minimum: 0
+          description: Current non-dismissed reminders that are unread for this user.
+    BookingTrendPoint:
+      type: object
+      additionalProperties: false
+      required:
+      - label
+      - value
+      properties:
+        label:
+          type: string
+          format: date
+          description: Asia/Shanghai calendar date.
+        value:
+          type: integer
+          minimum: 0
+    TodaySchedule:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - time
+      - course_name
+      - trainer_name
+      - room_name
+      - booked
+      - capacity
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+        course_name:
+          type: string
+        trainer_name:
+          type: string
+        room_name:
+          type: string
+        booked:
+          type: integer
+          minimum: 0
+        capacity:
+          type: integer
+          minimum: 1
+    AdminDashboardData:
+      type: object
+      additionalProperties: false
+      required:
+      - generated_at
+      - timezone
+      - metrics
+      - booking_trend
+      - today_schedules
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          enum:
+          - Asia/Shanghai
+        metrics:
+          $ref: '#/components/schemas/AdminDashboardMetrics'
+        booking_trend:
+          type: array
+          minItems: 7
+          maxItems: 7
+          description: Seven consecutive calendar dates ending today; missing dates are zero.
+          items:
+            $ref: '#/components/schemas/BookingTrendPoint'
+        today_schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/TodaySchedule'
+    AdminDashboardSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/AdminDashboardData'
+    ReminderCategory:
+      type: string
+      enum:
+      - booking
+      - attendance
+      - membership
+      - training
+      - system
+    ReminderPriority:
+      type: string
+      enum:
+      - high
+      - normal
+      - low
+    Reminder:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - title
+      - message
+      - category
+      - priority
+      - created_at
+      - is_read
+      - is_dismissed
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        title:
+          type: string
+        message:
+          type: string
+        category:
+          $ref: '#/components/schemas/ReminderCategory'
+        priority:
+          $ref: '#/components/schemas/ReminderPriority'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Time the per-user state for this derived reminder was first materialized.
+        is_read:
+          type: boolean
+        is_dismissed:
+          type: boolean
+        action_label:
+          type: string
+        action_to:
+          type: string
+          pattern: ^/admin/(schedules|attendance|students|training-plans|class-records)(/\d+)?$
+          description: Allowlisted internal route; external and arbitrary URLs are forbidden.
+    ReminderListData:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - page_size
+      - total
+      properties:
+        items:
+          type: array
+          description: Ordered high, normal, low; then created_at descending; then ID descending.
+          items:
+            $ref: '#/components/schemas/Reminder'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    ReminderListSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/ReminderListData'
+    ReminderSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - data
+      properties:
+        code:
+          type: string
+          enum:
+          - OK
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Reminder'
+    ReminderActionRequest:
+      type: object
+      additionalProperties: false
+      maxProperties: 0
     User:
       type: object
       additionalProperties: false
@@ -7006,81 +7168,6 @@ components:
           type: string
         data:
           $ref: '#/components/schemas/ReportPreview'
-    DashboardMetric:
-      type: object
-      additionalProperties: false
-      required:
-      - key
-      - value
-      - unit
-      - range_start
-      - range_end
-      - updated_at
-      properties:
-        key:
-          type: string
-        value:
-          type: string
-        unit:
-          type: string
-        range_start:
-          type: string
-          format: date
-        range_end:
-          type: string
-          format: date
-        updated_at:
-          type: string
-          format: date-time
-    Reminder:
-      type: object
-      additionalProperties: false
-      required:
-      - id
-      - company_id
-      - type
-      - severity
-      - status
-      - title
-      - message
-      - created_at
-      properties:
-        id:
-          type: integer
-          format: int64
-          minimum: 1
-          readOnly: true
-        company_id:
-          type: integer
-          format: int64
-          minimum: 1
-        type:
-          type: string
-          enum:
-          - membership_expiring
-          - inactive_student
-          - class_record_draft
-          - training_plan_overdue
-        severity:
-          type: string
-          enum:
-          - info
-          - warning
-          - critical
-        status:
-          type: string
-          enum:
-          - unread
-          - read
-          - dismissed
-        title:
-          type: string
-        message:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
     RecurringRule:
       type: object
       additionalProperties: false
@@ -8351,24 +8438,24 @@ components:
       schema:
         type: string
   responses:
-    Unauthorized:
-      description: 未认证或令牌无效
+    Conflict:
+      description: 唯一性或资源状态冲突
       content: &id001
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    ServerError:
-      description: 内部错误，不泄露 traceback 或配置
-      content: *id001
-    Forbidden:
-      description: 权限不足
-      content: *id001
-    Conflict:
-      description: 唯一性或资源状态冲突
-      content: *id001
     BadRequest:
       description: 请求参数或业务校验失败
       content: *id001
     NotFound:
       description: 资源不存在或为避免跨租户枚举而隐藏
+      content: *id001
+    Unauthorized:
+      description: 未认证或令牌无效
+      content: *id001
+    ServerError:
+      description: 内部错误，不泄露 traceback 或配置
+      content: *id001
+    Forbidden:
+      description: 权限不足
       content: *id001

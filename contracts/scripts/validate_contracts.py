@@ -229,6 +229,10 @@ def main():
         'reports/preview.success.json': 'ReportPreviewSuccessResponse',
         'reports/preview-empty.success.json': 'ReportPreviewSuccessResponse',
         'reports/preview-single.success.json': 'ReportPreviewSuccessResponse',
+        'dashboards/admin.success.json': 'AdminDashboardSuccessResponse',
+        'reminders/list.success.json': 'ReminderListSuccessResponse',
+        'reminders/read.success.json': 'ReminderSuccessResponse',
+        'reminders/dismiss.success.json': 'ReminderSuccessResponse',
     }
     for example in examples:
         value = json.loads(example.read_text(encoding='utf-8'))

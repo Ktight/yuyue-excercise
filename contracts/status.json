@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.8.0",
+  "contract_version": "1.9.0",
   "modules": {
     "system": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "auth": {"contract": "CONTRACT_READY", "api": "API_READY"},
@@ -19,8 +19,8 @@
     "training_plans": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "feedback": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "reports": {"contract": "CONTRACT_READY", "api": "API_READY"},
-    "dashboards": {"contract": "DRAFT", "api": "NOT_STARTED"},
-    "reminders": {"contract": "DRAFT", "api": "NOT_STARTED"},
+    "dashboards": {"contract": "CONTRACT_READY", "api": "API_READY"},
+    "reminders": {"contract": "CONTRACT_READY", "api": "API_READY"},
     "student_self_service": {"contract": "DRAFT", "api": "NOT_STARTED"}
   }
 }

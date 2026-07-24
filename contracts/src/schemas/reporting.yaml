@@ -230,29 +230,3 @@ ReportPreviewSuccessResponse:
     code: {type: string, enum: [OK]}
     message: {type: string}
     data: {$ref: '#/ReportPreview'}
-
-DashboardMetric:
-  type: object
-  additionalProperties: false
-  required: [key, value, unit, range_start, range_end, updated_at]
-  properties:
-    key: {type: string}
-    value: {type: string}
-    unit: {type: string}
-    range_start: {type: string, format: date}
-    range_end: {type: string, format: date}
-    updated_at: {type: string, format: date-time}
-
-Reminder:
-  type: object
-  additionalProperties: false
-  required: [id, company_id, type, severity, status, title, message, created_at]
-  properties:
-    id: {type: integer, format: int64, minimum: 1, readOnly: true}
-    company_id: {type: integer, format: int64, minimum: 1}
-    type: {type: string, enum: [membership_expiring, inactive_student, class_record_draft, training_plan_overdue]}
-    severity: {type: string, enum: [info, warning, critical]}
-    status: {type: string, enum: [unread, read, dismissed]}
-    title: {type: string}
-    message: {type: string}
-    created_at: {type: string, format: date-time, readOnly: true}
