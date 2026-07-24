@@ -1,7 +1,7 @@
 # 瑜悦练前端功能 00～20 完整审查
 
-审查日期：2026-07-23
-审查基线：`frontend/phase-11-dashboard-reminders`
+审查日期：2026-07-24
+审查基线：`frontend/frontend-quality-hardening`，基于 `origin/main` 提交 `2afbb75`
 后端/契约基线：GitHub `2e4e8dc`，contracts `1.8.0`
 
 ## 1. 总体结论
@@ -34,7 +34,7 @@
 | 17 数据看板 | `PROVISIONAL_UI_READY / MOCK_READY / CONTRACT_DRAFT` | 独立 dashboard 模块、指标卡、七日趋势、今日课程、适配器与 Mock 已完成；统计口径仍待冻结 |
 | 18 智能提醒 | `PROVISIONAL_UI_READY / MOCK_READY / CONTRACT_DRAFT` | 独立 reminders 模块、未读筛选、已读/忽略操作、适配器与 Mock 已完成；枚举、角色和动作语义待冻结 |
 | 19 学员端 | `PROVISIONAL_UI_READY / MOCK_READY / CONTRACT_DRAFT` | 聚合首页、课程发现、预约、考勤、训练历史/详情、训练计划/详情、完整档案、反馈和报告入口全部具备；草案字段集中在单一适配器 |
-| 20 测试打包部署 | `ENGINEERING_READY / ENV_PARTIALLY_BLOCKED` | 完整门禁、17 项 E2E、包体预算、PWA、Capacitor Android/iOS、Docker/Nginx 均已完成；APK、iOS Archive 和 Docker image 仅受本机环境阻塞 |
+| 20 测试打包部署 | `ENGINEERING_READY / ENV_PARTIALLY_BLOCKED` | 完整门禁、25 项 E2E、包体预算、PWA、Capacitor Android/iOS、Docker/Nginx 均已完成；APK、iOS Archive 和 Docker image 仅受本机环境阻塞 |
 
 ## 3. Phase 10 GitHub 对齐结果
 
@@ -76,10 +76,11 @@
 - ESLint：通过；
 - Prettier：通过；
 - 模块边界：452 个源文件通过；
-- Vitest：57 个测试文件、164 项测试通过；
+- Vitest：57 个测试文件、165 项测试通过；
 - Build：890 个模块转换成功；
-- 包体：最大 JS 分块 320.7 KiB，总 JS 775.3 KiB；
-- Playwright：17 项 E2E 通过；
+- 包体：最大 JS 分块 320.7 KiB，总 JS 775.4 KiB；
+- Playwright：25 项 E2E 通过；
+- 五角色导航与移动端审计覆盖 59 个桌面入口、22 个手机入口和 14 个越权路径；
 - Capacitor：Android/iOS 最新 Web 资源同步通过。
 
 ## 6. 后续优先级

@@ -86,12 +86,14 @@ onMounted(load);
 <style scoped>
 .search {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
 .search input,
 .search select {
   flex: 1;
+  min-width: 12rem;
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
@@ -105,5 +107,17 @@ button {
   color: var(--color-text-inverse);
   background: var(--color-brand);
   border: 0;
+}
+@media (max-width: 640px) {
+  .search {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .search input,
+  .search select,
+  .search button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 </style>
