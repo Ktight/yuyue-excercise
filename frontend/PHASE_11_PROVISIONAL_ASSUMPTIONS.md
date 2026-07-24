@@ -1,7 +1,10 @@
 # Phase 11 前端暂定假设台账
 
 更新日期：2026-07-24
-状态：`PROVISIONAL / CONTRACT_DRAFT`
+状态：`RESOLVED_BY_CONTRACT_1_9 / HISTORICAL_REFERENCE`
+
+> 2026-07-24 更新：官方 contracts 1.9.0 已通过提交 `a7fba3a` 冻结管理看板和提醒中心。
+> PA-11-01～03 已按正式契约替换，不再作为开发依据；学员自助阻塞仍有效。
 
 ## 边界
 

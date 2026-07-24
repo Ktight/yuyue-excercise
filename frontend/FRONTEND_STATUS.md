@@ -1,5 +1,23 @@
 # 瑜悦练前端工作状态
 
+## Phase 11 contracts 1.9.0 正式对齐（2026-07-24）
+
+当前状态：`CONTRACT_READY / API_READY / UI_READY / MOCK_READY / NOT_INTEGRATED`。
+
+- 独立分支直接建立在官方 `main@a7fba3a`，未夹带 PR #8；
+- 已生成正式 API 类型和提醒枚举；
+- 管理看板接入具名 Schema、生成时间、上海时区、正式指标和七日趋势；
+- 提醒中心接入服务端分页、`unread_only`、完整动作响应和内部路径白名单；
+- 忽略提醒增加不可撤销确认，操作失败保留页面上下文和结构化错误；
+- Mock、适配器测试与 E2E 已同步官方 contracts 1.9.0；
+- 完整 `check:all` 通过：452 个源文件边界、57 个测试文件共 165 项测试、
+  890 个模块构建；
+- Playwright 17/17 通过；最大 JS 分块 320.7 KiB，总 JS 778.5 KiB。
+
+本轮没有手工修改 `backend/**` 或 `contracts/**`。真实角色、双租户和错误矩阵尚未联调，
+因此不得标记 `INTEGRATED / VERIFIED`。详细记录见
+`PHASE_11_FRONTEND_CONTRACT_1_9_INTEGRATION.md`。
+
 ## Phase 1–8 商业化前端加固（2026-07-23）
 
 - Phase 5 学员创建/编辑移除门店、主教练内部 ID 输入和默认门店 `1`，改为可读选择器；停用资源只为既有记录保留显示，不允许新选。

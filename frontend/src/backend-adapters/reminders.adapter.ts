@@ -1,27 +1,17 @@
 import { httpClient } from '@/shared/api';
-import type { ReminderItem, ReminderCategory, ReminderPriority } from '@/features/reminders/model';
-interface DraftReminder {
-  id: number;
-  title: string;
-  message: string;
-  category: ReminderCategory;
-  priority: ReminderPriority;
-  created_at: string;
-  is_read: boolean;
-  is_dismissed: boolean;
-  action_label?: string;
-  action_to?: string;
-}
-function isDraftReminder(value: unknown): value is DraftReminder {
-  if (!value || typeof value !== 'object') return false;
-  const item = value as Partial<DraftReminder>;
-  return (
-    typeof item.id === 'number' &&
-    typeof item.title === 'string' &&
-    typeof item.message === 'string'
-  );
-}
-function mapReminder(item: DraftReminder): ReminderItem {
+import type { ReminderItem, ReminderPage, ReminderQuery } from '@/features/reminders/model';
+import type { components } from '@/generated/api-types';
+
+type ContractReminder = components['schemas']['Reminder'];
+type ReminderListSuccessResponse = components['schemas']['ReminderListSuccessResponse'];
+type ReminderSuccessResponse = components['schemas']['ReminderSuccessResponse'];
+
+const SAFE_ACTION_ROUTE =
+  /^\/admin\/(?:schedules|attendance|students|training-plans|class-records)(?:\/\d+)?$/;
+
+function mapReminder(item: ContractReminder): ReminderItem {
+  const hasSafeAction =
+    !!item.action_label && !!item.action_to && SAFE_ACTION_ROUTE.test(item.action_to);
   return {
     id: item.id,
     title: item.title,
@@ -31,19 +21,33 @@ function mapReminder(item: DraftReminder): ReminderItem {
     createdAt: item.created_at,
     read: item.is_read,
     dismissed: item.is_dismissed,
-    actionLabel: item.action_label,
-    actionTo: item.action_to,
+    ...(hasSafeAction ? { actionLabel: item.action_label, actionTo: item.action_to } : {}),
   };
 }
-export async function listReminders(): Promise<ReminderItem[]> {
-  const response = await httpClient.get<{ data: unknown }>('/reminders/');
-  if (!Array.isArray(response.data.data) || !response.data.data.every(isDraftReminder))
-    throw new Error('REMINDER_CONTRACT_MISMATCH');
-  return response.data.data.map(mapReminder);
+
+export async function listReminders(query: ReminderQuery = {}): Promise<ReminderPage> {
+  const response = await httpClient.get<ReminderListSuccessResponse>('/reminders/', {
+    params: {
+      page: query.page ?? 1,
+      page_size: query.pageSize ?? 20,
+      unread_only: query.unreadOnly ?? false,
+    },
+  });
+  const data = response.data.data;
+  return {
+    items: data.items.map(mapReminder),
+    page: data.page,
+    pageSize: data.page_size,
+    total: data.total,
+  };
 }
-export async function markReminderRead(id: number): Promise<void> {
-  await httpClient.post(`/reminders/${id}/read/`, {});
+
+export async function markReminderRead(id: number): Promise<ReminderItem> {
+  const response = await httpClient.post<ReminderSuccessResponse>(`/reminders/${id}/read/`, {});
+  return mapReminder(response.data.data);
 }
-export async function dismissReminder(id: number): Promise<void> {
-  await httpClient.post(`/reminders/${id}/dismiss/`, {});
+
+export async function dismissReminder(id: number): Promise<ReminderItem> {
+  const response = await httpClient.post<ReminderSuccessResponse>(`/reminders/${id}/dismiss/`, {});
+  return mapReminder(response.data.data);
 }

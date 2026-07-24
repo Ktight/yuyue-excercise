@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { AppEmpty } from '@/app/components';
+import { REMINDER_CATEGORY_LABELS, REMINDER_PRIORITY_LABELS } from '../model';
 import type { ReminderItem } from '../model';
-defineProps<{ items: ReminderItem[]; busyId?: number | null }>();
+defineProps<{ items: ReminderItem[]; busyId?: number | null; disabled?: boolean }>();
 const emit = defineEmits<{ read: [id: number]; dismiss: [id: number] }>();
-const priorityLabel = { high: '紧急', normal: '普通', low: '低' };
 </script>
 <template>
   <AppEmpty v-if="!items.length" description="当前没有待处理提醒" />
@@ -11,17 +11,33 @@ const priorityLabel = { high: '紧急', normal: '普通', low: '低' };
     <li v-for="item in items" :key="item.id" :class="{ unread: !item.read }">
       <div class="title">
         <strong>{{ item.title }}</strong
-        ><span :class="`priority ${item.priority}`">{{ priorityLabel[item.priority] }}</span>
+        ><span class="category">{{ REMINDER_CATEGORY_LABELS[item.category] }}</span
+        ><span :class="`priority ${item.priority}`">{{
+          REMINDER_PRIORITY_LABELS[item.priority]
+        }}</span>
       </div>
       <p>{{ item.message }}</p>
       <div class="footer">
         <time>{{ new Date(item.createdAt).toLocaleString('zh-CN') }}</time>
         <div>
-          <RouterLink v-if="item.actionTo" :to="item.actionTo">{{ item.actionLabel }}</RouterLink>
-          <button v-if="!item.read" :disabled="busyId === item.id" @click="emit('read', item.id)">
-            标为已读
+          <RouterLink v-if="item.actionTo && !disabled" :to="item.actionTo">{{
+            item.actionLabel
+          }}</RouterLink>
+          <button
+            v-if="!item.read"
+            type="button"
+            :disabled="disabled || busyId === item.id"
+            @click="emit('read', item.id)"
+          >
+            {{ busyId === item.id ? '处理中…' : '标为已读' }}
           </button>
-          <button :disabled="busyId === item.id" @click="emit('dismiss', item.id)">忽略</button>
+          <button
+            type="button"
+            :disabled="disabled || busyId === item.id"
+            @click="emit('dismiss', item.id)"
+          >
+            {{ busyId === item.id ? '处理中…' : '忽略' }}
+          </button>
         </div>
       </div>
     </li>
@@ -62,6 +78,11 @@ p {
   border-radius: var(--radius-full);
   background: var(--color-brand-light);
 }
+.category {
+  margin-left: auto;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+}
 .priority.high {
   color: var(--color-danger);
   background: #fff1f0;
@@ -86,6 +107,7 @@ button {
   cursor: pointer;
 }
 button:disabled {
+  cursor: not-allowed;
   opacity: 0.5;
 }
 @media (max-width: 640px) {

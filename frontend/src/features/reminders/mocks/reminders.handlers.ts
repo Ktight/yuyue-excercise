@@ -1,5 +1,11 @@
 import { http, HttpResponse } from 'msw';
-const items = [
+import type { components } from '@/generated/api-types';
+
+type ContractReminder = components['schemas']['Reminder'];
+type ReminderListSuccessResponse = components['schemas']['ReminderListSuccessResponse'];
+type ReminderSuccessResponse = components['schemas']['ReminderSuccessResponse'];
+
+const initialItems: ContractReminder[] = [
   {
     id: 1,
     title: '晚课即将满员',
@@ -37,22 +43,62 @@ const items = [
     action_to: '/admin/students',
   },
 ];
+
+let items: ContractReminder[] = [];
+
+export function resetReminderMockState(): void {
+  items = initialItems.map((item) => ({ ...item }));
+}
+
+resetReminderMockState();
+
 export const remindersHandlers = [
-  http.get('/api/reminders/', () =>
-    HttpResponse.json({
+  http.get('/api/reminders/', ({ request }) => {
+    const url = new URL(request.url);
+    const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
+    const pageSize = Math.max(1, Number(url.searchParams.get('page_size')) || 20);
+    const unreadOnly = url.searchParams.get('unread_only') === 'true';
+    const visible = items.filter((item) => !item.is_dismissed && (!unreadOnly || !item.is_read));
+    const start = (page - 1) * pageSize;
+    return HttpResponse.json<ReminderListSuccessResponse>({
       code: 'OK',
       message: '',
-      data: items.filter((item) => !item.is_dismissed),
-    }),
-  ),
+      data: {
+        items: visible.slice(start, start + pageSize),
+        page,
+        page_size: pageSize,
+        total: visible.length,
+      },
+    });
+  }),
   http.post('/api/reminders/:id/read/', ({ params }) => {
-    const item = items.find((v) => v.id === Number(params.id));
-    if (item) item.is_read = true;
-    return HttpResponse.json({ code: 'OK', message: '', data: item ?? null });
+    const item = items.find((value) => value.id === Number(params.id) && !value.is_dismissed);
+    if (!item) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '提醒不存在或已被忽略', data: null },
+        { status: 404 },
+      );
+    }
+    item.is_read = true;
+    return HttpResponse.json<ReminderSuccessResponse>({
+      code: 'OK',
+      message: '',
+      data: item,
+    });
   }),
   http.post('/api/reminders/:id/dismiss/', ({ params }) => {
-    const item = items.find((v) => v.id === Number(params.id));
-    if (item) item.is_dismissed = true;
-    return HttpResponse.json({ code: 'OK', message: '', data: item ?? null });
+    const item = items.find((value) => value.id === Number(params.id) && !value.is_dismissed);
+    if (!item) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '提醒不存在或已被忽略', data: null },
+        { status: 404 },
+      );
+    }
+    item.is_dismissed = true;
+    return HttpResponse.json<ReminderSuccessResponse>({
+      code: 'OK',
+      message: '',
+      data: item,
+    });
   }),
 ];

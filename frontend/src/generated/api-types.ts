@@ -578,42 +578,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getDashboardsAdmin'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/dashboards/trainer/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getDashboardsTrainer'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/dashboards/student/': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getDashboardsStudent'];
+    /** @description Returns the management dashboard in Asia/Shanghai. Super administrators see global data, company administrators see their company, and store managers see only their assigned store. Trainer and student dashboards are explicitly deferred. */
+    get: operations['getAdminDashboard'];
     put?: never;
     post?: never;
     delete?: never;
@@ -666,8 +632,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    get: operations['getReminders'];
+    /** @description Lists current derived reminders for the authenticated management user. Dismissed reminders are excluded. Filtering is applied before pagination. The read may idempotently materialize per-user state; repeated reads do not change response semantics or counts. */
+    get: operations['listReminders'];
     put?: never;
     post?: never;
     delete?: never;
@@ -687,8 +653,8 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postRemindersReminderIdRead'];
+    /** @description Idempotently marks one current reminder as read. Missing, expired or another user's reminder is hidden behind the same 404 response. */
+    post: operations['markReminderRead'];
     delete?: never;
     options?: never;
     head?: never;
@@ -706,8 +672,8 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** @description DRAFT：字段、权限边界和关键业务决策需在对应阶段冻结后方可联调。 */
-    post: operations['postRemindersReminderIdDismiss'];
+    /** @description Idempotently dismisses one current reminder. Dismiss is one-way in version 1.9.0. Missing, expired or another user's reminder is hidden behind the same 404 response. */
+    post: operations['dismissReminder'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1241,6 +1207,92 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    AdminDashboardMetrics: {
+      /** @description Non-cancelled schedules on the current Asia/Shanghai date. */
+      today_classes: number;
+      /** @description Booked reservations on today's included schedules. */
+      today_bookings: number;
+      /** @description Enabled students with an enabled membership in its valid date range; count and stored-value memberships also require positive balance. */
+      active_students: number;
+      /** @description Current non-dismissed reminders that are unread for this user. */
+      pending_items: number;
+    };
+    BookingTrendPoint: {
+      /**
+       * Format: date
+       * @description Asia/Shanghai calendar date.
+       */
+      label: string;
+      value: number;
+    };
+    TodaySchedule: {
+      /** Format: int64 */
+      id: number;
+      time: string;
+      course_name: string;
+      trainer_name: string;
+      room_name: string;
+      booked: number;
+      capacity: number;
+    };
+    AdminDashboardData: {
+      /** Format: date-time */
+      generated_at: string;
+      /** @enum {string} */
+      timezone: 'Asia/Shanghai';
+      metrics: components['schemas']['AdminDashboardMetrics'];
+      /** @description Seven consecutive calendar dates ending today; missing dates are zero. */
+      booking_trend: components['schemas']['BookingTrendPoint'][];
+      today_schedules: components['schemas']['TodaySchedule'][];
+    };
+    AdminDashboardSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['AdminDashboardData'];
+    };
+    /** @enum {string} */
+    ReminderCategory: 'booking' | 'attendance' | 'membership' | 'training' | 'system';
+    /** @enum {string} */
+    ReminderPriority: 'high' | 'normal' | 'low';
+    Reminder: {
+      /** Format: int64 */
+      readonly id: number;
+      title: string;
+      message: string;
+      category: components['schemas']['ReminderCategory'];
+      priority: components['schemas']['ReminderPriority'];
+      /**
+       * Format: date-time
+       * @description Time the per-user state for this derived reminder was first materialized.
+       */
+      readonly created_at: string;
+      is_read: boolean;
+      is_dismissed: boolean;
+      action_label?: string;
+      /** @description Allowlisted internal route; external and arbitrary URLs are forbidden. */
+      action_to?: string;
+    };
+    ReminderListData: {
+      /** @description Ordered high, normal, low; then created_at descending; then ID descending. */
+      items: components['schemas']['Reminder'][];
+      page: number;
+      page_size: number;
+      total: number;
+    };
+    ReminderListSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['ReminderListData'];
+    };
+    ReminderSuccessResponse: {
+      /** @enum {string} */
+      code: 'OK';
+      message: string;
+      data: components['schemas']['Reminder'];
+    };
+    ReminderActionRequest: Record<string, never>;
     User: {
       /** Format: int64 */
       readonly id: number;
@@ -2476,34 +2528,6 @@ export interface components {
       message: string;
       data: components['schemas']['ReportPreview'];
     };
-    DashboardMetric: {
-      key: string;
-      value: string;
-      unit: string;
-      /** Format: date */
-      range_start: string;
-      /** Format: date */
-      range_end: string;
-      /** Format: date-time */
-      updated_at: string;
-    };
-    Reminder: {
-      /** Format: int64 */
-      readonly id: number;
-      /** Format: int64 */
-      company_id: number;
-      /** @enum {string} */
-      type:
-        'membership_expiring' | 'inactive_student' | 'class_record_draft' | 'training_plan_overdue';
-      /** @enum {string} */
-      severity: 'info' | 'warning' | 'critical';
-      /** @enum {string} */
-      status: 'unread' | 'read' | 'dismissed';
-      title: string;
-      message: string;
-      /** Format: date-time */
-      readonly created_at: string;
-    };
     RecurringRule: {
       /** @description ISO weekday numbers where Monday is 1 and Sunday is 7. */
       weekdays: number[];
@@ -2974,33 +2998,6 @@ export interface components {
     };
   };
   responses: {
-    /** @description 未认证或令牌无效 */
-    Unauthorized: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
-    /** @description 内部错误，不泄露 traceback 或配置 */
-    ServerError: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
-    /** @description 权限不足 */
-    Forbidden: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['ErrorResponse'];
-      };
-    };
     /** @description 唯一性或资源状态冲突 */
     Conflict: {
       headers: {
@@ -3021,6 +3018,33 @@ export interface components {
     };
     /** @description 资源不存在或为避免跨租户枚举而隐藏 */
     NotFound: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 未认证或令牌无效 */
+    Unauthorized: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 内部错误，不泄露 traceback 或配置 */
+    ServerError: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description 权限不足 */
+    Forbidden: {
       headers: {
         [name: string]: unknown;
       };
@@ -4443,7 +4467,7 @@ export interface operations {
       409: components['responses']['Conflict'];
     };
   };
-  getDashboardsAdmin: {
+  getAdminDashboard: {
     parameters: {
       query?: never;
       header?: never;
@@ -4452,72 +4476,17 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Management dashboard snapshot. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['AdminDashboardSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getDashboardsTrainer: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      500: components['responses']['ServerError'];
-    };
-  };
-  getDashboardsStudent: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description 成功 */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
-        };
-      };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
       500: components['responses']['ServerError'];
     };
   };
@@ -4606,33 +4575,36 @@ export interface operations {
       404: components['responses']['NotFound'];
     };
   };
-  getReminders: {
+  listReminders: {
     parameters: {
-      query?: never;
+      query?: {
+        page?: components['parameters']['PageParameter'];
+        page_size?: components['parameters']['PageSizeParameter'];
+        /** @description Return only reminders whose per-user state is unread. */
+        unread_only?: boolean;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description 成功 */
+      /** @description Paginated reminders ordered by priority, creation time and ID. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftListSuccessResponse'];
+          'application/json': components['schemas']['ReminderListSuccessResponse'];
         };
       };
       400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
       500: components['responses']['ServerError'];
     };
   };
-  postRemindersReminderIdRead: {
+  markReminderRead: {
     parameters: {
       query?: never;
       header?: never;
@@ -4641,30 +4613,28 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody: {
+    requestBody?: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ReminderActionRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Complete updated reminder. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ReminderSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
       500: components['responses']['ServerError'];
     };
   };
-  postRemindersReminderIdDismiss: {
+  dismissReminder: {
     parameters: {
       query?: never;
       header?: never;
@@ -4673,26 +4643,24 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody: {
+    requestBody?: {
       content: {
-        'application/json': components['schemas']['DraftWriteRequest'];
+        'application/json': components['schemas']['ReminderActionRequest'];
       };
     };
     responses: {
-      /** @description 成功 */
+      /** @description Complete updated reminder. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DraftSuccessResponse'];
+          'application/json': components['schemas']['ReminderSuccessResponse'];
         };
       };
-      400: components['responses']['BadRequest'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
       500: components['responses']['ServerError'];
     };
   };
