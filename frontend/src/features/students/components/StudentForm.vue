@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { getErrorMessage } from '@/shared/api';
 import { toLocalDateInputValue } from '@/shared/date';
 import type { Student, StudentCreateInput, StudentUpdateInput } from '@/features/students/model';
@@ -37,6 +38,7 @@ const form = reactive({
   trainingGoal: props.initial?.trainingGoal ?? '',
   preferredStyle: props.initial?.preferredStyle ?? '',
 });
+const { runGuardedSubmit } = useUnsavedChangesGuard({ source: () => form });
 async function submit() {
   if (!form.homeStoreId) {
     error.value = '请选择所属门店';
@@ -61,25 +63,27 @@ async function submit() {
       trainingGoal: form.trainingGoal,
       preferredStyle: form.preferredStyle,
     };
-    await props.onSubmit(
-      props.initial
-        ? profile
-        : ({
-            ...profile,
-            name: form.name,
-            phone: form.phone,
-            password: form.password || undefined,
-            membershipType: form.membershipType,
-            membershipStartsOn: form.membershipStartsOn,
-            membershipExpiresOn: form.membershipExpiresOn,
-            membershipBalance:
-              form.membershipType === 'count'
-                ? Number(form.remainingCount)
-                : form.membershipType === 'stored'
-                  ? Math.round(Number(form.balanceYuan) * 100)
-                  : 0,
-            membershipActive: form.membershipActive,
-          } as StudentCreateInput),
+    await runGuardedSubmit(() =>
+      props.onSubmit(
+        props.initial
+          ? profile
+          : ({
+              ...profile,
+              name: form.name,
+              phone: form.phone,
+              password: form.password || undefined,
+              membershipType: form.membershipType,
+              membershipStartsOn: form.membershipStartsOn,
+              membershipExpiresOn: form.membershipExpiresOn,
+              membershipBalance:
+                form.membershipType === 'count'
+                  ? Number(form.remainingCount)
+                  : form.membershipType === 'stored'
+                    ? Math.round(Number(form.balanceYuan) * 100)
+                    : 0,
+              membershipActive: form.membershipActive,
+            } as StudentCreateInput),
+      ),
     );
   } catch (cause) {
     error.value = getErrorMessage(cause, '保存失败，请检查表单或稍后重试');

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { getErrorMessage } from '@/shared/api';
 import { toLocalDateInputValue } from '@/shared/date';
 import type { BodyAssessment, BodyAssessmentWriteInput } from '@/features/body-assessments/model';
@@ -21,11 +22,12 @@ const form = reactive({
   postureShoulder: props.initial?.postureShoulder ?? '',
   notes: props.initial?.notes ?? '',
 });
+const { runGuardedSubmit } = useUnsavedChangesGuard({ source: () => form });
 async function save() {
   saving.value = true;
   error.value = '';
   try {
-    await props.onSubmit({ studentId: props.studentId, ...form });
+    await runGuardedSubmit(() => props.onSubmit({ studentId: props.studentId, ...form }));
   } catch (cause) {
     error.value = getErrorMessage(cause, '评估保存失败');
   } finally {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { getErrorMessage } from '@/shared/api';
 import { ClassTemplateWorkflow, PoseSequenceEditor } from '@/features/class-templates';
 import type { ClassTemplate } from '@/features/class-templates';
@@ -31,6 +32,10 @@ const form = reactive<ClassRecordWriteInput>({
   error = ref('');
 const selectedStudentUserId = ref<number>();
 const selectedScheduleId = ref<number | null>(p.initial?.scheduleId ?? null);
+const { runGuardedSubmit } = useUnsavedChangesGuard({
+  source: () => ({ form, tags: tags.value }),
+  enabled: () => !p.readonly,
+});
 function applyTemplate(template: ClassTemplate) {
   form.poseSequence = structuredClone(template.poseSequence);
   form.trainerNotes = template.notesTemplate;
@@ -43,13 +48,15 @@ async function submit() {
   }
   busy.value = true;
   try {
-    await p.onSubmit({
-      ...form,
-      improvementTags: tags.value
-        .split(/[、,，]/)
-        .map((x) => x.trim())
-        .filter(Boolean),
-    });
+    await runGuardedSubmit(() =>
+      p.onSubmit({
+        ...form,
+        improvementTags: tags.value
+          .split(/[、,，]/)
+          .map((x) => x.trim())
+          .filter(Boolean),
+      }),
+    );
   } catch (cause) {
     error.value = getErrorMessage(cause, '课堂记录保存失败');
   } finally {

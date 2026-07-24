@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { ApiError } from '@/shared/api';
 import type { Room, RoomWriteInput } from '../model';
 import { validateRoom } from '../model';
@@ -14,6 +15,7 @@ const form = reactive({
   capacity: props.initial?.capacity ?? 1,
   facilitiesText: props.initial?.facilities.join('、') ?? '',
 });
+const { runGuardedSubmit } = useUnsavedChangesGuard({ source: () => form });
 const error = ref('');
 const submitting = ref(false);
 async function submit() {
@@ -34,7 +36,7 @@ async function submit() {
   submitting.value = true;
   error.value = '';
   try {
-    await props.onSubmit(value);
+    await runGuardedSubmit(() => props.onSubmit(value));
     emit('success');
   } catch (cause) {
     error.value = cause instanceof ApiError ? cause.message : '保存失败';

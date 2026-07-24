@@ -1,5 +1,18 @@
 # 瑜悦练前端工作状态
 
+## 商业表单未保存保护（2026-07-24）
+
+当前状态：`IMPLEMENTED / UNIT_TESTED / E2E_TESTED / REAL_API_INDEPENDENT`。
+
+- 新增应用级 `useUnsavedChangesGuard`，集中处理路由离开、浏览器刷新/关闭和保存期间放行；
+- 已接入公司、门店、教室、课程模板、学员、体测、排课、课堂记录、课堂模板、训练计划、用户创建/编辑和反馈等 13 个高价值表单；
+- 保存成功后刷新基线，保存失败继续保持脏状态，避免失败请求导致保护提前失效；
+- 使用现有应用确认服务，不引入页面级原生确认框或后端字段耦合；
+- 模块边界检查通过（455 个源文件），新增单元测试 3/3、Playwright 场景 1/1、生产构建和包体门禁通过；
+- 本机 `.env.local` 开启 Mock，导致“Mock 默认关闭”基线测试在未覆盖环境变量时按预期失败；交付验证需使用 `VITE_ENABLE_MOCK=false`。
+
+本功能不修改 `backend/**` 或 `contracts/**`，也不增加后端依赖。
+
 ## Phase 11 contracts 1.9.0 正式对齐（2026-07-24）
 
 当前状态：`CONTRACT_READY / API_READY / UI_READY / MOCK_READY / NOT_INTEGRATED`。

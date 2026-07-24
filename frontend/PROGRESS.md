@@ -5,7 +5,7 @@
 
 ## 1. 当前结论
 
-- 当前分支：`frontend/phase-11-contract-1.9-clean`
+- 当前分支：`frontend/unsaved-form-protection`（基于 Phase 11 独立交付分支）
 - 前端功能基线：`49cdab0 feat(frontend): complete frontend-only delivery`
 - 当前准确状态：`FRONTEND_DEMO_COMPLETE / MOCK_READY / AUTOMATED_CHECKS_PASSED / REAL_API_NOT_FULLY_VERIFIED`
 - Phase 1～11 及功能 00～20 的纯前端范围已经收口，可在 Mock 模式下完整演示。
@@ -15,6 +15,7 @@
 - 当前 Phase 11 分支直接建立在最新 `origin/main@a7fba3a` 上，未夹带仍在审查的 PR #8。
 - GitHub 没有为 PR #5 报告自动化检查；合并后已在本地重新执行完整质量门禁和 E2E。
 - Phase 11 后端实现与官方 contracts 1.9.0 已进入主线，前端正式适配已经完成。
+- 13 个关键业务表单已接入统一未保存离开保护；路由离开、浏览器关闭、保存成功和保存失败边界均已覆盖。
 - 仓库根目录仍有两个来源不明的未跟踪文件，不属于前端交付，禁止使用 `git add .` 将其带入提交。
 
 ## 2. 已完成事项
@@ -48,6 +49,7 @@
 
 - 补齐超级管理员、公司管理员、店长、训练师和学员五角色 Mock 登录。
 - 补齐排课周视图、预约详情、身体评估对比、角色感知 404 和学员导航。
+- 补齐 13 个高价值表单的未保存离开保护，并复用应用级确认服务。
 - 完成 PWA、Docker/Nginx、包体预算和 Capacitor Android/iOS 工程。
 
 ## 3. 关键决策

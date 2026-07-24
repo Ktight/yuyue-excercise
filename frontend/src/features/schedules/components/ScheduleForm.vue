@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { toLocalDateInputValue } from '@/shared/date';
 import { getErrorMessage } from '@/shared/api';
 import type { Schedule, ScheduleWriteInput } from '@/features/schedules/model';
@@ -25,6 +26,7 @@ const form = reactive({
   weeks: props.initial?.recurringRule?.weeks ?? 1,
   status: props.initial?.status ?? 'published',
 });
+const { runGuardedSubmit } = useUnsavedChangesGuard({ source: () => form });
 async function submit() {
   if (!form.storeId || !form.roomId || !form.courseTemplateId || !form.trainerId) {
     error.value = '请选择完整的门店、教室、课程和教练';
@@ -45,23 +47,25 @@ async function submit() {
   saving.value = true;
   error.value = '';
   try {
-    await props.onSubmit({
-      storeId: Number(form.storeId),
-      roomId: Number(form.roomId),
-      courseTemplateId: Number(form.courseTemplateId),
-      trainerId: Number(form.trainerId),
-      courseDate: form.courseDate,
-      startTime: `${form.startTime}:00`,
-      endTime: `${form.endTime}:00`,
-      capacity: Number(form.capacity),
-      bookingDeadline: form.bookingDeadline ? new Date(form.bookingDeadline).toISOString() : null,
-      scheduleMode: form.scheduleMode,
-      recurringRule:
-        form.scheduleMode === 'recurring'
-          ? { weekdays: form.weekdays.map(Number), weeks: Number(form.weeks) }
-          : null,
-      status: form.status,
-    });
+    await runGuardedSubmit(() =>
+      props.onSubmit({
+        storeId: Number(form.storeId),
+        roomId: Number(form.roomId),
+        courseTemplateId: Number(form.courseTemplateId),
+        trainerId: Number(form.trainerId),
+        courseDate: form.courseDate,
+        startTime: `${form.startTime}:00`,
+        endTime: `${form.endTime}:00`,
+        capacity: Number(form.capacity),
+        bookingDeadline: form.bookingDeadline ? new Date(form.bookingDeadline).toISOString() : null,
+        scheduleMode: form.scheduleMode,
+        recurringRule:
+          form.scheduleMode === 'recurring'
+            ? { weekdays: form.weekdays.map(Number), weeks: Number(form.weeks) }
+            : null,
+        status: form.status,
+      }),
+    );
   } catch (cause) {
     error.value = getErrorMessage(cause, '保存失败，请检查冲突、时间和容量');
   } finally {

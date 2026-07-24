@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { useUnsavedChangesGuard } from '@/app/composables';
 import { ApiError } from '@/shared/api';
 import type { Store, StoreWriteInput } from '../model';
 import { validateStore } from '../model';
@@ -15,6 +16,7 @@ const form = reactive<StoreWriteInput>({
   businessHours: props.initial?.businessHours ?? '07:00-22:00',
   status: props.initial?.status ?? 'active',
 });
+const { runGuardedSubmit } = useUnsavedChangesGuard({ source: () => form });
 const error = ref('');
 const submitting = ref(false);
 async function submit() {
@@ -26,13 +28,15 @@ async function submit() {
   submitting.value = true;
   error.value = '';
   try {
-    await props.onSubmit({
-      ...form,
-      name: form.name.trim(),
-      address: form.address.trim(),
-      phone: form.phone.trim(),
-      businessHours: form.businessHours.trim(),
-    });
+    await runGuardedSubmit(() =>
+      props.onSubmit({
+        ...form,
+        name: form.name.trim(),
+        address: form.address.trim(),
+        phone: form.phone.trim(),
+        businessHours: form.businessHours.trim(),
+      }),
+    );
     emit('success');
   } catch (cause) {
     error.value = cause instanceof ApiError ? cause.message : '保存失败';
