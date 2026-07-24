@@ -36,8 +36,8 @@
 
 | 编号 | 能力 | 当前前端位置 | 后端必须交付 | 交付后的修改 |
 |---|---|---|---|---|
-| BE-FE-16 | 管理/教练/学员看板 | `dashboard.adapter.ts`、`features/dashboard` | 正式 Schema、时区、指标口径、租户/门店范围、趋势粒度 | 替换 adapter 的 Draft payload，更新 Mock 与测试；页面不改 |
-| BE-FE-17 | 提醒中心 | `reminders.adapter.ts`、`features/reminders` | 分类/优先级枚举、分页排序、角色、动作链接白名单、已读/忽略幂等规则 | 替换 adapter，生成枚举，更新 Mock 与测试；页面不改 |
+| BE-FE-16 | 管理看板；trainer/student 待正式裁决 | `dashboard.adapter.ts`、`features/dashboard` | 候选后端已实现 admin；仍需具名正式 Schema、`timezone`、指标口径、租户/门店范围和趋势粒度，并提供远程提交号 | 契约冻结后替换 adapter 的 Draft payload，更新 Mock 与测试；页面 ViewModel 原则上不改 |
+| BE-FE-17 | 提醒中心 | `reminders.adapter.ts`、`features/reminders` | 候选后端已实现分页列表及幂等动作；仍需冻结分页、`unread_only`、枚举、排序、角色、动作白名单和状态语义，并提供远程提交号 | 映射分页和动作响应，增加服务端未读筛选、分页 UI、路径白名单、Mock 与测试 |
 | BE-FE-18 | 学员聚合首页 | `student-self-service.adapter.ts`、`StudentSelfHomePage.vue`、稳定 ViewModel 与 Mock 已完成 | `/student/home/` 正式 Schema、空状态、推荐规则、统计口径和时区 | 只替换 self-service adapter、Mock 与测试；首页组件不改 |
 | BE-FE-19 | 学员训练历史 | 列表、日期筛选、分页、详情、体式、作业、反馈入口和媒体空状态已完成 | `/student/class-records/` 正式列表/详情、分页、排序、反馈关联和媒体可见范围 | 替换 self-service adapter 的 history/record 映射；页面不复用管理权限 |
 | BE-FE-20 | 学员训练计划 | 列表、状态筛选、进度卡和只读详情已完成 | `/student/training-plans/` 正式列表/详情、进度口径和状态可见范围 | 替换 self-service adapter 的 plan 映射；页面保持只读 |
@@ -46,6 +46,16 @@
 | BE-FE-23 | 媒体/图片上传 | `AppImageUploader`、`ClassMediaPanel` | 上传凭证、MIME/大小、缩略图、病毒扫描、删除与保留规则 | 实现上传 service 并注入组件；业务页面不直接上传 |
 | BE-FE-24 | 报告保存/分享/后端导出 | 当前仅实时预览与浏览器打印 | 若后续支持，冻结保存、发布、导出任务和分享链接生命周期 | 新增 report delivery adapter；当前禁用入口保持不变 |
 | BE-FE-25 | 安全会话升级 | `auth.adapter.ts`、`token-storage.ts` | HttpOnly Cookie、CSRF、CSP、刷新撤销与兼容发布方案 | 按联合方案替换 token 存储；不可单方面修改 |
+
+## Phase 11 后端候选交接状态（2026-07-24）
+
+- 后端候选实现自述状态：`IMPLEMENTED / TESTED / AWAITING_CONTRACT_FREEZE`。
+- 当前远程事实状态：contracts 1.8.0 中 `dashboards/reminders` 仍为
+  `DRAFT / NOT_STARTED`，远程分支未发现候选后端提交。
+- 管理看板候选结构可被当前暂定 adapter 基本识别，但这不构成正式兼容证据。
+- 提醒候选返回分页对象，当前 adapter 读取扁平数组，直接联调必然失败。
+- 前端不按候选实现提前修改代码；一次性冻结建议见
+  `PHASE_11_CONTRACT_DECISION_RESPONSE.md`。
 
 ## 每次后端交付后的固定验收
 
