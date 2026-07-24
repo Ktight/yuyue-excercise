@@ -12,7 +12,7 @@
 - `origin/main` 仍以 contracts 1.8.0 为正式基线；
 - `contracts/status.json` 中 `dashboards`、`reminders` 仍为
   `DRAFT / NOT_STARTED`；
-- 当前远程分支中没有可见的 Phase 11 后端候选提交；
+- Phase 11 后端候选提交 `66b6dce` 已通过 PR #7 合入 `main`，具备可追溯实现；
 - 管理看板候选响应与当前暂定 ViewModel 基本一致，但 `timezone` 尚未进入正式类型；
 - 提醒候选响应为分页对象，当前 adapter 期待扁平数组，直接联调必然触发
   `REMINDER_CONTRACT_MISMATCH`；
@@ -49,7 +49,8 @@
 6. read/dismiss 成功响应绑定完整 `Reminder`，请求体允许 `{}`。
 7. 更新 `contracts/status.json`；只有 Schema 冻结后才能标记 `CONTRACT_READY`，
    只有对应后端提交可获取且回归通过后才能标记 `API_READY`。
-8. 后端候选代码、迁移和交接文档必须进入远程分支或 `main`，提供可追溯提交号。
+8. 后端候选代码、迁移和交接文档已以 `66b6dce` 进入 `main`；契约冻结时必须继续
+   保留实现提交、契约版本和生成结果之间的可追溯关系。
 
 ## 4. 冻结后的前端集中修改
 
