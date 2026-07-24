@@ -1,16 +1,18 @@
 # 瑜悦练前端主动维护交接文档
 
 更新时间：2026-07-24
-事实基线：前端提交 `49cdab0`，contracts `1.8.0`
+事实基线：前端功能提交 `49cdab0`，contracts `1.8.0`
 
 ## 1. 当前结论
 
 - 当前分支：`frontend/phase-11-dashboard-reminders`
-- 最新本地提交：`49cdab0 feat(frontend): complete frontend-only delivery`
+- 前端功能基线：`49cdab0 feat(frontend): complete frontend-only delivery`
 - 当前准确状态：`FRONTEND_DEMO_COMPLETE / MOCK_READY / AUTOMATED_CHECKS_PASSED / REAL_API_NOT_FULLY_VERIFIED`
 - Phase 1～11 及功能 00～20 的纯前端范围已经收口，可在 Mock 模式下完整演示。
 - Phase 9、10 已按正式 contracts 1.7.0/1.8.0 对齐；Phase 11 看板、提醒和学员自助仍依赖草案契约。
-- 当前分支尚未设置远程上游；本轮提交和 PR 的远程交付状态需要在推送后再次确认。
+- 当前分支已推送至 `origin/frontend/phase-11-dashboard-reminders` 并设置远程上游。
+- PR [#5](https://github.com/Ktight/yuyue-excercise/pull/5) 已创建，目标分支为 `main`；检查时状态为 `OPEN / MERGEABLE / CLEAN`。
+- GitHub 当前没有为该分支报告自动化检查，合并前需要结合本地质量证据进行人工审查。
 - 仓库根目录仍有两个来源不明的未跟踪文件，不属于前端交付，禁止使用 `git add .` 将其带入提交。
 
 ## 2. 已完成事项
@@ -96,11 +98,12 @@
 
 ### A. 当前分支安全交付
 
-1. 执行 `git fetch origin`，确认 `origin/main` 是否有新增提交。
-2. 如有新增提交，先审查并安全合并；如无，继续。
-3. 只推送 `frontend/phase-11-dashboard-reminders`，不要暂存两个异常根目录文件。
-4. 创建以 `main` 为目标分支的前端 PR。
-5. 检查 PR 文件范围只能包含授权的前端内容。
+- [x] 执行 `git fetch origin`，确认当前分支已包含 `origin/main`。
+- [x] 只推送 `frontend/phase-11-dashboard-reminders`，未暂存两个异常根目录文件。
+- [x] 创建以 `main` 为目标分支的 PR #5。
+- [x] 检查 PR 文件范围，确认全部位于 `frontend/**`。
+- [ ] 等待协作者审查；GitHub 当前没有报告 CI 检查。
+- [ ] 审查通过后由仓库维护者决定是否合并，不在本地直接修改 `main`。
 
 ### B. 后端契约交付后
 
